@@ -10,9 +10,9 @@ This action is intended to wrap Github actions based on NodeJS interpreter.
 
 **Required** The name of the Github action.
 
-### `options`
+### `with`
 
-An options map for Github action.
+An options map for Github action. It is a multiline string with pairs `key - value`.
 
 ### `attempt_limit`
 
@@ -25,10 +25,10 @@ Depends on output of given Github action.
 ## Example usage
 
 ```yaml
-uses: actions/wrerun.action@v1
+uses: Wandalen/wrerun.action@bbb9aecb9c675a9d0438a070cb42657a8125f4aa
 with:
   action: action/node-setup@2.3.0
-  with:
+  with: |
     node-version: 14.x
   attempt_limit: 3
 ```
