@@ -1,0 +1,32 @@
+{
+  "name": "wretry.action",
+  "version": "0.1.0",
+  "description": "Retries an Github Action step on failure",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dmvict/wretry.action"
+  },
+  "keywords": [
+    "action",
+    "retry",
+    "github",
+    "workflow"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dmvict/wretry.action/issues"
+  },
+  "homepage": "https://github.com/dmvict/wretry.action#readme",
+  "dependencies": {
+    "@actions/core": "^1.1.0",
+    "wgittools": "latest"
+  },
+  "devDependencies": {
+    "wTesting": "latest"
+  }
+}

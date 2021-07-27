@@ -1,0 +1,36 @@
+{
+  "name": "wretry.action",
+  "version": "0.1.0",
+  "description": "Retries an Github Action step on failure",
+  "author": "Kostiantyn Wandalen <wanalen@01.school>",
+  "contributors": [
+    "Kostiantyn Wandalen <wanalen@01.school>",
+    "Dmytro Kryvoruchko <dm.vict.kr@gmail.com>"
+  ],
+  "license": "MIT",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "wtest .run \"test/**\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Wandalen/wretry.action-1"
+  },
+  "bugs": {
+    "url": "https://github.com/Wandalen/wretry.action-1/issues"
+  },
+  "homepage": "https://github.com/Wandalen/wretry.action#readme",
+  "dependencies": {
+    "@actions/core": "^1.4.0",
+    "wgittools": ""
+  },
+  "devDependencies": {
+    "wTesting": ""
+  },
+  "keywords": [
+    "action",
+    "retry",
+    "github",
+    "workflow"
+  ]
+}
