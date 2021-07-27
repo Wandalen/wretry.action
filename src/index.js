@@ -54,7 +54,8 @@ try
 }
 catch( error )
 {
-  core.setFailed( error.message );
+  _.error.attend( error );
+  core.setFailed( _.error.brief( error.message ) );
 }
 
 /* */
