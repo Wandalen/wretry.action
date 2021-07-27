@@ -17,17 +17,38 @@ const core = require( '@actions/core' );
 // test
 // --
 
-function trivial( test )
+function retryWithOptionAttemptLimit( test )
 {
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/dmvict/wretry.action.git';
+  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
 
   const testAction = 'dmvict/test.action@v0.0.2';
+  actionSetup();
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'default number of attempts';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_WITH`, 'value : 0' );
+    return null;
+  });
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/index.js' ) }` });
+  a.ready.then( ( op ) =>
+  {
+    test.notIdentical( op.exitCode, 0 );
+    test.ge( _.strCount( op.output, '::set-env' ), 2 );
+    test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 2 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 2 attempts/ ), 1 );
+    test.identical( _.strCount( op.output, 'Success' ), 0 );
+    return null;
+  });
 
   /* */
-
-  begin().then( () =>
+  a.ready.then( () =>
   {
     test.case = 'not enought attempts';
     core.exportVariable( `INPUT_ACTION`, testAction );
@@ -39,15 +60,43 @@ function trivial( test )
   a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/index.js' ) }` });
   a.ready.then( ( op ) =>
   {
-    test.identical( op.exitCode, 0 );
-    debugger;
+    test.notIdentical( op.exitCode, 0 );
+    test.ge( _.strCount( op.output, '::set-env' ), 3 );
+    test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 1 );
+    test.identical( _.strCount( op.output, 'Success' ), 0 );
     return null;
   });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'enought attempts';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_WITH`, 'value : 0' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/index.js' ) }` });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.ge( _.strCount( op.output, '::set-env' ), 3 );
+    test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, 'Success' ), 1 );
+    return null;
+  });
+
+  /* - */
+
   return a.ready;
 
   /* */
 
-  function begin()
+  function actionSetup()
   {
     a.ready.then( () =>
     {
@@ -60,7 +109,7 @@ function trivial( test )
   }
 }
 
-trivial.timeOut = 60000;
+retryWithOptionAttemptLimit.timeOut = 60000;
 
 // --
 // declare
@@ -73,9 +122,11 @@ const Proto =
 
   tests :
   {
-    trivial
+    retryWithOptionAttemptLimit,
   },
 };
+
+//
 
 const Self = wTestSuite( Proto );
 if( typeof module !== 'undefined' && !module.parent )
