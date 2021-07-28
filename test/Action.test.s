@@ -17,6 +17,58 @@ const core = require( '@actions/core' );
 // test
 // --
 
+function retryFetchActionWithoutTagOrHash( test )
+{
+  const a = test.assetFor( false );
+  const actionRepo = 'https://github.com/dmvict/wretry.action.git';
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+
+  const testAction = 'dmvict/test.action';
+  actionSetup();
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'enought attempts';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_WITH`, 'value : 0' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/Index.js' ) }` });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.ge( _.strCount( op.output, '::set-env' ), 3 );
+    test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, 'Success' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.shell( `git clone ${ actionRepo } ${ actionPath }` );
+    return a.ready;
+  }
+}
+
+//
+
 function retryFetchActionWithTag( test )
 {
   const a = test.assetFor( false );
@@ -175,6 +227,7 @@ const Proto =
 
   tests :
   {
+    retryFetchActionWithoutTagOrHash,
     retryFetchActionWithTag,
     retryWithOptionAttemptLimit,
   },
