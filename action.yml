@@ -13,7 +13,7 @@ inputs:
     required: false
     default: 2
   attempt_delay:
-    description: 'A delay between attempts'
+    description: 'A delay between attempts in ms'
     required: false
     default: 0
 runs:

@@ -18,6 +18,10 @@ An options map for Github action. It is a multiline string with pairs `key - val
 
 Set number of attempts. Default is 2.
 
+### `attempt_delay`
+
+Set delay between attempts in ms. Default is 0.
+
 ## Outputs
 
 Depends on output of given Github action.
@@ -30,5 +34,7 @@ with:
   action: action/node-setup@2.3.0
   with: |
     node-version: 14.x
+    architecture: x64
   attempt_limit: 3
+  attempt_delay: 2000
 ```
