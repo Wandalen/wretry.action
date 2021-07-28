@@ -1,4 +1,4 @@
-( function _action_test_s_()
+( function _Action_test_s_()
 {
 
 'use strict';
@@ -288,13 +288,94 @@ function retryWithOptionAttemptLimit( test )
 
 retryWithOptionAttemptLimit.timeOut = 60000;
 
+//
+
+function retryWithOptionAttemptDelay( test )
+{
+  const a = test.assetFor( false );
+  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const testAction = 'dmvict/test.action@v0.0.2';
+  actionSetup();
+
+  /* - */
+
+  var start;
+  a.ready.then( () =>
+  {
+    test.case = 'enought attempts, default value of attempt_delay';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_WITH`, 'value : 0' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    start = _.time.now();
+    return null;
+  });
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/Index.js' ) }` });
+  a.ready.then( ( op ) =>
+  {
+    var spent = _.time.now() - start;
+    test.le( spent, 3500 );
+    test.identical( op.exitCode, 0 );
+    test.ge( _.strCount( op.output, '::set-env' ), 3 );
+    test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, 'Success' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'enought attempts, not default value of attempt_delay';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_WITH`, 'value : 0' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    core.exportVariable( `INPUT_ATTEMPT_DELAY`, '2000' );
+    start = _.time.now();
+    return null;
+  });
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/Index.js' ) }` });
+  a.ready.then( ( op ) =>
+  {
+    var spent = _.time.now() - start;
+    test.ge( spent, 6000 );
+    test.identical( op.exitCode, 0 );
+    test.ge( _.strCount( op.output, '::set-env' ), 3 );
+    test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, 'Success' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.shell( `git clone ${ actionRepo } ${ actionPath }` );
+    return a.ready;
+  }
+}
+
 // --
 // declare
 // --
 
 const Proto =
 {
-  name : 'action',
+  name : 'Action',
   silencing : 1,
   routineTimeOut : 30000,
 
@@ -305,6 +386,7 @@ const Proto =
     retryFetchActionWithHash,
 
     retryWithOptionAttemptLimit,
+    retryWithOptionAttemptDelay,
   },
 };
 
