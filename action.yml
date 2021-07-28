@@ -12,6 +12,10 @@ inputs:
     description: 'Number of attempts'
     required: false
     default: 2
+  attempt_delay:
+    description: 'A delay between attempts'
+    required: false
+    default: 0
 runs:
   using: 'node12'
   main: 'src/Index.js'

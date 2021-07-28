@@ -20,7 +20,7 @@ try
   const envOptions = envOptionsFrom( options );
   envOptionsSetup( envOptions );
 
-  const attemptLimit = _.number.from( core.getInput( 'attempt_limit' ) ) || 2;
+  /* */
 
   let routine;
   if( _.strBegins( config.runs.using, 'node' ) )
@@ -42,11 +42,14 @@ try
     }
   }
 
+  const attemptLimit = _.number.from( core.getInput( 'attempt_limit' ) ) || 2;
+  const attemptDelay = _.number.from( core.getInput( 'attempt_delay' ) ) || 0;
+
   const ready = _.retry
   ({
     routine,
     attemptLimit,
-    attemptDelay : 0,
+    attemptDelay,
     onSuccess,
   });
   ready.deasync();
