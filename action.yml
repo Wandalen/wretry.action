@@ -14,4 +14,4 @@ inputs:
     default: 2
 runs:
   using: 'node12'
-  main: 'src/index.js'
+  main: 'src/Index.js'

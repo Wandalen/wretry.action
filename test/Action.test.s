@@ -36,7 +36,7 @@ function retryWithOptionAttemptLimit( test )
     return null;
   });
 
-  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/index.js' ) }` });
+  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/Index.js' ) }` });
   a.ready.then( ( op ) =>
   {
     test.notIdentical( op.exitCode, 0 );
@@ -57,7 +57,7 @@ function retryWithOptionAttemptLimit( test )
     return null;
   });
 
-  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/index.js' ) }` });
+  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/Index.js' ) }` });
   a.ready.then( ( op ) =>
   {
     test.notIdentical( op.exitCode, 0 );
@@ -79,7 +79,7 @@ function retryWithOptionAttemptLimit( test )
     return null;
   });
 
-  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/index.js' ) }` });
+  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/Index.js' ) }` });
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
