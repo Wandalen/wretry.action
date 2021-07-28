@@ -23,7 +23,7 @@ path:
   origins:
     - 'git+https:///github.com/Wandalen/wretry.action-1'
     - 'npm:///wretry.action'
-  entry: src/index.js
+  entry: src/Index.js
   repository: 'git+https:///github.com/Wandalen/wretry.action-1'
   bugtracker: 'https:///github.com/Wandalen/wretry.action-1/issues'
   in: .

@@ -1,4 +1,5 @@
-# wretry.action
+
+# action::wretry.action  [![status](https://github.com/Wandalen/wretry.action/actions/workflows/StandardPublish.yml/badge.svg)](https://github.com/Wandalen/wretry.action/actions/workflows/StandardPublish.yml) [![experimental](https://img.shields.io/badge/stability-experimental-orange.svg)](https://github.com/emersion/stability-badges#experimental)
 
 Retries an Github Action step on failure.
 
@@ -10,13 +11,17 @@ This action is intended to wrap Github actions based on NodeJS interpreter.
 
 **Required** The name of the Github action.
 
-### `options`
+### `with`
 
-An options map for Github action.
+An options map for Github action. It is a multiline string with pairs `key - value`.
 
 ### `attempt_limit`
 
 Set number of attempts. Default is 2.
+
+### `attempt_delay`
+
+Set delay between attempts in ms. Default is 0.
 
 ## Outputs
 
@@ -25,10 +30,12 @@ Depends on output of given Github action.
 ## Example usage
 
 ```yaml
-uses: actions/wrerun.action@v1
+uses: Wandalen/wrerun.action@bbb9aecb9c675a9d0438a070cb42657a8125f4aa
 with:
   action: action/node-setup@2.3.0
-  with:
+  with: |
     node-version: 14.x
+    architecture: x64
   attempt_limit: 3
+  attempt_delay: 2000
 ```
