@@ -22,6 +22,7 @@ function retryFetchActionWithoutTagOrHash( test )
   const a = test.assetFor( false );
   const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const isTestContainer = _.process.insideTestContainer();
 
   const testAction = 'dmvict/test.action';
   actionSetup();
@@ -41,6 +42,7 @@ function retryFetchActionWithoutTagOrHash( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
+    if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 0 );
@@ -74,6 +76,7 @@ function retryFetchActionWithTag( test )
   const a = test.assetFor( false );
   const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const isTestContainer = _.process.insideTestContainer();
 
   const testAction = 'dmvict/test.action@v0.0.2';
   actionSetup();
@@ -93,6 +96,7 @@ function retryFetchActionWithTag( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
+    if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 0 );
@@ -127,6 +131,7 @@ function retryFetchActionWithHash( test )
   const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'dmvict/test.action';
+  const isTestContainer = _.process.insideTestContainer();
 
   /* - */
 
@@ -143,6 +148,7 @@ function retryFetchActionWithHash( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
+    if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 0 );
@@ -165,6 +171,7 @@ function retryFetchActionWithHash( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
+    if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 0 );
@@ -198,6 +205,7 @@ function retryWithOptionAttemptLimit( test )
   const a = test.assetFor( false );
   const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const isTestContainer = _.process.insideTestContainer();
 
   const testAction = 'dmvict/test.action@v0.0.2';
   actionSetup();
@@ -217,6 +225,7 @@ function retryWithOptionAttemptLimit( test )
   a.ready.then( ( op ) =>
   {
     test.notIdentical( op.exitCode, 0 );
+    if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 2 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 2 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 2 attempts/ ), 1 );
@@ -238,6 +247,7 @@ function retryWithOptionAttemptLimit( test )
   a.ready.then( ( op ) =>
   {
     test.notIdentical( op.exitCode, 0 );
+    if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 1 );
@@ -260,6 +270,7 @@ function retryWithOptionAttemptLimit( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
+    if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 0 );
@@ -296,6 +307,7 @@ function retryWithOptionAttemptDelay( test )
   const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'dmvict/test.action@v0.0.2';
+  const isTestContainer = _.process.insideTestContainer();
   actionSetup();
 
   /* - */
@@ -317,6 +329,7 @@ function retryWithOptionAttemptDelay( test )
     var spent = _.time.now() - start;
     test.le( spent, 3500 );
     test.identical( op.exitCode, 0 );
+    if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 0 );
@@ -343,6 +356,7 @@ function retryWithOptionAttemptDelay( test )
     var spent = _.time.now() - start;
     test.ge( spent, 6000 );
     test.identical( op.exitCode, 0 );
+    if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 0 );
