@@ -2,6 +2,9 @@ name: 'wretry'
 author : |
   Wandalen <wanalen@01.school>
   dmvict <dm.vict.kr@gmail.com>
+branding:
+  icon: 'activity'  
+  color: 'white'
 description: 'Retries an Github Action step on failure'
 inputs:
   action:
