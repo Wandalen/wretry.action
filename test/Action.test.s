@@ -22,6 +22,7 @@ function retryFetchActionWithoutTagOrHash( test )
   const a = test.assetFor( false );
   const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
 
   const testAction = 'dmvict/test.action';
@@ -38,7 +39,7 @@ function retryFetchActionWithoutTagOrHash( test )
     return null;
   });
 
-  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/Index.js' ) }` });
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
@@ -77,6 +78,7 @@ function retryFetchActionWithTag( test )
   const a = test.assetFor( false );
   const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
 
   const testAction = 'dmvict/test.action@v0.0.2';
@@ -93,7 +95,7 @@ function retryFetchActionWithTag( test )
     return null;
   });
 
-  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/Index.js' ) }` });
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
@@ -133,6 +135,7 @@ function retryFetchActionWithHash( test )
   const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'dmvict/test.action';
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
 
   /* - */
@@ -146,7 +149,7 @@ function retryFetchActionWithHash( test )
     return null;
   });
 
-  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/Index.js' ) }` });
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
@@ -169,7 +172,7 @@ function retryFetchActionWithHash( test )
     return null;
   });
 
-  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/Index.js' ) }` });
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
@@ -208,6 +211,7 @@ function retryWithOptionAttemptLimit( test )
   const a = test.assetFor( false );
   const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
 
   const testAction = 'dmvict/test.action@v0.0.2';
@@ -224,7 +228,7 @@ function retryWithOptionAttemptLimit( test )
     return null;
   });
 
-  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/Index.js' ) }` });
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
   {
     test.notIdentical( op.exitCode, 0 );
@@ -246,7 +250,7 @@ function retryWithOptionAttemptLimit( test )
     return null;
   });
 
-  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/Index.js' ) }` });
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
   {
     test.notIdentical( op.exitCode, 0 );
@@ -269,7 +273,7 @@ function retryWithOptionAttemptLimit( test )
     return null;
   });
 
-  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/Index.js' ) }` });
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
@@ -311,6 +315,7 @@ function retryWithOptionAttemptDelay( test )
   const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'dmvict/test.action@v0.0.2';
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
   actionSetup();
 
@@ -327,7 +332,7 @@ function retryWithOptionAttemptDelay( test )
     return null;
   });
 
-  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/Index.js' ) }` });
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
   {
     var spent = _.time.now() - start;
@@ -354,7 +359,7 @@ function retryWithOptionAttemptDelay( test )
     return null;
   });
 
-  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/Index.js' ) }` });
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
   {
     var spent = _.time.now() - start;
@@ -393,6 +398,7 @@ function retryWithOptionAttemptDelay( test )
 function retryWithExternalAction( test )
 {
   const a = test.assetFor( false );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
 
   if( _.process.insideTestContainer() )
   return test.true( true  );
@@ -413,7 +419,7 @@ function retryWithExternalAction( test )
     return null;
   });
 
-  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/Index.js' ) }` });
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
   {
     test.notIdentical( op.exitCode, 0 );
