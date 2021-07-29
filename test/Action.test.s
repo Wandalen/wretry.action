@@ -210,6 +210,7 @@ function retryWithOptionAttemptLimit( test )
     test.case = 'default number of attempts';
     core.exportVariable( `INPUT_ACTION`, testAction );
     core.exportVariable( `INPUT_WITH`, 'value : 0' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '2' );
     return null;
   });
 
