@@ -126,14 +126,14 @@ function retryFetchActionWithHash( test )
   const a = test.assetFor( false );
   const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const testAction = 'dmvict/test.action';
 
   /* - */
 
-  var testAction = 'dmvict/test.action@e7a23fbc543bef807cb8a62825de2195ac6fe646';
   actionSetup().then( () =>
   {
     test.case = 'full hash, enought attempts';
-    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_ACTION`, `${ testAction }@e7a23fbc543bef807cb8a62825de2195ac6fe646` );
     core.exportVariable( `INPUT_WITH`, 'value : 0' );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
@@ -152,11 +152,10 @@ function retryFetchActionWithHash( test )
 
   /* */
 
-  var testAction = 'dmvict/test.action@e7a23fb';
   actionSetup().then( () =>
   {
     test.case = 'partial hash, enought attempts';
-    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_ACTION`, `${ testAction }@e7a23fb` );
     core.exportVariable( `INPUT_WITH`, 'value : 0' );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
