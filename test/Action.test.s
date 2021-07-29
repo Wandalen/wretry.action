@@ -64,7 +64,7 @@ function retryFetchActionWithoutTagOrHash( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ actionRepo } ${ actionPath }` );
+    a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
     return a.ready;
   }
 }
@@ -118,7 +118,7 @@ function retryFetchActionWithTag( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ actionRepo } ${ actionPath }` );
+    a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
     return a.ready;
   }
 }
@@ -193,7 +193,7 @@ function retryFetchActionWithHash( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ actionRepo } ${ actionPath }` );
+    a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
     return a.ready;
   }
 }
@@ -292,7 +292,7 @@ function retryWithOptionAttemptLimit( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ actionRepo } ${ actionPath }` );
+    a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
     return a.ready;
   }
 }
@@ -378,7 +378,7 @@ function retryWithOptionAttemptDelay( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ actionRepo } ${ actionPath }` );
+    a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
     return a.ready;
   }
 }
@@ -433,7 +433,7 @@ function retryWithExternalAction( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ actionRepo } ${ actionPath }` );
+    a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
     return a.ready;
   }
 }
