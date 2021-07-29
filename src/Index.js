@@ -24,23 +24,9 @@ try
 
   let routine;
   if( _.strBegins( config.runs.using, 'node' ) )
-  {
-    routine = run_functor( _.path.nativize( _.path.join( localActionPath, config.runs.main ) ) );
-  }
+  routine = run_functor( _.path.nativize( _.path.join( localActionPath, config.runs.main ) ) );
   else
-  {
-    routine = () =>
-    {
-      _.process.start
-      ({
-        execPath : _.path.nativize( _.path.join( localActionPath, config.runs.main ) ),
-        currentPath : process.env.GITHUB_WORKSPACE,
-        mode : 'shell',
-        sync : 1,
-        outputCollecting : 1,
-      });
-    }
-  }
+  throw Error( 'not implemented' );
 
   const attemptLimit = _.number.from( core.getInput( 'attempt_limit' ) ) || 2;
   const attemptDelay = _.number.from( core.getInput( 'attempt_delay' ) ) || 0;
