@@ -9,7 +9,7 @@ try
   throw new Error( 'Please, specify Github action name' );
 
   const remoteActionPath = remotePathFromActionName( actionName );
-  const localActionPath = _.path.join( __dirname, '../../../', remoteActionPath.repo );
+  const localActionPath = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
   actionClone( localActionPath, remoteActionPath );
 
   const config = actionConfigRead( localActionPath );
