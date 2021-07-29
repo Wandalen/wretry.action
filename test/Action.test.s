@@ -305,7 +305,7 @@ function retryWithOptionAttemptLimit( test )
   }
 }
 
-retryWithOptionAttemptLimit.timeOut = 60000;
+retryWithOptionAttemptLimit.timeOut = 120000;
 
 //
 
@@ -398,7 +398,6 @@ function retryWithOptionAttemptDelay( test )
 function retryWithExternalAction( test )
 {
   const a = test.assetFor( false );
-  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
 
   if( _.process.insideTestContainer() )
   return test.true( true  );
@@ -406,6 +405,7 @@ function retryWithExternalAction( test )
   const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'actions/setup-node@v2.3.0';
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
   actionSetup();
 
   /* - */
@@ -450,7 +450,7 @@ function retryWithExternalAction( test )
   }
 }
 
-retryWithExternalAction.timeOut = 60000;
+retryWithExternalAction.timeOut = 120000;
 
 // --
 // declare
@@ -460,7 +460,7 @@ const Proto =
 {
   name : 'Action',
   silencing : 1,
-  routineTimeOut : 30000,
+  routineTimeOut : 60000,
 
   tests :
   {
