@@ -336,7 +336,7 @@ function retryWithOptionAttemptDelay( test )
   a.ready.then( ( op ) =>
   {
     var spent = _.time.now() - start;
-    test.le( spent, 3500 );
+    test.le( spent, 6000 );
     test.identical( op.exitCode, 0 );
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
@@ -354,7 +354,7 @@ function retryWithOptionAttemptDelay( test )
     core.exportVariable( `INPUT_ACTION`, testAction );
     core.exportVariable( `INPUT_WITH`, 'value : 0' );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
-    core.exportVariable( `INPUT_ATTEMPT_DELAY`, '2000' );
+    core.exportVariable( `INPUT_ATTEMPT_DELAY`, '4000' );
     start = _.time.now();
     return null;
   });
@@ -363,7 +363,7 @@ function retryWithOptionAttemptDelay( test )
   a.ready.then( ( op ) =>
   {
     var spent = _.time.now() - start;
-    test.ge( spent, 6000 );
+    test.ge( spent, 12000 );
     test.identical( op.exitCode, 0 );
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
