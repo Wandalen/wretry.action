@@ -4,7 +4,7 @@
   "description": "Retries an Github Action step on failure",
   "main": "src/Index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "wtest .run \"test/**\""
   },
   "repository": {
     "type": "git",

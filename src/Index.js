@@ -9,7 +9,7 @@ try
   throw new Error( 'Please, specify Github action name' );
 
   const remoteActionPath = remotePathFromActionName( actionName );
-  const localActionPath = _.path.join( __dirname, '../../../', remoteActionPath.repo );
+  const localActionPath = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
   actionClone( localActionPath, remoteActionPath );
 
   const config = actionConfigRead( localActionPath );
@@ -24,23 +24,9 @@ try
 
   let routine;
   if( _.strBegins( config.runs.using, 'node' ) )
-  {
-    routine = run_functor( _.path.nativize( _.path.join( localActionPath, config.runs.main ) ) );
-  }
+  routine = run_functor( _.path.nativize( _.path.join( localActionPath, config.runs.main ) ) );
   else
-  {
-    routine = () =>
-    {
-      _.process.start
-      ({
-        execPath : _.path.nativize( _.path.join( localActionPath, config.runs.main ) ),
-        currentPath : process.env.GITHUB_WORKSPACE,
-        mode : 'shell',
-        sync : 1,
-        outputCollecting : 1,
-      });
-    }
-  }
+  throw Error( 'not implemented' );
 
   const attemptLimit = _.number.from( core.getInput( 'attempt_limit' ) ) || 2;
   const attemptDelay = _.number.from( core.getInput( 'attempt_delay' ) ) || 0;
@@ -149,7 +135,7 @@ function envOptionsSetup( options )
 
 function run_functor( path )
 {
-  return function run()
+  return async function run()
   {
     delete require.cache[ path ];
     return require( path );
