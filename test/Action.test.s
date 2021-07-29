@@ -369,6 +369,63 @@ function retryWithOptionAttemptDelay( test )
   }
 }
 
+//
+
+function retryWithExternalAction( test )
+{
+  const a = test.assetFor( false );
+
+  if( _.process.insideTestContainer() )
+  return test.true( true  );
+
+  const actionRepo = 'https://github.com/dmvict/wretry.action.git';
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const testAction = 'actions/setup-node@v2.3.0';
+  actionSetup();
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'enought attempts, default value of attempt_delay';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_WITH`, 'node-version : 15.x' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.abs( actionPath, 'src/Index.js' ) }` });
+  a.ready.then( ( op ) =>
+  {
+    test.notIdentical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::debug::isExplicit:' ), 4 );
+    test.identical( _.strCount( op.output, '::debug::explicit? false' ), 4 );
+    test.identical( _.strCount( op.output, '::error::Expected RUNNER_TOOL_CACHE to be defined' ), 4 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 4 attempts/ ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.shell( `git clone ${ actionRepo } ${ actionPath }` );
+    return a.ready;
+  }
+}
+
+retryWithExternalAction.timeOut = 60000;
+
 // --
 // declare
 // --
@@ -387,6 +444,8 @@ const Proto =
 
     retryWithOptionAttemptLimit,
     retryWithOptionAttemptDelay,
+
+    retryWithExternalAction,
   },
 };
 
