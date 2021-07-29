@@ -149,7 +149,7 @@ function envOptionsSetup( options )
 
 function run_functor( path )
 {
-  return function run()
+  return async function run()
   {
     delete require.cache[ path ];
     return require( path );
