@@ -146,7 +146,7 @@ function run_functor( path )
 
 function onSuccess( arg )
 {
-  if( process.exitCode !== 0 )
+  if( process.exitCode !== 0 && process.exitCode !== undefined )
   {
     process.exitCode = 0;
     return false;
