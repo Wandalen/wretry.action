@@ -1,5 +1,7 @@
 name: 'wretry.action'
-author : dmvict
+author : |
+  dmvict <dm.vict.kr@gmail.com>
+  Wandalen <wanalen@01.school>
 description: 'Retries an Github Action step on failure'
 inputs:
   action:
