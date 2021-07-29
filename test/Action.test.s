@@ -65,6 +65,7 @@ function retryFetchActionWithoutTagOrHash( test )
       return null;
     });
     a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Setup.js' ) ) }` );
     return a.ready;
   }
 }
@@ -119,6 +120,7 @@ function retryFetchActionWithTag( test )
       return null;
     });
     a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Setup.js' ) ) }` );
     return a.ready;
   }
 }
@@ -194,6 +196,7 @@ function retryFetchActionWithHash( test )
       return null;
     });
     a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Setup.js' ) ) }` );
     return a.ready;
   }
 }
@@ -293,6 +296,7 @@ function retryWithOptionAttemptLimit( test )
       return null;
     });
     a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Setup.js' ) ) }` );
     return a.ready;
   }
 }
@@ -379,6 +383,7 @@ function retryWithOptionAttemptDelay( test )
       return null;
     });
     a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Setup.js' ) ) }` );
     return a.ready;
   }
 }
@@ -434,6 +439,7 @@ function retryWithExternalAction( test )
       return null;
     });
     a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Setup.js' ) ) }` );
     return a.ready;
   }
 }

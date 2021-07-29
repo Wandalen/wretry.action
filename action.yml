@@ -18,4 +18,5 @@ inputs:
     default: 0
 runs:
   using: 'node12'
+  pre: 'src/Setup.js'
   main: 'src/Index.js'
