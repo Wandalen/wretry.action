@@ -395,7 +395,7 @@ function retryWithOptionAttemptDelay( test )
 
 //
 
-function retryWithExternalAction( test )
+function retryWithExternalActionOnLocal( test )
 {
   const a = test.assetFor( false );
 
@@ -427,6 +427,12 @@ function retryWithExternalAction( test )
     test.identical( _.strCount( op.output, '::debug::explicit? false' ), 4 );
     test.identical( _.strCount( op.output, '::error::Expected RUNNER_TOOL_CACHE to be defined' ), 4 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 4 attempts/ ), 1 );
+    test.identical( _.strCount( op.output, 'Attempting to download 15.x' ), 0 );
+    test.identical( _.strCount( op.output, 'Not found in manifest.  Falling back to download directly from Node' ), 0 );
+    test.identical( _.strCount( op.output, /Acquiring 15.\d+\.\d+/ ), 0 );
+    test.identical( _.strCount( op.output, 'Extracting ...' ), 0 );
+    test.identical( _.strCount( op.output, 'Adding to the cache' ), 0 );
+    test.identical( _.strCount( op.output, 'Done' ), 0 );
     return null;
   });
 
@@ -450,7 +456,72 @@ function retryWithExternalAction( test )
   }
 }
 
-retryWithExternalAction.timeOut = 120000;
+retryWithExternalActionOnLocal.timeOut = 120000;
+
+//
+
+function retryWithExternalActionOnRemote( test )
+{
+  const a = test.assetFor( false );
+
+  if( !_.process.insideTestContainer() )
+  return test.true( true  );
+
+  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const testAction = 'actions/setup-node@v2.3.0';
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
+  actionSetup();
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'enought attempts, default value of attempt_delay';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_WITH`, 'node-version : 15.x' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.ge( _.strCount( op.output, '::debug::isExplicit:' ), 0 );
+    test.ge( _.strCount( op.output, '::debug::explicit? false' ), 0 );
+    test.identical( _.strCount( op.output, '::error::Expected RUNNER_TOOL_CACHE to be defined' ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 4 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, 'Attempting to download 15.x' ), 1 );
+    test.identical( _.strCount( op.output, 'Not found in manifest.  Falling back to download directly from Node' ), 1 );
+    test.identical( _.strCount( op.output, /Acquiring 15.\d+\.\d+/ ), 1 );
+    test.identical( _.strCount( op.output, 'Extracting ...' ), 1 );
+    test.identical( _.strCount( op.output, 'Adding to the cache' ), 1 );
+    test.identical( _.strCount( op.output, 'Done' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Setup.js' ) ) }` );
+    return a.ready;
+  }
+}
+
+retryWithExternalActionOnRemote.timeOut = 120000;
 
 // --
 // declare
@@ -471,7 +542,8 @@ const Proto =
     retryWithOptionAttemptLimit,
     retryWithOptionAttemptDelay,
 
-    retryWithExternalAction,
+    retryWithExternalActionOnLocal,
+    retryWithExternalActionOnRemote,
   },
 };
 
