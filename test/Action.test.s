@@ -493,11 +493,40 @@ function retryWithExternalActionOnRemote( test )
     test.identical( _.strCount( op.output, '::error::Expected RUNNER_TOOL_CACHE to be defined' ), 0 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Attempting to download 15.x' ), 1 );
-    test.identical( _.strCount( op.output, 'Not found in manifest.  Falling back to download directly from Node' ), 1 );
     test.identical( _.strCount( op.output, /Acquiring 15.\d+\.\d+/ ), 1 );
     test.identical( _.strCount( op.output, 'Extracting ...' ), 1 );
     test.identical( _.strCount( op.output, 'Adding to the cache' ), 1 );
     test.identical( _.strCount( op.output, 'Done' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'enought attempts, default value of attempt_delay';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_WITH`, 'node-version : 25.x' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.ge( _.strCount( op.output, '::debug::isExplicit:' ), 0 );
+    test.ge( _.strCount( op.output, '::debug::explicit? false' ), 0 );
+    test.identical( _.strCount( op.output, '::error::Expected RUNNER_TOOL_CACHE to be defined' ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 4 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /Acquiring 15.\d+\.\d+/ ), 0 );
+    test.identical( _.strCount( op.output, 'Extracting ...' ), 0 );
+    test.identical( _.strCount( op.output, 'Adding to the cache' ), 0 );
+    test.identical( _.strCount( op.output, 'Done' ), 0 );
+    test.identical( _.strCount( op.output, 'Attempting to download 25.x' ), 4 );
+    test.identical( _.strCount( op.output, 'Error: Unable to find Node version \'25.x\'' ), 4 );
+    test.identical( _.strCount( op.output, 'Attempts is exhausted, made 4 attempts' ), 1 );
+    test.identical( _.strCount( op.output, /Attempt #\d runned at/ ), 4 );
     return null;
   });
 
