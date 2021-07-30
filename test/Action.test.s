@@ -143,7 +143,7 @@ function retryFetchActionWithHash( test )
   actionSetup().then( () =>
   {
     test.case = 'full hash, enought attempts';
-    core.exportVariable( `INPUT_ACTION`, `${ testAction }@e7a23fbc543bef807cb8a62825de2195ac6fe646` );
+    core.exportVariable( `INPUT_ACTION`, `${ testAction }@3aa0050099ba8aff344137061782e0c18448cd7d` );
     core.exportVariable( `INPUT_WITH`, 'value : 0' );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
@@ -166,7 +166,7 @@ function retryFetchActionWithHash( test )
   actionSetup().then( () =>
   {
     test.case = 'partial hash, enought attempts';
-    core.exportVariable( `INPUT_ACTION`, `${ testAction }@e7a23fb` );
+    core.exportVariable( `INPUT_ACTION`, `${ testAction }@3aa0050` );
     core.exportVariable( `INPUT_WITH`, 'value : 0' );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
