@@ -124,6 +124,43 @@ function actionClone( test )
 
 actionClone.timeOut = 30000;
 
+//
+
+function actionConfigRead( test )
+{
+  const a = test.assetFor( false );
+  const actionPath = a.abs( '.' );
+
+  /* */
+
+  test.case = 'read directory with action file';
+  common.actionClone( actionPath, common.remotePathFromActionName( 'dmvict/test.action@v0.0.2' ) );
+  var got = common.actionConfigRead( actionPath );
+  var exp =
+  {
+    name : 'test.action',
+    author : 'dmvict <dm.vict.kr@gmail.com>',
+    description : 'An action for testing purpose, no real usage expected.',
+    inputs :
+    {
+      value : { 'description' : 'A test value', 'required' : true, 'default' : 0 }
+    },
+    runs : { 'using' : 'node12', 'main' : 'src/index.js' }
+  };
+  test.identical( got, exp );
+  a.fileProvider.filesDelete( actionPath );
+
+  /* - */
+
+  if( !Config.debug )
+  return;
+
+  test.case = 'config file does not exists';
+  common.actionClone( actionPath, common.remotePathFromActionName( 'dmvict/test.action@v0.0.2' ) );
+  a.fileProvider.filesDelete( a.abs( actionPath, 'action.yml' ) );
+  test.shouldThrowErrorSync( () => common.actionConfigRead( actionPath ) );
+}
+
 // --
 // declare
 // --
@@ -137,6 +174,7 @@ const Proto =
   {
     remotePathFromActionName,
     actionClone,
+    actionConfigRead,
   },
 };
 
