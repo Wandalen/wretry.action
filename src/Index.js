@@ -153,11 +153,8 @@ function envOptionsSetup( options )
 
 function onSuccess( arg )
 {
-  if( process.exitCode !== 0 )
-  {
-    process.exitCode = 0;
-    return false;
-  }
+  if( arg.exitCode !== 0 )
+  return false;
   return true
 };
 
