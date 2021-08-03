@@ -1,12 +1,14 @@
 const _ = require( 'wTools' );
 _.include( 'wGitTools' );
 
+//
+
 function remotePathFromActionName( name )
 {
   return _.git.path.parse( `https://github.com/${ _.strReplace( name, '@', '!' ) }` );
 }
 
-/* */
+//
 
 function actionClone( localPath, remotePath )
 {
@@ -25,7 +27,7 @@ function actionClone( localPath, remotePath )
   });
 }
 
-/* */
+//
 
 function actionConfigRead( actionDir )
 {
@@ -36,7 +38,7 @@ function actionConfigRead( actionDir )
   });
 }
 
-/* */
+//
 
 function actionOptionsParse( src )
 {
@@ -49,7 +51,7 @@ function actionOptionsParse( src )
   return result;
 }
 
-/* */
+//
 
 function actionOptionsVerify( src, screen )
 {
@@ -62,7 +64,7 @@ function actionOptionsVerify( src, screen )
   throw _.err( `Unexpected option ${ key }` );
 }
 
-/* */
+//
 
 function envOptionsFrom( options )
 {
@@ -72,7 +74,7 @@ function envOptionsFrom( options )
   return result;
 }
 
-/* */
+//
 
 function envOptionsSetup( options )
 {
