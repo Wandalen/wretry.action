@@ -1,6 +1,7 @@
 const core = require( '@actions/core' );
+const common = require( './Common.js' );
 const _ = require( 'wTools' );
-_.include( 'wGitTools' );
+_.include( 'wConsequence' );
 
 try
 {
@@ -8,17 +9,17 @@ try
   if( !actionName )
   throw _.err( 'Please, specify Github action name' );
 
-  const remoteActionPath = remotePathFromActionName( actionName );
+  const remoteActionPath = common.remotePathFromActionName( actionName );
   const localActionPath = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
-  actionClone( localActionPath, remoteActionPath );
+  common.actionClone( localActionPath, remoteActionPath );
 
-  const config = actionConfigRead( localActionPath );
+  const config = common.actionConfigRead( localActionPath );
 
   const optionsStrings = core.getMultilineInput( 'with' );
-  const options = actionOptionsParse( optionsStrings );
-  actionOptionsVerify( options, config.inputs );
+  const options = common.actionOptionsParse( optionsStrings );
+  common.actionOptionsVerify( options, config.inputs );
   const envOptions = envOptionsFrom( options );
-  envOptionsSetup( envOptions );
+  common.envOptionsSetup( envOptions );
 
   /* */
 
@@ -65,90 +66,6 @@ catch( error )
 {
   _.error.attend( error );
   core.setFailed( _.error.brief( error.message ) );
-}
-
-/* */
-
-function remotePathFromActionName( name )
-{
-  return _.git.path.parse( `https://github.com/${ _.strReplace( name, '@', '!' ) }` );
-}
-
-/* */
-
-function actionClone( localPath, remotePath )
-{
-  _.git.repositoryClone
-  ({
-    remotePath,
-    localPath,
-    sync : 1,
-    attemptDelayMultiplier : 4,
-  });
-
-  _.git.tagLocalChange
-  ({
-    localPath,
-    tag : remotePath.tag,
-  });
-}
-
-/* */
-
-function actionConfigRead( actionDir )
-{
-  return _.fileProvider.fileRead
-  ({
-    filePath : _.path.join( actionDir, 'action.yml' ),
-    encoding : 'yaml',
-  });
-}
-
-/* */
-
-function actionOptionsParse( src )
-{
-  const result = Object.create( null );
-  for( let i = 0 ; i < src.length ; i++ )
-  {
-    const splits = src[ i ].split( ':' );
-    result[ splits[ 0 ].trim() ] = splits[ 1 ].trim();
-  }
-  return result;
-}
-
-/* */
-
-function actionOptionsVerify( src, screen )
-{
-  if( screen === undefined )
-  for( let key in src )
-  throw _.err( 'Expects no options' );
-
-  for( let key in src )
-  if( !( key in screen ) )
-  throw _.err( `Unexpected option ${ key }` );
-}
-
-/* */
-
-function envOptionsFrom( options )
-{
-  const result = Object.create( null );
-  for( let key in options )
-  result[ `INPUT_${key.replace(/ /g, '_').toUpperCase()}` ] = options[ key ];
-  return result;
-}
-
-/* */
-
-function envOptionsSetup( options )
-{
-  for( let key in options )
-  {
-    core.exportVariable( key, options[ key ] );
-    process.env[ key ] = options[ key ];
-  }
 }
 
 /* */
