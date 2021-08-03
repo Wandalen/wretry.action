@@ -566,6 +566,70 @@ function retryWithExternalActionOnRemote( test )
 
 retryWithExternalActionOnRemote.timeOut = 120000;
 
+//
+
+function retryActionWithPreScript( test )
+{
+  const a = test.assetFor( false );
+  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
+  const isTestContainer = _.process.insideTestContainer();
+
+  const testAction = 'dmvict/test.action@pre';
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'enought attempts';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_WITH`, 'value : 0' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'Unexpected {-pre_value-}' ), 0 );
+    if( !isTestContainer )
+    test.ge( _.strCount( op.output, '::set-env' ), 3 );
+    test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, 'Success' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Setup.js' ) ) }` );
+    a.ready.then( ( op ) =>
+    {
+      if( _.str.has( op.output, '::set-env name=INPUT_PRE_VALUE::5' ) );
+      core.exportVariable( `INPUT_PRE_VALUE`, '5' );
+      return null;
+    });
+    return a.ready;
+  }
+}
+
 // --
 // declare
 // --
@@ -587,6 +651,8 @@ const Proto =
 
     retryWithExternalActionOnLocal,
     retryWithExternalActionOnRemote,
+
+    retryActionWithPreScript,
   },
 };
 
