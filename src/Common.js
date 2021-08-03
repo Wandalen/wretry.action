@@ -1,3 +1,4 @@
+const core = require( '@actions/core' );
 const _ = require( 'wTools' );
 _.include( 'wGitTools' );
 
