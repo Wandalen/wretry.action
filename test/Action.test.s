@@ -26,7 +26,6 @@ function retryFetchActionWithoutTagOrHash( test )
   const isTestContainer = _.process.insideTestContainer();
 
   const testAction = ' actions/hello-world-javascript-action';
-  actionSetup();
 
   /* - */
 
@@ -38,6 +37,8 @@ function retryFetchActionWithoutTagOrHash( test )
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
   });
+
+  actionSetup();
 
   a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
@@ -82,7 +83,6 @@ function retryFetchActionWithTag( test )
   const isTestContainer = _.process.insideTestContainer();
 
   const testAction = 'dmvict/test.action@v0.0.2';
-  actionSetup();
 
   /* - */
 
@@ -94,6 +94,8 @@ function retryFetchActionWithTag( test )
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
   });
+
+  actionSetup();
 
   a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
@@ -140,7 +142,7 @@ function retryFetchActionWithHash( test )
 
   /* - */
 
-  actionSetup().then( () =>
+  a.ready.then( () =>
   {
     test.case = 'full hash, enought attempts';
     core.exportVariable( `INPUT_ACTION`, `${ testAction }@3aa0050099ba8aff344137061782e0c18448cd7d` );
@@ -148,6 +150,8 @@ function retryFetchActionWithHash( test )
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
   });
+
+  actionSetup();
 
   a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
@@ -163,7 +167,7 @@ function retryFetchActionWithHash( test )
 
   /* */
 
-  actionSetup().then( () =>
+  a.ready.then( () =>
   {
     test.case = 'partial hash, enought attempts';
     core.exportVariable( `INPUT_ACTION`, `${ testAction }@3aa0050` );
@@ -171,6 +175,8 @@ function retryFetchActionWithHash( test )
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
   });
+
+  actionSetup();
 
   a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
@@ -215,7 +221,6 @@ function retryWithOptionAttemptLimit( test )
   const isTestContainer = _.process.insideTestContainer();
 
   const testAction = 'dmvict/test.action@v0.0.2';
-  actionSetup();
 
   /* - */
 
@@ -227,6 +232,8 @@ function retryWithOptionAttemptLimit( test )
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '2' );
     return null;
   });
+
+  actionSetup();
 
   a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
@@ -317,21 +324,26 @@ function retryWithOptionAttemptDelay( test )
   const testAction = 'dmvict/test.action@v0.0.2';
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
-  actionSetup();
 
   /* - */
 
-  var start;
   a.ready.then( () =>
   {
     test.case = 'enought attempts, default value of attempt_delay';
     core.exportVariable( `INPUT_ACTION`, testAction );
     core.exportVariable( `INPUT_WITH`, 'value : 0' );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
-    start = _.time.now();
     return null;
   });
 
+  actionSetup();
+
+  var start;
+  a.ready.then( () =>
+  {
+    start = _.time.now();
+    return null;
+  });
   a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
   {
@@ -406,7 +418,6 @@ function retryWithExternalActionOnLocal( test )
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'actions/setup-node@v2.3.0';
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
-  actionSetup();
 
   /* - */
 
@@ -418,6 +429,8 @@ function retryWithExternalActionOnLocal( test )
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
   });
+
+  actionSetup();
 
   a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
@@ -471,7 +484,6 @@ function retryWithExternalActionOnRemote( test )
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'actions/setup-node@v2.3.0';
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
-  actionSetup();
 
   /* - */
 
@@ -483,6 +495,8 @@ function retryWithExternalActionOnRemote( test )
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
   });
+
+  actionSetup();
 
   a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
