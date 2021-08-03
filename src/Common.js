@@ -53,19 +53,6 @@ function actionOptionsParse( src )
 
 //
 
-function actionOptionsVerify( src, screen )
-{
-  if( screen === undefined )
-  for( let key in src )
-  throw _.err( 'Expects no options' );
-
-  for( let key in src )
-  if( !( key in screen ) )
-  throw _.err( `Unexpected option ${ key }` );
-}
-
-//
-
 function envOptionsFrom( options )
 {
   const result = Object.create( null );
@@ -95,7 +82,6 @@ const Self =
   actionClone,
   actionConfigRead,
   actionOptionsParse,
-  actionOptionsVerify,
   envOptionsFrom,
   envOptionsSetup,
 };

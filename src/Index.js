@@ -17,7 +17,7 @@ try
 
   const optionsStrings = core.getMultilineInput( 'with' );
   const options = common.actionOptionsParse( optionsStrings );
-  common.actionOptionsVerify( options, config.inputs );
+  _.map.sureHasOnly( options, config.inputs );
   const envOptions = envOptionsFrom( options );
   common.envOptionsSetup( envOptions );
 
