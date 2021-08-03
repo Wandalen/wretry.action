@@ -6,7 +6,7 @@ try
 {
   const actionName = core.getInput( 'action' );
   if( !actionName )
-  throw new Error( 'Please, specify Github action name' );
+  throw _.err( 'Please, specify Github action name' );
 
   const remoteActionPath = remotePathFromActionName( actionName );
   const localActionPath = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
@@ -24,9 +24,27 @@ try
 
   let routine;
   if( _.strBegins( config.runs.using, 'node' ) )
-  routine = run_functor( _.path.nativize( _.path.join( localActionPath, config.runs.main ) ) );
+  {
+    routine = () =>
+    {
+      const o =
+      {
+        currentPath : _.path.current(),
+        execPath : `node Runner.js ${ _.path.nativize( _.path.join( localActionPath, config.runs.main ) ) }`,
+        inputMirroring : 0,
+        mode : 'spawn',
+        ipc : 1,
+      };
+      _.process.start( o );
+      o.pnd.on( 'message', ( data ) => _.map.extend( process.env, data ) );
+      return o.ready;
+    }
+  }
   else
-  throw Error( 'not implemented' );
+  {
+    throw _.err( 'not implemented' );
+  }
+
 
   const attemptLimit = _.number.from( core.getInput( 'attempt_limit' ) ) || 2;
   const attemptDelay = _.number.from( core.getInput( 'attempt_delay' ) ) || 0;
@@ -103,11 +121,11 @@ function actionOptionsVerify( src, screen )
 {
   if( screen === undefined )
   for( let key in src )
-  throw new Error( 'Expects no options' );
+  throw _.err( 'Expects no options' );
 
   for( let key in src )
   if( !( key in screen ) )
-  throw new Error( `Unexpected option ${ key }` );
+  throw _.err( `Unexpected option ${ key }` );
 }
 
 /* */
@@ -133,20 +151,9 @@ function envOptionsSetup( options )
 
 /* */
 
-function run_functor( path )
-{
-  return async function run()
-  {
-    delete require.cache[ path ];
-    return require( path );
-  }
-}
-
-/* */
-
 function onSuccess( arg )
 {
-  if( process.exitCode !== 0 && process.exitCode !== undefined )
+  if( process.exitCode !== 0 )
   {
     process.exitCode = 0;
     return false;
