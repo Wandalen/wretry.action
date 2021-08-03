@@ -3,7 +3,7 @@ author : |
   Wandalen <wanalen@01.school>
   dmvict <dm.vict.kr@gmail.com>
 branding:
-  icon: 'activity'  
+  icon: 'activity'
   color: 'white'
 description: 'Retries an Github Action step on failure'
 inputs:
@@ -23,5 +23,5 @@ inputs:
     default: 0
 runs:
   using: 'node12'
-  pre: 'src/Setup.js'
-  main: 'src/Index.js'
+  pre: 'src/Pre.js'
+  main: 'src/Main.js'
