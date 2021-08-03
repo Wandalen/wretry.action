@@ -1,6 +1,6 @@
 {
   "name": "wretry.action",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Retries an Github Action step on failure",
   "main": "src/Main.js",
   "scripts": {

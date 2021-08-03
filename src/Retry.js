@@ -41,6 +41,7 @@ function retry( scriptType )
           currentPath : _.path.current(),
           execPath : `node ${ runnerPath } ${ scriptPath }`,
           inputMirroring : 0,
+          stdio : 'inherit',
           mode : 'spawn',
           ipc : 1,
         };
