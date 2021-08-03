@@ -20,7 +20,7 @@ const core = require( '@actions/core' );
 function retryFetchActionWithoutTagOrHash( test )
 {
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/dmvict/wretry.action.git';
+  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
@@ -77,7 +77,7 @@ function retryFetchActionWithoutTagOrHash( test )
 function retryFetchActionWithTag( test )
 {
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/dmvict/wretry.action.git';
+  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
@@ -134,7 +134,7 @@ function retryFetchActionWithTag( test )
 function retryFetchActionWithHash( test )
 {
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/dmvict/wretry.action.git';
+  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'dmvict/test.action';
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
@@ -215,7 +215,7 @@ function retryFetchActionWithHash( test )
 function retryWithOptionAttemptLimit( test )
 {
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/dmvict/wretry.action.git';
+  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
@@ -319,7 +319,7 @@ retryWithOptionAttemptLimit.timeOut = 120000;
 function retryWithOptionAttemptDelay( test )
 {
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/dmvict/wretry.action.git';
+  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'dmvict/test.action@v0.0.2';
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
@@ -414,7 +414,7 @@ function retryWithExternalActionOnLocal( test )
   if( _.process.insideTestContainer() )
   return test.true( true  );
 
-  const actionRepo = 'https://github.com/dmvict/wretry.action.git';
+  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'actions/setup-node@v2.3.0';
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
@@ -480,7 +480,7 @@ function retryWithExternalActionOnRemote( test )
   if( !_.process.insideTestContainer() )
   return test.true( true  );
 
-  const actionRepo = 'https://github.com/dmvict/wretry.action.git';
+  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'actions/setup-node@v2.3.0';
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
@@ -571,7 +571,7 @@ retryWithExternalActionOnRemote.timeOut = 120000;
 function retryActionWithPreScript( test )
 {
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/dmvict/wretry.action.git';
+  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
@@ -622,6 +622,85 @@ function retryActionWithPreScript( test )
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     a.ready.then( ( op ) =>
     {
+      if( !_.process.insideTestContainer() )
+      if( _.str.has( op.output, '::set-env name=INPUT_PRE_VALUE::5' ) );
+      core.exportVariable( `INPUT_PRE_VALUE`, '5' );
+      return null;
+    });
+    return a.ready;
+  }
+}
+
+//
+
+function retryActionWithPostScript( test )
+{
+  const a = test.assetFor( false );
+  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+  const isTestContainer = _.process.insideTestContainer();
+
+  const testAction = 'dmvict/test.action@post';
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'enought attempts';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_WITH`, 'value : 0' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'Unexpected {-pre_value-}' ), 0 );
+    if( !isTestContainer )
+    test.ge( _.strCount( op.output, '::set-env' ), 3 );
+    test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, 'Success' ), 1 );
+
+
+    if( !_.process.insideTestContainer() )
+    if( _.str.has( op.output, '::set-env name=INPUT_MAIN_VALUE::6' ) );
+    core.exportVariable( `INPUT_MAIN_VALUE`, '6' );
+    return null;
+  });
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath : `node ${ a.path.nativize( a.abs( actionPath, 'src/Post.js' ) ) }` });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'Main script set no valid value {-main_value-}.' ), 0 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
+    a.ready.then( ( op ) =>
+    {
+      if( !_.process.insideTestContainer() )
       if( _.str.has( op.output, '::set-env name=INPUT_PRE_VALUE::5' ) );
       core.exportVariable( `INPUT_PRE_VALUE`, '5' );
       return null;
@@ -653,6 +732,7 @@ const Proto =
     retryWithExternalActionOnRemote,
 
     retryActionWithPreScript,
+    retryActionWithPostScript,
   },
 };
 
