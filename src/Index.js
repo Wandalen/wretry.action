@@ -25,12 +25,14 @@ try
   let routine;
   if( _.strBegins( config.runs.using, 'node' ) )
   {
+    const runnerPath = _.path.nativize( _.path.join( __dirname, 'Runner.js' ) );
+    const mainPath = _.path.nativize( _.path.join( localActionPath, config.runs.main ) );
     routine = () =>
     {
       const o =
       {
         currentPath : _.path.current(),
-        execPath : `node Runner.js ${ _.path.nativize( _.path.join( localActionPath, config.runs.main ) ) }`,
+        execPath : `node ${ runnerPath } ${ mainPath }`,
         inputMirroring : 0,
         mode : 'spawn',
         ipc : 1,
