@@ -20,9 +20,9 @@ const core = require( '@actions/core' );
 function retryFetchActionWithoutTagOrHash( test )
 {
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
+  const actionRepo = 'https://github.com/dmvict/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
-  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
 
   const testAction = ' actions/hello-world-javascript-action';
@@ -67,7 +67,7 @@ function retryFetchActionWithoutTagOrHash( test )
       return null;
     });
     a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
-    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Setup.js' ) ) }` );
+    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
 }
@@ -77,9 +77,9 @@ function retryFetchActionWithoutTagOrHash( test )
 function retryFetchActionWithTag( test )
 {
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
+  const actionRepo = 'https://github.com/dmvict/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
-  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
 
   const testAction = 'dmvict/test.action@v0.0.2';
@@ -124,7 +124,7 @@ function retryFetchActionWithTag( test )
       return null;
     });
     a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
-    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Setup.js' ) ) }` );
+    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
 }
@@ -134,10 +134,10 @@ function retryFetchActionWithTag( test )
 function retryFetchActionWithHash( test )
 {
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
+  const actionRepo = 'https://github.com/dmvict/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'dmvict/test.action';
-  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
 
   /* - */
@@ -205,7 +205,7 @@ function retryFetchActionWithHash( test )
       return null;
     });
     a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
-    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Setup.js' ) ) }` );
+    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
 }
@@ -215,9 +215,9 @@ function retryFetchActionWithHash( test )
 function retryWithOptionAttemptLimit( test )
 {
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
+  const actionRepo = 'https://github.com/dmvict/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
-  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
 
   const testAction = 'dmvict/test.action@v0.0.2';
@@ -307,7 +307,7 @@ function retryWithOptionAttemptLimit( test )
       return null;
     });
     a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
-    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Setup.js' ) ) }` );
+    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
 }
@@ -319,10 +319,10 @@ retryWithOptionAttemptLimit.timeOut = 120000;
 function retryWithOptionAttemptDelay( test )
 {
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
+  const actionRepo = 'https://github.com/dmvict/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'dmvict/test.action@v0.0.2';
-  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
 
   /* - */
@@ -400,7 +400,7 @@ function retryWithOptionAttemptDelay( test )
       return null;
     });
     a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
-    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Setup.js' ) ) }` );
+    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
 }
@@ -414,10 +414,10 @@ function retryWithExternalActionOnLocal( test )
   if( _.process.insideTestContainer() )
   return test.true( true  );
 
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
+  const actionRepo = 'https://github.com/dmvict/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'actions/setup-node@v2.3.0';
-  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
 
   /* - */
 
@@ -464,7 +464,7 @@ function retryWithExternalActionOnLocal( test )
       return null;
     });
     a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
-    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Setup.js' ) ) }` );
+    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
 }
@@ -480,10 +480,10 @@ function retryWithExternalActionOnRemote( test )
   if( !_.process.insideTestContainer() )
   return test.true( true  );
 
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
+  const actionRepo = 'https://github.com/dmvict/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'actions/setup-node@v2.3.0';
-  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
 
   /* - */
 
@@ -559,7 +559,7 @@ function retryWithExternalActionOnRemote( test )
       return null;
     });
     a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
-    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Setup.js' ) ) }` );
+    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
 }
@@ -571,9 +571,9 @@ retryWithExternalActionOnRemote.timeOut = 120000;
 function retryActionWithPreScript( test )
 {
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
+  const actionRepo = 'https://github.com/dmvict/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
-  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
 
   const testAction = 'dmvict/test.action@pre';
@@ -619,7 +619,7 @@ function retryActionWithPreScript( test )
       return null;
     });
     a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
-    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Setup.js' ) ) }` );
+    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     a.ready.then( ( op ) =>
     {
       if( _.str.has( op.output, '::set-env name=INPUT_PRE_VALUE::5' ) );
