@@ -244,6 +244,66 @@ function actionOptionsParse( test )
   test.shouldThrowErrorSync( () => common.actionOptionsParse( src ) );
 }
 
+//
+
+function envOptionsFrom( test )
+{
+  test.case = 'no options';
+  var src = {};
+  var got = common.envOptionsFrom( src );
+  test.identical( got, {} );
+  test.true( got !== src );
+
+  test.case = 'simple option, lower case';
+  var src = { 'a' : '1' };
+  var got = common.envOptionsFrom( src );
+  test.identical( got, { INPUT_A : '1' } );
+  test.true( got !== src );
+
+  test.case = 'option with spaces, lower case';
+  var src = { 'a b c' : '1' };
+  var got = common.envOptionsFrom( src );
+  test.identical( got, { INPUT_A_B_C : '1' } );
+  test.true( got !== src );
+
+  test.case = 'simple option, upper case';
+  var src = { 'A' : '1' };
+  var got = common.envOptionsFrom( src );
+  test.identical( got, { INPUT_A : '1' } );
+  test.true( got !== src );
+
+  test.case = 'option with spaces, upper case';
+  var src = { 'A B C' : '1' };
+  var got = common.envOptionsFrom( src );
+  test.identical( got, { INPUT_A_B_C : '1' } );
+  test.true( got !== src );
+
+  test.case = 'option with spaces, mixed case';
+  var src = { 'A b c' : '1' };
+  var got = common.envOptionsFrom( src );
+  test.identical( got, { INPUT_A_B_C : '1' } );
+  test.true( got !== src );
+}
+
+//
+
+function envOptionsSetup( test )
+{
+  const beginEnvs = _.map.extend( null, process.env );
+
+  /* */
+
+  test.case = 'empty options';
+  var src = {};
+  common.envOptionsSetup( src );
+  test.identical( _.mapBut_( null, process.env, beginEnvs ), {} );
+
+  test.case = 'several options';
+  var src = { 'option1' : 'a', 'INPUT_V' : 'input' };
+  common.envOptionsSetup( src );
+  test.identical( _.mapBut_( null, process.env, beginEnvs ), { 'option1' : 'a', 'INPUT_V' : 'input' } );
+}
+
 // --
 // declare
 // --
@@ -259,6 +319,8 @@ const Proto =
     actionClone,
     actionConfigRead,
     actionOptionsParse,
+    envOptionsFrom,
+    envOptionsSetup,
   },
 };
 
