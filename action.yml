@@ -25,3 +25,4 @@ runs:
   using: 'node12'
   pre: 'src/Pre.js'
   main: 'src/Main.js'
+  post: 'src/Post.js'
