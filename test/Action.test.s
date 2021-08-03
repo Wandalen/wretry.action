@@ -20,7 +20,7 @@ const core = require( '@actions/core' );
 function retryFetchActionWithoutTagOrHash( test )
 {
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
+  const actionRepo = 'https://github.com/Wandaleng/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
@@ -71,12 +71,14 @@ function retryFetchActionWithoutTagOrHash( test )
   }
 }
 
+retryFetchActionWithoutTagOrHash.rapidity = -1;
+
 //
 
 function retryFetchActionWithTag( test )
 {
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
+  const actionRepo = 'https://github.com/Wandaleng/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
@@ -132,7 +134,7 @@ function retryFetchActionWithTag( test )
 function retryFetchActionWithHash( test )
 {
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
+  const actionRepo = 'https://github.com/Wandaleng/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'dmvict/test.action';
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
@@ -209,7 +211,7 @@ function retryFetchActionWithHash( test )
 function retryWithOptionAttemptLimit( test )
 {
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
+  const actionRepo = 'https://github.com/Wandaleng/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
@@ -235,7 +237,7 @@ function retryWithOptionAttemptLimit( test )
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 2 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 2 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 2 attempts/ ), 1 );
+    test.identical( _.strCount( op.output, /::error::.*Attempts is exhausted, made 2 attempts/ ), 1 );
     test.identical( _.strCount( op.output, 'Success' ), 0 );
     return null;
   });
@@ -257,7 +259,7 @@ function retryWithOptionAttemptLimit( test )
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 1 );
+    test.identical( _.strCount( op.output, /::error::.*Attempts is exhausted, made 3 attempts/ ), 1 );
     test.identical( _.strCount( op.output, 'Success' ), 0 );
     return null;
   });
@@ -312,7 +314,7 @@ retryWithOptionAttemptLimit.timeOut = 120000;
 function retryWithOptionAttemptDelay( test )
 {
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
+  const actionRepo = 'https://github.com/Wandaleng/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'dmvict/test.action@v0.0.2';
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
@@ -402,7 +404,7 @@ function retryWithExternalActionOnLocal( test )
   if( _.process.insideTestContainer() )
   return test.true( true  );
 
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
+  const actionRepo = 'https://github.com/Wandaleng/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'actions/setup-node@v2.3.0';
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
@@ -426,7 +428,7 @@ function retryWithExternalActionOnLocal( test )
     test.identical( _.strCount( op.output, '::debug::isExplicit:' ), 4 );
     test.identical( _.strCount( op.output, '::debug::explicit? false' ), 4 );
     test.identical( _.strCount( op.output, '::error::Expected RUNNER_TOOL_CACHE to be defined' ), 4 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 4 attempts/ ), 1 );
+    test.identical( _.strCount( op.output, /::error::.*Attempts is exhausted, made 4 attempts/ ), 1 );
     test.identical( _.strCount( op.output, 'Attempting to download 15.x' ), 0 );
     test.identical( _.strCount( op.output, 'Not found in manifest.  Falling back to download directly from Node' ), 0 );
     test.identical( _.strCount( op.output, /Acquiring 15.\d+\.\d+/ ), 0 );
@@ -467,7 +469,7 @@ function retryWithExternalActionOnRemote( test )
   if( !_.process.insideTestContainer() )
   return test.true( true  );
 
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
+  const actionRepo = 'https://github.com/Wandaleng/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'actions/setup-node@v2.3.0';
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Index.js' ) ) }`;
