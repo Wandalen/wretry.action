@@ -18,6 +18,8 @@ function retry( scriptType )
     common.actionClone( localActionPath, remoteActionPath );
 
     const config = common.actionConfigRead( localActionPath );
+    if( !config.runs[ scriptType ] )
+    return null;
 
     const optionsStrings = core.getMultilineInput( 'with' );
     const options = common.actionOptionsParse( optionsStrings );
