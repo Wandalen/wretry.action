@@ -161,6 +161,89 @@ function actionConfigRead( test )
   test.shouldThrowErrorSync( () => common.actionConfigRead( actionPath ) );
 }
 
+actionConfigRead.timeOut = 20000;
+
+//
+
+function actionOptionsParse( test )
+{
+  test.case = 'empty array';
+  var src = [];
+  var got = common.actionOptionsParse( src );
+  test.identical( got, {} );
+
+  /* - */
+
+  test.open( 'without spaces' );
+
+  test.case = 'string with delimeter, no value';
+  var src = [ 'str:' ];
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { str : '' } );
+
+  test.case = 'string with delimeter, no key';
+  var src = [ ':str' ];
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { '' : 'str' } );
+
+  test.case = 'string with delimeter, key-value';
+  var src = [ 'str:value' ];
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { str : 'value' } );
+
+  test.case = 'string with delimeter, key-value, value is number';
+  var src = [ 'str:3' ];
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { str : '3' } );
+
+  test.case = 'several strings';
+  var src = [ 'str:value', 'number:2' ];
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { str : 'value', number : '2' } );
+
+  test.close( 'without spaces' );
+
+  /* - */
+
+  test.open( 'with spaces' );
+
+  test.case = 'string with delimeter, no value';
+  var src = [ ' str : ' ];
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { str : '' } );
+
+  test.case = 'string with delimeter, no key';
+  var src = [ ' :  str  ' ];
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { '' : 'str' } );
+
+  test.case = 'string with delimeter, key-value';
+  var src = [ '  str    : value   ' ];
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { str : 'value' } );
+
+  test.case = 'string with delimeter, key-value, value is number';
+  var src = [ '  str : 3' ];
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { str : '3' } );
+
+  test.case = 'several strings';
+  var src = [ ' str  : value', 'number : 2   ' ];
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { str : 'value', number : '2' } );
+
+  test.close( 'with spaces' );
+
+  /* - */
+
+  if( !Config.debug )
+  return;
+
+  test.case = 'without delimeter';
+  var src = [ 'str' ];
+  test.shouldThrowErrorSync( () => common.actionOptionsParse( src ) );
+}
+
 // --
 // declare
 // --
@@ -175,6 +258,7 @@ const Proto =
     remotePathFromActionName,
     actionClone,
     actionConfigRead,
+    actionOptionsParse,
   },
 };
 
