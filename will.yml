@@ -1,6 +1,6 @@
 about:
   name: wretry.action
-  version: 0.1.0
+  version: 0.3.0
   description: Retries an Github Action step on failure
   author: Kostiantyn Wandalen <wanalen@01.school>
   contributors:
@@ -9,7 +9,7 @@ about:
   license: MIT
   npm.scripts:
     test: wtest .run "test/**"
-  npm.homepage: 'https://github.com/Wandalen/wretry.action-1#readme'
+  npm.homepage: 'https://github.com/Wandalen/wretry.action#action::wretry.action'
   keywords:
     - action
     - retry
@@ -21,11 +21,11 @@ about:
     - njs >= 10.0.0
 path:
   origins:
-    - 'git+https:///github.com/Wandalen/wretry.action-1'
+    - 'git+https:///github.com/Wandalen/wretry.action'
     - 'npm:///wretry.action'
   entry: src/Index.js
-  repository: 'git+https:///github.com/Wandalen/wretry.action-1'
-  bugtracker: 'https:///github.com/Wandalen/wretry.action-1/issues'
+  repository: 'git+https:///github.com/Wandalen/wretry.action'
+  bugtracker: 'https:///github.com/Wandalen/wretry.action/issues'
   in: .
   out: out
   temp:
@@ -33,7 +33,7 @@ path:
     - package-lock.json
     - package.json
     - node_modules
-  proto: ./proto
+  proto: ./src
   export: '{path::proto}/**'
   doc: ./doc
   out.raw.debug:
@@ -86,8 +86,7 @@ path:
       raw: compiled
       content: prime
   npm.proto.entry:
-    - proto/wtools/abase/l1/Include.s
-    - proto/node_modules/wTools
+    - src/Main.js
 submodule:
   '@actions/core':
     path: 'npm:///@actions/core!^1.4.0'

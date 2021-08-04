@@ -1,8 +1,8 @@
 {
   "name": "wretry.action",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Retries an Github Action step on failure",
-  "main": "src/Index.js",
+  "main": "src/Main.js",
   "scripts": {
     "test": "wtest .run \"test/**\""
   },
@@ -21,7 +21,7 @@
   "bugs": {
     "url": "https://github.com/dmvict/wretry.action/issues"
   },
-  "homepage": "https://github.com/dmvict/wretry.action#readme",
+  "homepage": "https://github.com/dmvict/wretry.action#action::wretry.action",
   "dependencies": {
     "@actions/core": "^1.1.0",
     "wgittools": "latest"
