@@ -210,6 +210,8 @@ function retryFetchActionWithHash( test )
   }
 }
 
+retryFetchActionWithHash.timeOut = 120000;
+
 //
 
 function retryWithOptionAttemptLimit( test )
