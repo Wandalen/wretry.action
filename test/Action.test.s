@@ -485,6 +485,8 @@ function retryWithExternalActionOnRemote( test )
   const testAction = 'actions/setup-node@v2.3.0';
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
 
+  actionSetup();
+
   /* - */
 
   a.ready.then( () =>
@@ -496,9 +498,7 @@ function retryWithExternalActionOnRemote( test )
     return null;
   });
 
-  actionSetup();
-
-  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.shellNonThrowing({ currentPath : actionPath, execPath, outputPiping : 0 });
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
@@ -525,10 +525,10 @@ function retryWithExternalActionOnRemote( test )
     return null;
   });
 
-  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.shellNonThrowing({ currentPath : actionPath, execPath, outputPiping : 0 });
   a.ready.then( ( op ) =>
   {
-    test.identical( op.exitCode, 0 );
+    test.notIdentical( op.exitCode, 0 );
     test.ge( _.strCount( op.output, '::debug::isExplicit:' ), 0 );
     test.ge( _.strCount( op.output, '::debug::explicit? false' ), 0 );
     test.identical( _.strCount( op.output, '::error::Expected RUNNER_TOOL_CACHE to be defined' ), 0 );
@@ -538,7 +538,7 @@ function retryWithExternalActionOnRemote( test )
     test.identical( _.strCount( op.output, 'Adding to the cache' ), 0 );
     test.identical( _.strCount( op.output, 'Done' ), 0 );
     test.identical( _.strCount( op.output, 'Attempting to download 25.x' ), 4 );
-    test.identical( _.strCount( op.output, 'Error: Unable to find Node version \'25.x\'' ), 4 );
+    test.identical( _.strCount( op.output, 'error::Unable to find Node version \'25.x\'' ), 4 );
     test.identical( _.strCount( op.output, 'Attempts is exhausted, made 4 attempts' ), 1 );
     test.identical( _.strCount( op.output, /Attempt #\d runned at/ ), 4 );
     return null;
