@@ -1,7 +1,8 @@
 about:
   name: wretry.action
-  version: 0.3.0
+  version: 0.2.2
   description: Retries an Github Action step on failure
+  enabled: 1
   author: Kostiantyn Wandalen <wanalen@01.school>
   contributors:
     - Kostiantyn Wandalen <wanalen@01.school>
@@ -15,15 +16,12 @@ about:
     - retry
     - github
     - workflow
-  npm.name: wretry.action
-  enabled: 1
   interpreters:
     - njs >= 10.0.0
 path:
   origins:
     - 'git+https:///github.com/Wandalen/wretry.action'
-    - 'npm:///wretry.action'
-  entry: src/Index.js
+  entry: src/Main.js
   repository: 'git+https:///github.com/Wandalen/wretry.action'
   bugtracker: 'https:///github.com/Wandalen/wretry.action/issues'
   in: .
@@ -34,6 +32,7 @@ path:
     - package.json
     - node_modules
   proto: ./src
+  tests: ./test
   export: '{path::proto}/**'
   doc: ./doc
   out.raw.debug:
@@ -61,12 +60,12 @@ path:
       raw: compiled
       content: prime
   entry.proto.no.tests:
-    path: 'proto/{path::entry}'
+    path: '{path::proto}/Main.js'
     criterion:
       tests: no.tests
       content: proto
   entry.proto.only.tests:
-    path: proto/**/*.test.*
+    path: '{path::tests}/**/*.test.*'
     criterion:
       tests: only.tests
   entry.out.raw:
@@ -99,88 +98,6 @@ submodule:
     enabled: 0
     criterion:
       development: 1
-build:
-  proto.export:
-    criterion:
-      content: proto
-      export: 1
-    steps:
-      - 'step::proto.export'
-  doc.export:
-    criterion:
-      content: doc
-      export: 1
-    steps:
-      - 'step::doc.export'
-  npm.export:
-    criterion:
-      content: npm
-      export: 1
-    steps:
-      - 'step::npm.publish'
-  export:
-    criterion:
-      default: 1
-      export: 1
-    steps:
-      - 'build::proto.export'
-  debug:
-    criterion:
-      default: 1
-      debug: debug
-      raw: raw
-      content: prime
-    steps:
-      - 'step::clean.out*=2'
-      - reflect.proto.*=1
-  compiled.debug:
-    criterion:
-      debug: debug
-      raw: compiled
-      content: prime
-    steps:
-      - 'step::clean.out*=2'
-      - transpile.proto.no.tests*=1
-      - transpile.proto.only.tests*=1
-  raw.release:
-    criterion:
-      debug: release
-      raw: raw
-      content: prime
-    steps:
-      - 'step::clean.out*=2'
-      - transpile.proto.raw
-  release:
-    criterion:
-      debug: release
-      raw: compiled
-      content: prime
-    steps:
-      - 'step::clean.out*=2'
-      - transpile.proto.no.tests*=1
-      - transpile.proto.only.tests*=1
-  npm:
-    criterion:
-      debug:
-        - debug
-        - release
-      raw:
-        - raw
-        - compiled
-    steps:
-      - npm.generate.*=1
-  npm.proto:
-    criterion:
-      conent: proto
-    steps:
-      - npm.generate.proto
-  all:
-    steps:
-      - 'build::debug'
-      - 'build::compiled.debug'
-      - 'build::raw.release'
-      - 'build::release'
-      - 'build::npm.*=5'
 reflector:
   reflect.proto:
     inherit: predefined.*
@@ -257,13 +174,12 @@ step:
     tar: 0
     criterion:
       content: npm
-  npm.publish:
-    shell: npm publish
   npm.generate:
     inherit: npm.generate
     entryPath: 'path::entry.out.*=1'
     packagePath: '{path::out.*=1}/package.json'
     filesPath: '{path::out.*=1}/source/**'
+    withDisabledSubmodules: 1
     criterion:
       debug:
         - debug
@@ -278,6 +194,7 @@ step:
     entryPath: 'path::entry.proto.no.tests'
     packagePath: package.json
     filesPath: '{path::proto}/**'
+    withDisabledSubmodules: 1
     criterion:
       content:
         - proto
@@ -319,3 +236,82 @@ step:
     criterion:
       content: prime
       debug: release
+build:
+  doc.export:
+    criterion:
+      content: doc
+      export: 1
+    steps:
+      - 'step::doc.export'
+  export:
+    criterion:
+      default: 1
+      export: 1
+    steps:
+      - 'build::proto.export'
+  debug:
+    criterion:
+      default: 1
+      debug: debug
+      raw: raw
+      content: prime
+    steps:
+      - 'step::clean.out*=2'
+      - reflect.proto.*=1
+  # compiled.debug:
+  #   criterion:
+  #     debug: debug
+  #     raw: compiled
+  #     content: prime
+  #   steps:
+  #     - 'step::clean.out*=2'
+  #     - transpile.proto.no.tests*=1
+  #     - transpile.proto.only.tests*=1
+  # raw.release:
+  #   criterion:
+  #     debug: release
+  #     raw: raw
+  #     content: prime
+  #   steps:
+  #     - 'step::clean.out*=2'
+  #     - transpile.proto.raw
+  # release:
+  #   criterion:
+  #     debug: release
+  #     raw: compiled
+  #     content: prime
+  #   steps:
+  #     - 'step::clean.out*=2'
+  #     - transpile.proto.no.tests*=1
+  #     - transpile.proto.only.tests*=1
+  npm:
+    criterion:
+      debug:
+        - debug
+        - release
+      raw:
+        - raw
+        - compiled
+      content : prime
+    steps:
+      - npm.generate.*=1
+  npm.proto:
+    criterion:
+      content: proto
+    steps:
+      - npm.generate.proto
+  all: # should be replaced by full version
+    criterion :
+      content : prime
+      debug : debug
+      raw : raw
+    steps:
+      - 'build::debug'
+      - 'build::npm.*=1'
+  # all:
+  #   steps:
+  #     - 'build::debug'
+  #     - 'build::compiled.debug'
+  #     - 'build::raw.release'
+  #     - 'build::release'
+  #     - 'build::npm.*=5'
