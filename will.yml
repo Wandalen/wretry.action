@@ -274,6 +274,7 @@ build:
     steps:
       - sync
       - bump.*=1
+      - npm.generate.proto
       - add.all
       - commit
       - tag.version
@@ -287,6 +288,7 @@ build:
     steps:
       - sync
       - bump.*=1
+      - npm.generate.proto
       - add.all
       - commit
       - tag.version
