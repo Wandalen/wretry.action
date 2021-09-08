@@ -1,6 +1,6 @@
 {
   "name": "wretry.action",
-  "version": "0.3.0",
+  "version": "0.2.2",
   "description": "Retries an Github Action step on failure",
   "author": "Kostiantyn Wandalen <wanalen@01.school>",
   "contributors": [
