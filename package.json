@@ -1,32 +1,25 @@
 {
-  "name": "wretry.action",
-  "version": "0.2.2",
-  "description": "Retries an Github Action step on failure",
-  "main": "src/Main.js",
-  "scripts": {
-    "test": "wtest .run \"test/**\""
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/dmvict/wretry.action"
-  },
-  "keywords": [
-    "action",
-    "retry",
-    "github",
-    "workflow"
-  ],
-  "author": "",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/dmvict/wretry.action/issues"
-  },
-  "homepage": "https://github.com/dmvict/wretry.action#action::wretry.action",
-  "dependencies": {
-    "@actions/core": "^1.1.0",
-    "wgittools": "latest"
-  },
-  "devDependencies": {
-    "wTesting": "latest"
-  }
+  "name" : "wretry.action", 
+  "version" : "0.2.3", 
+  "description" : "Retries an Github Action step on failure", 
+  "enabled" : 1, 
+  "author" : "Kostiantyn Wandalen <wanalen@01.school>", 
+  "contributors" : 
+  [
+    "Kostiantyn Wandalen <wanalen@01.school>", 
+    "Dmytro Kryvoruchko <dm.vict.kr@gmail.com>"
+  ], 
+  "license" : "MIT", 
+  "scripts" : { "test" : "wtest .run \"test/**\"" }, 
+  "homepage" : "https://github.com/Wandalen/wretry.action#action::wretry.action", 
+  "keywords" : [ "action", "retry", "github", "workflow" ], 
+  "npm.engines" : { "node" : ">= 10.0.0" }, 
+  "engine" : "node >= 10.0.0", 
+  "repository" : "https://github.com/Wandalen/wretry.action", 
+  "bugs" : "https://github.com/Wandalen/wretry.action/issues", 
+  "main" : "src/Main.js", 
+  "proto.entry" : [ "src/Main.js" ], 
+  "dependencies" : { "@actions/core" : "^1.4.0", "wgittools" : "" }, 
+  "devDependencies" : { "wTesting" : "" }, 
+  "files" : [ "src/Common.js", "src/Main.js", "src/Post.js", "src/Pre.js", "src/Retry.js", "src/Runner.js" ]
 }

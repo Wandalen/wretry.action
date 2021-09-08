@@ -1,6 +1,6 @@
 about:
   name: wretry.action
-  version: 0.2.2
+  version: 0.2.3
   description: Retries an Github Action step on failure
   enabled: 1
   author: Kostiantyn Wandalen <wanalen@01.school>
@@ -237,13 +237,13 @@ step:
       content: prime
       debug: release
   bump.minor:
-    criterion :
-      semantic : minor
-    versionDelta: '0.1.0'
+    criterion:
+      semantic: minor
+    versionDelta: 0.1.0
   bump.patch:
-    criterion :
-      semantic : patch
-    versionDelta: '0.0.1'
+    criterion:
+      semantic: patch
+    versionDelta: 0.0.1
   sync:
     inherit: git.sync
     dirPath: .
@@ -252,7 +252,7 @@ step:
     command: add .
   commit:
     inherit: git
-    command: commit -am "version {about::version}"
+    command: 'commit -am "version {about::version}"'
   tag.version:
     inherit: git.tag
     tag.name: 'v{about::version}'
@@ -267,10 +267,10 @@ step:
     tag: '{about::version}'
 build:
   action.release.patch:
-    criterion :
-      publish : 1
-      default : 1
-      semantic : patch
+    criterion:
+      publish: 1
+      default: 1
+      semantic: patch
     steps:
       - sync
       - bump.*=1
@@ -282,9 +282,9 @@ build:
       - push
       - release
   action.release.minor:
-    criterion :
-      publish : 1
-      semantic : minor
+    criterion:
+      publish: 1
+      semantic: minor
     steps:
       - sync
       - bump.*=1
@@ -316,32 +316,6 @@ build:
     steps:
       - 'step::clean.out*=2'
       - reflect.proto.*=1
-  # compiled.debug:
-  #   criterion:
-  #     debug: debug
-  #     raw: compiled
-  #     content: prime
-  #   steps:
-  #     - 'step::clean.out*=2'
-  #     - transpile.proto.no.tests*=1
-  #     - transpile.proto.only.tests*=1
-  # raw.release:
-  #   criterion:
-  #     debug: release
-  #     raw: raw
-  #     content: prime
-  #   steps:
-  #     - 'step::clean.out*=2'
-  #     - transpile.proto.raw
-  # release:
-  #   criterion:
-  #     debug: release
-  #     raw: compiled
-  #     content: prime
-  #   steps:
-  #     - 'step::clean.out*=2'
-  #     - transpile.proto.no.tests*=1
-  #     - transpile.proto.only.tests*=1
   npm:
     criterion:
       debug:
@@ -350,7 +324,7 @@ build:
       raw:
         - raw
         - compiled
-      content : prime
+      content: prime
     steps:
       - npm.generate.*=1
   npm.proto:
@@ -358,18 +332,11 @@ build:
       content: proto
     steps:
       - npm.generate.proto
-  all: # should be replaced by full version
-    criterion :
-      content : prime
-      debug : debug
-      raw : raw
+  all:
+    criterion:
+      content: prime
+      debug: debug
+      raw: raw
     steps:
       - 'build::debug'
       - 'build::npm.*=1'
-  # all:
-  #   steps:
-  #     - 'build::debug'
-  #     - 'build::compiled.debug'
-  #     - 'build::raw.release'
-  #     - 'build::release'
-  #     - 'build::npm.*=5'
