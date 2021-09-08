@@ -236,7 +236,63 @@ step:
     criterion:
       content: prime
       debug: release
+  bump.minor:
+    criterion :
+      semantic : minor
+    versionDelta: '0.1.0'
+  bump.patch:
+    criterion :
+      semantic : patch
+    versionDelta: '0.0.1'
+  sync:
+    inherit: git.sync
+    dirPath: .
+  add.all:
+    inherit: git
+    command: add .
+  commit:
+    inherit: git
+    command: commit -am "version {about::version}"
+  tag.version:
+    inherit: git.tag
+    tag.name: 'v{about::version}'
+  tag.simple:
+    inherit: git.tag
+    tag.name: '{about::version}'
+  push:
+    inherit: git.push
+    dirPath: .
+  release:
+    inherit: repo.release
+    tag: '{about::version}'
 build:
+  action.release.patch:
+    criterion :
+      publish : 1
+      default : 1
+      semantic : patch
+    steps:
+      - sync
+      - bump.*=1
+      - add.all
+      - commit
+      - tag.version
+      - tag.simple
+      - push
+      - release
+  action.release.minor:
+    criterion :
+      publish : 1
+      semantic : minor
+    steps:
+      - sync
+      - bump.*=1
+      - add.all
+      - commit
+      - tag.version
+      - tag.simple
+      - push
+      - release
   doc.export:
     criterion:
       content: doc
