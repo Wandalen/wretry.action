@@ -249,10 +249,7 @@ step:
   commit:
     inherit: git
     command: 'commit -am "version {about::version}"'
-  tag.version:
-    inherit: git.tag
-    tag.name: 'v{about::version}'
-  tag.simple:
+  tag:
     inherit: git.tag
     tag.name: '{about::version}'
   push:
@@ -273,8 +270,7 @@ build:
       - npm.generate.proto
       - add.all
       - commit
-      - tag.version
-      - tag.simple
+      - tag
       - push
       - release
   action.release:
@@ -287,8 +283,7 @@ build:
       - npm.generate.proto
       - add.all
       - commit
-      - tag.version
-      - tag.simple
+      - tag
       - push
       - release
   doc.export:
