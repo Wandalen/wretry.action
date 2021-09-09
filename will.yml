@@ -236,14 +236,10 @@ step:
     criterion:
       content: prime
       debug: release
-  bump.minor:
+  bump:
+    inherit : version.bump
     criterion:
-      semantic: minor
-    versionDelta: 0.1.0
-  bump.patch:
-    criterion:
-      semantic: patch
-    versionDelta: 0.0.1
+      bump : [ major, minor, patch ]
   sync:
     inherit: git.sync
     dirPath: .
@@ -266,11 +262,11 @@ step:
     inherit: repo.release
     tag: '{about::version}'
 build:
-  action.release.patch:
+  release.patch:
     criterion:
       publish: 1
       default: 1
-      semantic: patch
+      bump : patch
     steps:
       - sync
       - bump.*=1
@@ -281,10 +277,10 @@ build:
       - tag.simple
       - push
       - release
-  action.release.minor:
+  action.release:
     criterion:
       publish: 1
-      semantic: minor
+      bump : [ major, minor, patch ]
     steps:
       - sync
       - bump.*=1
