@@ -20,6 +20,15 @@ Error: connect ETIMEDOUT 104.20.22.46:443
 
 It is a cause of failed jobs. For this case, the action `wretry.action` can retry the action immediately after fail or with some delay. And if the connection will be restored, then the job will continue the normal run.
 
+## Features
+
+- Retries only Github actions. The action can be an action repository that is not published on `Marketplace`.
+- Always has `pre` and `post` stages. If external action has `pre` or/and `post` stage, then action run it also.
+- Retries only `main` script. Retries no `pre` and `post` stages of external actions.
+- Handles no conditions in external actions. All stages of external action will be performed.
+- Retries actions with defined number of attempts ( default is 2 ).
+- Retries actions with defined delay between attempts ( default is 0 ).
+
 ## Inputs
 
 ### `action`
@@ -45,7 +54,7 @@ Depends on output of given Github action.
 ## Example usage
 
 ```yaml
-uses: Wandalen/wretry.action@0.1.0
+uses: Wandalen/wretry.action@0.2.7
 with:
   action: action/node-setup@2.3.0
   with: |
