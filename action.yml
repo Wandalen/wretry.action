@@ -8,8 +8,11 @@ branding:
 description: 'Retries an Github Action step on failure'
 inputs:
   action:
-    description: 'Github action name'
-    required: true
+    description: 'Github action name. Should be defined action or command, not both.'
+    required: false
+  command:
+    description: 'Command to run. Should be defined action or command, not both.'
+    required: false
   with:
     description: 'An options map for Github action'
     required: false
