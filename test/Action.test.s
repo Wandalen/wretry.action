@@ -17,6 +17,58 @@ const core = require( '@actions/core' );
 // test
 // --
 
+function retryWithoutAction( test )
+{
+  const a = test.assetFor( false );
+  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+  const isTestContainer = _.process.insideTestContainer();
+
+  const testAction = 'dmvict/test.action@v0.0.2';
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'without action name';
+    core.exportVariable( `INPUT_WITH`, 'value : 4' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 1 );
+    test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
+    a.shellNonThrowing( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
+    return a.ready;
+  }
+}
+
+//
+
 function retryFetchActionWithoutTagOrHash( test )
 {
   const a = test.assetFor( false );
@@ -25,7 +77,7 @@ function retryFetchActionWithoutTagOrHash( test )
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
 
-  const testAction = ' actions/hello-world-javascript-action';
+  const testAction = 'actions/hello-world-javascript-action';
 
   /* - */
 
@@ -801,6 +853,8 @@ const Proto =
 
   tests :
   {
+    retryWithoutAction,
+
     retryFetchActionWithoutTagOrHash,
     retryFetchActionWithTag,
     retryFetchActionWithHash,
