@@ -19,13 +19,10 @@ const core = require( '@actions/core' );
 
 function retryWithoutAction( test )
 {
+  const context = this;
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
-  const isTestContainer = _.process.insideTestContainer();
-
-  const testAction = 'dmvict/test.action@v0.0.2';
 
   /* - */
 
@@ -58,14 +55,68 @@ function retryWithoutAction( test )
     a.ready.then( () =>
     {
       a.fileProvider.filesDelete( a.abs( '.' ) );
-      a.fileProvider.dirMake( actionPath );
+      a.fileProvider.filesReflect({ reflectMap : { [ context.actionDirPath ] : actionPath } });
       return null;
     });
-    a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
     a.shellNonThrowing( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
 }
+
+//
+
+function retryWithActionAndCommand( test )
+{
+  const context = this;
+  const a = test.assetFor( false );
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }`;
+
+  const testAction = 'dmvict/test.action@v0.0.2';
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'without action name';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_COMMAND`, 'echo str' );
+    core.exportVariable( `INPUT_WITH`, 'value : 4' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.notIdentical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
+    test.identical( _.strCount( op.output, '::error::Expects Github action name or command, but not both.' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.filesReflect({ reflectMap : { [ context.actionDirPath ] : actionPath } });
+      return null;
+    });
+    a.shellNonThrowing( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
+    return a.ready;
+  }
+}
+
+retryWithActionAndCommand.timeOut = 120000;
 
 //
 
@@ -851,9 +902,15 @@ const Proto =
   silencing : 1,
   routineTimeOut : 60000,
 
+  context :
+  {
+    actionDirPath : __.path.join( __dirname, '..' ),
+  },
+
   tests :
   {
     retryWithoutAction,
+    retryWithActionAndCommand,
 
     retryFetchActionWithoutTagOrHash,
     retryFetchActionWithTag,

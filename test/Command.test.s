@@ -19,7 +19,7 @@ const core = require( '@actions/core' );
 
 function retryWithoutCommand( test )
 {
-  let context = this;
+  const context = this;
   const a = test.assetFor( false );
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
@@ -171,7 +171,7 @@ const Proto =
 {
   name : 'Command',
   silencing : 1,
-  routineTimeOut : 60000,
+  routineTimeOut : 90000,
 
   context :
   {
