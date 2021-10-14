@@ -83,6 +83,8 @@ function retryWithoutAction( test )
   }
 }
 
+retryWithoutAction.timeOut = 120000;
+
 //
 
 function retryWithActionAndCommand( test )
