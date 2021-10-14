@@ -42,7 +42,7 @@ function retryWithoutAction( test )
   a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
   {
-    test.identical( op.exitCode, 1 );
+    test.notIdentical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 1 );
     return null;
   });

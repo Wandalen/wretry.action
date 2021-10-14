@@ -113,6 +113,56 @@ function retryWithWrongComand( test )
   }
 }
 
+//
+
+function retryWithValidComand( test )
+{
+  let context = this;
+  const a = test.assetFor( false );
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'without action name';
+    core.exportVariable( `INPUT_COMMAND`, 'echo str' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
+    test.identical( _.strCount( op.output, 'Attempts is exhausted, made 4 attempts' ), 0 );
+    test.identical( _.strCount( op.output, 'str' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.filesReflect({ reflectMap : { [ context.actionDirPath ] : actionPath } });
+      return null;
+    });
+    a.shellNonThrowing( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
+    return a.ready;
+  }
+}
+
 // --
 // declare
 // --
@@ -132,6 +182,7 @@ const Proto =
   {
     retryWithoutCommand,
     retryWithWrongComand,
+    retryWithValidComand,
   },
 };
 
