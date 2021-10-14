@@ -13,9 +13,134 @@ const _ = _global_.wTools;
 const __ = _globals_.testing.wTools;
 const core = require( '@actions/core' );
 
+//
+
+function onSuiteBegin()
+{
+  let context = this;
+  context.actionDirPath = __.path.join( __dirname, '..' );
+  delete process.env.INPUT_ACTION;
+  delete process.env.INPUT_COMMAND;
+  delete process.env.INPUT_ATTEMPT_LIMIT;
+  delete process.env.INPUT_WITH;
+  delete process.env.INPUT_ATTEMPT_DELAY;
+}
+
+//
+
+function onSuiteEnd()
+{
+  onSuiteBegin.call( this );
+}
+
 // --
 // test
 // --
+
+function retryWithoutAction( test )
+{
+  const context = this;
+  const a = test.assetFor( false );
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'without action name';
+    core.exportVariable( `INPUT_WITH`, 'value : 4' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.notIdentical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.filesReflect({ reflectMap : { [ context.actionDirPath ] : actionPath } });
+      return null;
+    });
+    a.shellNonThrowing( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
+    return a.ready;
+  }
+}
+
+retryWithoutAction.timeOut = 120000;
+
+//
+
+function retryWithActionAndCommand( test )
+{
+  const context = this;
+  const a = test.assetFor( false );
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }`;
+
+  const testAction = 'dmvict/test.action@v0.0.2';
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'without action name';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_COMMAND`, 'echo str' );
+    core.exportVariable( `INPUT_WITH`, 'value : 4' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.notIdentical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
+    test.identical( _.strCount( op.output, '::error::Expects Github action name or command, but not both.' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.filesReflect({ reflectMap : { [ context.actionDirPath ] : actionPath } });
+      return null;
+    });
+    a.shellNonThrowing( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
+    return a.ready;
+  }
+}
+
+retryWithActionAndCommand.timeOut = 120000;
+
+//
 
 function retryFetchActionWithoutTagOrHash( test )
 {
@@ -25,7 +150,7 @@ function retryFetchActionWithoutTagOrHash( test )
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
 
-  const testAction = ' actions/hello-world-javascript-action';
+  const testAction = 'actions/hello-world-javascript-action';
 
   /* - */
 
@@ -799,8 +924,19 @@ const Proto =
   silencing : 1,
   routineTimeOut : 60000,
 
+  onSuiteBegin,
+  onSuiteEnd,
+
+  context :
+  {
+    actionDirPath : null,
+  },
+
   tests :
   {
+    retryWithoutAction,
+    retryWithActionAndCommand,
+
     retryFetchActionWithoutTagOrHash,
     retryFetchActionWithTag,
     retryFetchActionWithHash,

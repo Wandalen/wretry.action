@@ -33,11 +33,17 @@ It is a cause of failed jobs. For this case, the action `wretry.action` can retr
 
 ### `action`
 
-**Required** The name of the Github action.
+The name of the Github action.
+
+### `command`
+
+The command to run.
+
+**Attend**. Action requires defined `action` or `command`. If the fields `action` and `commands` are defined simultaneously, then action will throw error.
 
 ### `with`
 
-An options map for Github action. It is a multiline string with pairs `key - value`.
+An options map for Github action. It is a multiline string with pairs `key : value`.
 
 ### `attempt_limit`
 
@@ -53,6 +59,8 @@ Depends on output of given Github action.
 
 ## Example usage
 
+### Retry action
+
 ```yaml
 uses: Wandalen/wretry.action@0.2.7
 with:
@@ -60,6 +68,16 @@ with:
   with: |
     node-version: 14.x
     architecture: x64
+  attempt_limit: 3
+  attempt_delay: 2000
+```
+
+### Retry command
+
+```yaml
+uses: Wandalen/wretry.action@0.2.7
+with:
+  command: npm i
   attempt_limit: 3
   attempt_delay: 2000
 ```
