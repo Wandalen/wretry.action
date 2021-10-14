@@ -11,11 +11,11 @@ function retry( scriptType )
   {
     let routine;
     const actionName = core.getInput( 'action' );
-    const command = core.getInput( 'command' );
+    const command = core.getMultilineInput( 'command' );
     if( !actionName )
     {
-      if( !command )
-      throw _.err( 'Please, specify Github action name or shell command.' );
+      if( !command.length )
+      throw _.error.brief( 'Please, specify Github action name or shell command.' );
 
       routine = () =>
       {
@@ -33,7 +33,7 @@ function retry( scriptType )
     }
     else
     {
-      if( command )
+      if( command.length )
       throw _.error.brief( 'Expects Github action name or command, but not both.' );
       const remoteActionPath = common.remotePathFromActionName( actionName );
       const localActionPath = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
@@ -71,7 +71,7 @@ function retry( scriptType )
       }
       else
       {
-        throw _.err( 'not implemented' );
+        throw _.error.brief( 'implemented only for NodeJS interpreter' );
       }
     }
 

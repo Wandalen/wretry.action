@@ -13,6 +13,26 @@ const _ = _global_.wTools;
 const __ = _globals_.testing.wTools;
 const core = require( '@actions/core' );
 
+//
+
+function onSuiteBegin()
+{
+  let context = this;
+  context.actionDirPath = __.path.join( __dirname, '..' );
+  delete process.env.INPUT_ACTION;
+  delete process.env.INPUT_COMMAND;
+  delete process.env.INPUT_ATTEMPT_LIMIT;
+  delete process.env.INPUT_WITH;
+  delete process.env.INPUT_ATTEMPT_DELAY;
+}
+
+//
+
+function onSuiteEnd()
+{
+  onSuiteBegin.call( this );
+}
+
 // --
 // test
 // --
@@ -173,9 +193,12 @@ const Proto =
   silencing : 1,
   routineTimeOut : 90000,
 
+  onSuiteBegin,
+  onSuiteEnd,
+
   context :
   {
-    actionDirPath : __.path.join( __dirname, '..' ),
+    actionDirPath : null,
   },
 
   tests :
