@@ -1,9 +1,9 @@
 
-# action::wretry.action  [![status](https://github.com/Wandalen/wretry.action/actions/workflows/StandardPush.yml/badge.svg)](https://github.com/Wandalen/wretry.action/actions/workflows/StandardPush.yml) [![experimental](https://img.shields.io/badge/stability-experimental-orange.svg)](https://github.com/emersion/stability-badges#experimental)
+# action::wretry.action  [![status](https://github.com/Wandalen/wretry.action/actions/workflows/StandardPush.yml/badge.svg)](https://github.com/Wandalen/wretry.action/actions/workflows/StandardPush.yml) [![stability-stable](https://img.shields.io/badge/stability-stable-green.svg)](https://github.com/emersion/stability-badges#stable)
 
-Retries an Github Action step on failure.
+Retries an Github Action step or command on failure.
 
-This action is intended to wrap Github actions based on NodeJS interpreter.
+This action is intended to wrap Github actions based on NodeJS interpreter and shell commands.
 
 ## Why
 
@@ -22,9 +22,10 @@ It is a cause of failed jobs. For this case, the action `wretry.action` can retr
 
 ## Features
 
-- Retries only Github actions. The action can be an action repository that is not published on `Marketplace`.
+- Retries Github actions. The action can be an action repository that is not published on `Marketplace`.
+- Retries shell command.
 - Always has `pre` and `post` stages. If external action has `pre` or/and `post` stage, then action run it also.
-- Retries only `main` script. Retries no `pre` and `post` stages of external actions.
+- Retries only `main` action script. Retries no `pre` and `post` stages of external actions.
 - Handles no conditions in external actions. All stages of external action will be performed.
 - Retries actions with defined number of attempts ( default is 2 ).
 - Retries actions with defined delay between attempts ( default is 0 ).
