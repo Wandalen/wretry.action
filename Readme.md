@@ -1,5 +1,5 @@
 
-# action::wretry.action  [![status](https://github.com/Wandalen/wretry.action/actions/workflows/StandardPush.yml/badge.svg)](https://github.com/Wandalen/wretry.action/actions/workflows/StandardPush.yml) [![stability-stable](https://img.shields.io/badge/stability-stable-green.svg)](https://github.com/emersion/stability-badges#stable)
+# action::wretry.action  [![status](https://github.com/Wandalen/wretry.action/actions/workflows/StandardPush.yml/badge.svg)](https://github.com/Wandalen/wretry.action/actions/workflows/StandardPush.yml) [![stable](https://img.shields.io/badge/stability-stable-brightgreen.svg)](https://github.com/emersion/stability-badges#stable)
 
 Retries an Github Action step or command on failure.
 
