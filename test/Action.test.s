@@ -19,6 +19,12 @@ function onSuiteBegin()
 {
   let context = this;
   context.actionDirPath = __.path.join( __dirname, '..' );
+}
+
+//
+
+function onRoutineBegin()
+{
   delete process.env.INPUT_ACTION;
   delete process.env.INPUT_COMMAND;
   delete process.env.INPUT_ATTEMPT_LIMIT;
@@ -28,7 +34,7 @@ function onSuiteBegin()
 
 //
 
-function onSuiteEnd()
+function onRoutineEnd()
 {
   onSuiteBegin.call( this );
 }
@@ -118,6 +124,12 @@ function retryWithActionAndCommand( test )
     test.identical( _.strCount( op.output, '::error::Expects Github action name or command, but not both.' ), 1 );
     return null;
   });
+
+  a.ready.finally( () =>
+  {
+    delete process.env.INPUT_COMMAND;
+    return null;
+  })
 
   /* - */
 
@@ -925,7 +937,8 @@ const Proto =
   routineTimeOut : 60000,
 
   onSuiteBegin,
-  onSuiteEnd,
+  onRoutineBegin,
+  onRoutineEnd,
 
   context :
   {
