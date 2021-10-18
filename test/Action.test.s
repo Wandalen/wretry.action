@@ -150,7 +150,7 @@ function retryWithActionAndCommand( test )
   }
 }
 
-retryWithActionAndCommand.timeOut = 120000;
+retryWithActionAndCommand.timeOut = 240000;
 
 //
 
