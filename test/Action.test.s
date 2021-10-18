@@ -89,7 +89,7 @@ function retryWithoutAction( test )
   }
 }
 
-retryWithoutAction.timeOut = 120000;
+retryWithoutAction.timeOut = 240000;
 
 //
 
