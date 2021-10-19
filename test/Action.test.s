@@ -848,6 +848,8 @@ function retryActionWithPostScript( test )
   }
 }
 
+retryActionWithPostScript.timeOut = 120000;
+
 //
 
 function retryActionWithPreAndPostScript( test )
@@ -925,6 +927,8 @@ function retryActionWithPreAndPostScript( test )
     return a.ready;
   }
 }
+
+retryActionWithPreAndPostScript.timeOut = 120000;
 
 // --
 // declare
