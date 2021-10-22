@@ -254,7 +254,7 @@ step:
     command: 'commit -am "version {about::version}"'
   tag:
     inherit: git.tag
-    tag: '{about::version}'
+    tag: 'v{about::version}'
   push:
     inherit: git.push
     dirPath: .
