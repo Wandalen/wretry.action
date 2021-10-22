@@ -15,7 +15,10 @@ jobs :
       matrix :
         os : [ ubuntu-latest, windows-latest, macos-latest ]
         node-version : [ 14.x ]
-    if : "!startsWith( github.ref, 'refs/tags' )"
+    if : |
+      !startsWith( github.event.head_commit.message, 'version' )
+      && !startsWith( github.event.head_commit.message, '.' )
+      && !startsWith( github.event.head_commit.message, 'Merge' )
     runs-on : ${{ matrix.os }}
     steps :
     - name : Setup git
@@ -37,7 +40,7 @@ jobs :
     - name : Update npm if current version is 6
       if : "startsWith( steps.getnpmver.outputs.npmver, '6.' )"
       run : npm install -g npm@latest-6
-    - run : npm -g i willbe@stable
+    - run : npm -g i willbe@delta
     - run : will .npm.install
     - name : Environment
       run : env
