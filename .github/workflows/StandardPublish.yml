@@ -25,6 +25,8 @@ jobs :
         git config --global core.autocrlf input
         git config --global user.email "testing@testing.com"
         git config --global user.name "Testing"
+        git config --global pull.rebase false
+        git config --global init.defaultBranch master
     - uses : actions/checkout@v2
       with :
         fetch-depth: 2
