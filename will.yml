@@ -260,7 +260,7 @@ step:
     dirPath: .
   release:
     inherit: repo.release
-    tag: '{about::version}'
+    tag: 'v{about::version}'
 build:
   release.patch:
     criterion:
