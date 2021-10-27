@@ -20,6 +20,7 @@ Error: connect ETIMEDOUT 104.20.22.46:443
 
 It is a cause of failed jobs. For this case, the action `wretry.action` can retry the action immediately after fail or with some delay. And if the connection will be restored, then the job will continue the normal run.
 
+
 ## Features
 
 - Retries Github actions. The action can be an action repository that is not published on `Marketplace`.
