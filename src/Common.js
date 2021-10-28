@@ -18,6 +18,8 @@ function actionClone( localPath, remotePath )
     remotePath,
     localPath,
     sync : 1,
+    attemptLimit : 4,
+    attemptDelay : 500,
     attemptDelayMultiplier : 4,
   });
 
