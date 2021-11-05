@@ -678,8 +678,8 @@ function retryWithExternalActionOnRemote( test )
     test.identical( _.strCount( op.output, 'Done' ), 0 );
     test.identical( _.strCount( op.output, 'Attempting to download 25.x' ), 4 );
     test.identical( _.strCount( op.output, 'error::Unable to find Node version \'25.x\'' ), 4 );
-    test.identical( _.strCount( op.output, 'Attempts is exhausted, made 4 attempts' ), 1 );
-    test.identical( _.strCount( op.output, /Attempt #\d runned at/ ), 4 );
+    test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 1 );
+    test.identical( _.strCount( op.output, /Attempt #\d ran at/ ), 4 );
     return null;
   });
 
