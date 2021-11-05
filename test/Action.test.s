@@ -184,7 +184,7 @@ function retryFetchActionWithoutTagOrHash( test )
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 1 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 0 );
-    test.identical( _.strCount( op.output, /::error::.*Attempts is exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::.*Attempts exhausted, made 3 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Hello test!' ), 1 );
     return null;
   });
@@ -241,7 +241,7 @@ function retryFetchActionWithTag( test )
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
     return null;
   });
@@ -297,7 +297,7 @@ function retryFetchActionWithHash( test )
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
     return null;
   });
@@ -322,7 +322,7 @@ function retryFetchActionWithHash( test )
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
     return null;
   });
@@ -381,7 +381,7 @@ function retryWithOptionAttemptLimit( test )
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 2 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 2 );
-    test.identical( _.strCount( op.output, /::error::.*Attempts is exhausted, made 2 attempts/ ), 1 );
+    test.identical( _.strCount( op.output, /::error::.*Attempts exhausted, made 2 attempts/ ), 1 );
     test.identical( _.strCount( op.output, 'Success' ), 0 );
     return null;
   });
@@ -403,7 +403,7 @@ function retryWithOptionAttemptLimit( test )
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
-    test.identical( _.strCount( op.output, /::error::.*Attempts is exhausted, made 3 attempts/ ), 1 );
+    test.identical( _.strCount( op.output, /::error::.*Attempts exhausted, made 3 attempts/ ), 1 );
     test.identical( _.strCount( op.output, 'Success' ), 0 );
     return null;
   });
@@ -426,7 +426,7 @@ function retryWithOptionAttemptLimit( test )
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
     return null;
   });
@@ -492,7 +492,7 @@ function retryWithOptionAttemptDelay( test )
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
     return null;
   });
@@ -519,7 +519,7 @@ function retryWithOptionAttemptDelay( test )
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
     return null;
   });
@@ -578,7 +578,7 @@ function retryWithExternalActionOnLocal( test )
     test.identical( _.strCount( op.output, '::debug::isExplicit:' ), 4 );
     test.identical( _.strCount( op.output, '::debug::explicit? false' ), 4 );
     test.identical( _.strCount( op.output, '::error::Expected RUNNER_TOOL_CACHE to be defined' ), 4 );
-    test.identical( _.strCount( op.output, /::error::.*Attempts is exhausted, made 4 attempts/ ), 1 );
+    test.identical( _.strCount( op.output, /::error::.*Attempts exhausted, made 4 attempts/ ), 1 );
     test.identical( _.strCount( op.output, 'Attempting to download 13.x' ), 0 );
     test.identical( _.strCount( op.output, 'Not found in manifest.  Falling back to download directly from Node' ), 0 );
     test.identical( _.strCount( op.output, /Acquiring 13.\d+\.\d+/ ), 0 );
@@ -644,7 +644,7 @@ function retryWithExternalActionOnRemote( test )
     test.ge( _.strCount( op.output, '::debug::isExplicit:' ), 0 );
     test.ge( _.strCount( op.output, '::debug::explicit? false' ), 0 );
     test.identical( _.strCount( op.output, '::error::Expected RUNNER_TOOL_CACHE to be defined' ), 0 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 4 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Attempting to download 13.x' ), 1 );
     test.identical( _.strCount( op.output, /Acquiring 13.\d+\.\d+/ ), 1 );
     test.identical( _.strCount( op.output, 'Extracting ...' ), 1 );
@@ -671,7 +671,7 @@ function retryWithExternalActionOnRemote( test )
     test.ge( _.strCount( op.output, '::debug::isExplicit:' ), 0 );
     test.ge( _.strCount( op.output, '::debug::explicit? false' ), 0 );
     test.identical( _.strCount( op.output, '::error::Expected RUNNER_TOOL_CACHE to be defined' ), 0 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 4 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, /Acquiring 13.\d+\.\d+/ ), 0 );
     test.identical( _.strCount( op.output, 'Extracting ...' ), 0 );
     test.identical( _.strCount( op.output, 'Adding to the cache' ), 0 );
@@ -679,7 +679,7 @@ function retryWithExternalActionOnRemote( test )
     test.identical( _.strCount( op.output, 'Attempting to download 25.x' ), 4 );
     test.identical( _.strCount( op.output, 'error::Unable to find Node version \'25.x\'' ), 4 );
     test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 1 );
-    test.identical( _.strCount( op.output, /Attempt #\d ran at/ ), 4 );
+    test.identical( _.strCount( op.output, /Attempt #\d started at/ ), 4 );
     return null;
   });
 
@@ -738,7 +738,7 @@ function retryActionWithPreScript( test )
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
     return null;
   });
@@ -803,7 +803,7 @@ function retryActionWithPostScript( test )
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
 
 
@@ -883,7 +883,7 @@ function retryActionWithPreAndPostScript( test )
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts is exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
 
 

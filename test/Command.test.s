@@ -116,7 +116,7 @@ function retryWithWrongComand( test )
     test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
     test.identical( _.strCount( op.output, '::error::Process returned exit code' ), 1 );
     test.identical( _.strCount( op.output, 'Launched as "wrong command"' ), 1 );
-    test.identical( _.strCount( op.output, 'Attempts is exhausted, made 4 attempts' ), 1 );
+    test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 1 );
     return null;
   });
 
@@ -165,7 +165,7 @@ function retryWithValidComand( test )
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
-    test.identical( _.strCount( op.output, 'Attempts is exhausted, made 4 attempts' ), 0 );
+    test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
     test.identical( _.strCount( op.output, 'str' ), 1 );
     return null;
   });
