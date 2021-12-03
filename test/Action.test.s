@@ -84,7 +84,7 @@ function retryWithoutAction( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
     a.shellNonThrowing( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -144,7 +144,7 @@ function retryWithActionAndCommand( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
     a.shellNonThrowing( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -202,7 +202,7 @@ function retryFetchActionWithoutTagOrHash( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -260,7 +260,7 @@ function retryFetchActionWithTag( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -342,7 +342,7 @@ function retryFetchActionWithHash( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -447,7 +447,7 @@ function retryWithOptionAttemptLimit( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -541,7 +541,7 @@ function retryWithOptionAttemptDelay( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -606,7 +606,7 @@ function retryWithExternalActionOnLocal( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -702,7 +702,7 @@ function retryWithExternalActionOnRemote( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -763,7 +763,7 @@ function retryActionWithPreScript( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     a.ready.then( ( op ) =>
     {
@@ -842,7 +842,7 @@ function retryActionWithPostScript( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     a.ready.then( ( op ) =>
     {
@@ -923,7 +923,7 @@ function retryActionWithPreAndPostScript( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     a.ready.then( ( op ) =>
     {
