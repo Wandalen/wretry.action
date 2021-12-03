@@ -7,6 +7,7 @@ if( typeof module !== 'undefined' )
 {
   const _ = require( 'wTools' );
   _.include( 'wTesting' );
+  _.include( 'wGitTools' );
 }
 
 const _ = _global_.wTools;

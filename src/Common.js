@@ -1,4 +1,5 @@
 const core = require( '@actions/core' );
+if( typeof wTools === 'undefined' )
 require( '../node_modules/Joined.s' );
 const _ = wTools;
 
