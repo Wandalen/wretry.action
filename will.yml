@@ -9,6 +9,7 @@ about:
     - Dmytro Kryvoruchko <dm.vict.kr@gmail.com>
   license: MIT
   npm.scripts:
+    postinstall: will .build install,
     test: wtest .run "test/**"
   npm.homepage: 'https://github.com/Wandalen/wretry.action#action::wretry.action'
   keywords:
