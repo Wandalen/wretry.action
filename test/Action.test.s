@@ -81,15 +81,14 @@ function retryWithoutAction( test )
     a.ready.then( () =>
     {
       a.fileProvider.filesDelete( a.abs( '.' ) );
-      a.fileProvider.filesReflect({ reflectMap : { [ context.actionDirPath ] : actionPath } });
+      a.fileProvider.dirMake( actionPath );
       return null;
     });
+    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
     a.shellNonThrowing( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
 }
-
-retryWithoutAction.timeOut = 240000;
 
 //
 
@@ -129,7 +128,7 @@ function retryWithActionAndCommand( test )
   {
     delete process.env.INPUT_COMMAND;
     return null;
-  })
+  });
 
   /* - */
 
@@ -142,20 +141,20 @@ function retryWithActionAndCommand( test )
     a.ready.then( () =>
     {
       a.fileProvider.filesDelete( a.abs( '.' ) );
-      a.fileProvider.filesReflect({ reflectMap : { [ context.actionDirPath ] : actionPath } });
+      a.fileProvider.dirMake( actionPath );
       return null;
     });
+    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
     a.shellNonThrowing( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
 }
 
-retryWithActionAndCommand.timeOut = 240000;
-
 //
 
 function retryFetchActionWithoutTagOrHash( test )
 {
+  const context = this;
   const a = test.assetFor( false );
   const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
@@ -203,7 +202,7 @@ function retryFetchActionWithoutTagOrHash( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -213,6 +212,7 @@ function retryFetchActionWithoutTagOrHash( test )
 
 function retryFetchActionWithTag( test )
 {
+  const context = this;
   const a = test.assetFor( false );
   const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
@@ -260,7 +260,7 @@ function retryFetchActionWithTag( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -270,6 +270,7 @@ function retryFetchActionWithTag( test )
 
 function retryFetchActionWithHash( test )
 {
+  const context = this;
   const a = test.assetFor( false );
   const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
@@ -341,7 +342,7 @@ function retryFetchActionWithHash( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -353,6 +354,7 @@ retryFetchActionWithHash.timeOut = 120000;
 
 function retryWithOptionAttemptLimit( test )
 {
+  const context = this;
   const a = test.assetFor( false );
   const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
@@ -445,7 +447,7 @@ function retryWithOptionAttemptLimit( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -457,6 +459,7 @@ retryWithOptionAttemptLimit.timeOut = 120000;
 
 function retryWithOptionAttemptDelay( test )
 {
+  const context = this;
   const a = test.assetFor( false );
   const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
@@ -538,7 +541,7 @@ function retryWithOptionAttemptDelay( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -548,6 +551,7 @@ function retryWithOptionAttemptDelay( test )
 
 function retryWithExternalActionOnLocal( test )
 {
+  const context = this;
   const a = test.assetFor( false );
 
   if( _.process.insideTestContainer() )
@@ -602,7 +606,7 @@ function retryWithExternalActionOnLocal( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -614,6 +618,7 @@ retryWithExternalActionOnLocal.timeOut = 120000;
 
 function retryWithExternalActionOnRemote( test )
 {
+  const context = this;
   const a = test.assetFor( false );
 
   if( !_.process.insideTestContainer() )
@@ -697,7 +702,7 @@ function retryWithExternalActionOnRemote( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -709,6 +714,7 @@ retryWithExternalActionOnRemote.timeOut = 120000;
 
 function retryActionWithPreScript( test )
 {
+  const context = this;
   const a = test.assetFor( false );
   const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
@@ -757,7 +763,7 @@ function retryActionWithPreScript( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     a.ready.then( ( op ) =>
     {
@@ -774,6 +780,7 @@ function retryActionWithPreScript( test )
 
 function retryActionWithPostScript( test )
 {
+  const context = this;
   const a = test.assetFor( false );
   const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
@@ -835,7 +842,7 @@ function retryActionWithPostScript( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     a.ready.then( ( op ) =>
     {
@@ -854,8 +861,9 @@ retryActionWithPostScript.timeOut = 120000;
 
 function retryActionWithPreAndPostScript( test )
 {
+  const context = this;
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/dmvict/wretry.action.git';
+  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
@@ -915,7 +923,7 @@ function retryActionWithPreAndPostScript( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ actionRepo } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ context.actionDirPath } ${ a.path.nativize( actionPath ) }` );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     a.ready.then( ( op ) =>
     {
