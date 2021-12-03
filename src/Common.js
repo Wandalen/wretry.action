@@ -1,6 +1,6 @@
 const core = require( '@actions/core' );
-const _ = require( 'wTools' );
-_.include( 'wGitTools' );
+require( '../node_modules/Joined.s' );
+const _ = wTools;
 
 //
 

@@ -1,7 +1,7 @@
 const core = require( '@actions/core' );
 const common = require( './Common.js' );
-const _ = require( 'wTools' );
-_.include( 'wConsequence' );
+require( '../node_modules/Joined.s' );
+const _ = wTools;
 
 //
 
