@@ -9,7 +9,6 @@ about:
     - Dmytro Kryvoruchko <dm.vict.kr@gmail.com>
   license: MIT
   npm.scripts:
-    postinstall: will .build install,
     test: wtest .run "test/**"
   npm.homepage: 'https://github.com/Wandalen/wretry.action#action::wretry.action'
   keywords:
@@ -264,6 +263,8 @@ step:
     criterion:
       content:
         - proto
+  npm.install:
+    shell : npm install --production
   clean.out:
     inherit: files.delete
     filePath: '{path::out.*=1}/source'
@@ -337,6 +338,7 @@ build:
       default: 1
       bump: patch
     steps:
+      - build::install
       - sync
       - bump.*=1
       - npm.generate.proto
@@ -353,6 +355,7 @@ build:
         - minor
         - patch
     steps:
+      - build::install
       - sync
       - bump.*=1
       - npm.generate.proto
@@ -408,5 +411,6 @@ build:
       - 'build::npm.*=1'
   install :
     steps :
+      - npm.install
       - join.sources
       - clean.modules
