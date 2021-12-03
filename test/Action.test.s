@@ -855,7 +855,7 @@ retryActionWithPostScript.timeOut = 120000;
 function retryActionWithPreAndPostScript( test )
 {
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
+  const actionRepo = 'https://github.com/dmvict/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
