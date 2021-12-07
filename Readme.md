@@ -3,8 +3,6 @@
 
 Retries an Github Action step or command on failure.
 
-This action is intended to wrap Github actions based on NodeJS interpreter and shell commands.
-
 ## Why
 
 Github actions which use an Internet connection can fail when connection is lost :
