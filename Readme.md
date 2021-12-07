@@ -3,6 +3,8 @@
 
 Retries an Github Action step or command on failure.
 
+Works with either shell commands or other actions to retry.
+
 ## Why
 
 Github actions which use an Internet connection can fail when connection is lost :
