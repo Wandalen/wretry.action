@@ -172,7 +172,6 @@ reflector:
            - !!js/regexp '/retry/'
            - !!js/regexp '/signal-exit/'
            - !!js/regexp '/tunnel/'
-           - !!js/regexp '/wdeasync/'
            - !!js/regexp '/Joined.s/'
 step:
   join.sources:
