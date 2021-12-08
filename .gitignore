@@ -12,7 +12,6 @@
 !/node_modules/retry
 !/node_modules/signal-exit
 !/node_modules/tunnel
-!/node_modules/wdeasync
 !/node_modules/Joined.s
 
 /_*
