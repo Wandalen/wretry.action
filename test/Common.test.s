@@ -92,35 +92,73 @@ function actionClone( test )
   const a = test.assetFor( false );
   const localPath = a.abs( '.' );
 
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'action without hash or tag';
+    var remotePath = common.remotePathFromActionName( 'dmvict/test.action' );
+    return common.actionClone( localPath, remotePath );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    test.identical( __.git.tagLocalRetrive({ localPath, sync : 1 }), 'master' );
+    a.fileProvider.filesDelete( localPath );
+    return null;
+  });
+
   /* */
 
-  test.case = 'action without hash or tag';
-  var remotePath = common.remotePathFromActionName( 'dmvict/test.action' );
-  var got = common.actionClone( localPath, remotePath );
-  test.identical( got, undefined );
-  test.identical( __.git.tagLocalRetrive({ localPath }), 'master' );
-  a.fileProvider.filesDelete( localPath );
+  a.ready.then( () =>
+  {
+    test.case = 'action with tag';
+    var remotePath = common.remotePathFromActionName( 'dmvict/test.action@v0.0.2' );
+    return common.actionClone( localPath, remotePath );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, null );
+    test.identical( __.git.tagLocalRetrive({ localPath }), 'v0.0.2' );
+    a.fileProvider.filesDelete( localPath );
+    return null;
+  });
 
-  test.case = 'action with tag';
-  var remotePath = common.remotePathFromActionName( 'dmvict/test.action@v0.0.2' );
-  var got = common.actionClone( localPath, remotePath );
-  test.identical( got, undefined );
-  test.identical( __.git.tagLocalRetrive({ localPath }), 'v0.0.2' );
-  a.fileProvider.filesDelete( localPath );
+  /* */
 
-  test.case = 'action with short hash';
-  var remotePath = common.remotePathFromActionName( 'dmvict/test.action@3d21630' );
-  var got = common.actionClone( localPath, remotePath );
-  test.identical( got, undefined );
-  test.identical( __.git.tagLocalRetrive({ localPath }), 'v0.0.1' );
-  a.fileProvider.filesDelete( localPath );
+  a.ready.then( () =>
+  {
+    test.case = 'action with short hash';
+    var remotePath = common.remotePathFromActionName( 'dmvict/test.action@3d21630' );
+    return common.actionClone( localPath, remotePath );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, null );
+    test.identical( __.git.tagLocalRetrive({ localPath }), 'v0.0.1' );
+    a.fileProvider.filesDelete( localPath );
+    return null;
+  });
 
-  test.case = 'action with long hash';
-  var remotePath = common.remotePathFromActionName( 'dmvict/test.action@3d2163092fd3c83e02895189bf8fb845c5dc9e3f' );
-  var got = common.actionClone( localPath, remotePath );
-  test.identical( got, undefined );
-  test.identical( __.git.tagLocalRetrive({ localPath }), 'v0.0.1' );
-  a.fileProvider.filesDelete( localPath );
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'action with long hash';
+    var remotePath = common.remotePathFromActionName( 'dmvict/test.action@3d2163092fd3c83e02895189bf8fb845c5dc9e3f' );
+    return common.actionClone( localPath, remotePath );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, null );
+    test.identical( __.git.tagLocalRetrive({ localPath }), 'v0.0.1' );
+    a.fileProvider.filesDelete( localPath );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
 }
 
 actionClone.timeOut = 30000;
