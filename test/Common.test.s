@@ -103,7 +103,7 @@ function actionClone( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op, true );
-    test.identical( __.git.tagLocalRetrive({ localPath, sync : 1 }), 'master' );
+    test.identical( __.git.tagLocalRetrive({ localPath }), 'master' );
     a.fileProvider.filesDelete( localPath );
     return null;
   });
@@ -170,34 +170,49 @@ function actionConfigRead( test )
   const a = test.assetFor( false );
   const actionPath = a.abs( '.' );
 
-  /* */
+  /* - */
 
-  test.case = 'read directory with action file';
-  common.actionClone( actionPath, common.remotePathFromActionName( 'dmvict/test.action@v0.0.2' ) );
-  var got = common.actionConfigRead( actionPath );
-  var exp =
+  a.ready.then( () =>
   {
-    name : 'test.action',
-    author : 'dmvict <dm.vict.kr@gmail.com>',
-    description : 'An action for testing purpose, no real usage expected.',
-    inputs :
+    test.case = 'read directory with action file';
+    return common.actionClone( actionPath, common.remotePathFromActionName( 'dmvict/test.action@v0.0.2' ) );
+  });
+  a.ready.then( ( op ) =>
+  {
+    var got = common.actionConfigRead( actionPath );
+    var exp =
     {
-      value : { 'description' : 'A test value', 'required' : true, 'default' : 0 }
-    },
-    runs : { 'using' : 'node12', 'main' : 'src/index.js' }
-  };
-  test.identical( got, exp );
-  a.fileProvider.filesDelete( actionPath );
+      name : 'test.action',
+      author : 'dmvict <dm.vict.kr@gmail.com>',
+      description : 'An action for testing purpose, no real usage expected.',
+      inputs :
+      {
+        value : { 'description' : 'A test value', 'required' : true, 'default' : 0 }
+      },
+      runs : { 'using' : 'node12', 'main' : 'src/index.js' }
+    };
+    test.identical( got, exp );
+    a.fileProvider.filesDelete( actionPath );
+    return null;
+  });
 
   /* - */
 
-  if( !Config.debug )
-  return;
+  if( Config.debug )
+  {
+    a.ready.then( () => common.actionClone( actionPath, common.remotePathFromActionName( 'dmvict/test.action@v0.0.2' ) ) );
+    a.ready.then( () =>
+    {
+      test.case = 'config file does not exists';
+      a.fileProvider.filesDelete( a.abs( actionPath, 'action.yml' ) );
+      test.shouldThrowErrorSync( () => common.actionConfigRead( actionPath ) );
+      return null;
+    });
+  }
 
-  test.case = 'config file does not exists';
-  common.actionClone( actionPath, common.remotePathFromActionName( 'dmvict/test.action@v0.0.2' ) );
-  a.fileProvider.filesDelete( a.abs( actionPath, 'action.yml' ) );
-  test.shouldThrowErrorSync( () => common.actionConfigRead( actionPath ) );
+  /* - */
+
+  return a.ready;
 }
 
 actionConfigRead.timeOut = 20000;
