@@ -14,21 +14,29 @@ function remotePathFromActionName( name )
 
 function actionClone( localPath, remotePath )
 {
-  _.git.repositoryClone
-  ({
-    remotePath,
-    localPath,
-    sync : 1,
-    attemptLimit : 4,
-    attemptDelay : 500,
-    attemptDelayMultiplier : 4,
+  const con = _.take( null );
+  con.then( () =>
+  {
+    return _.git.repositoryClone
+    ({
+      remotePath,
+      localPath,
+      sync : 0,
+      attemptLimit : 4,
+      attemptDelay : 500,
+      attemptDelayMultiplier : 4,
+    });
   });
-
-  _.git.tagLocalChange
-  ({
-    localPath,
-    tag : remotePath.tag,
+  con.then( () =>
+  {
+    return _.git.tagLocalChange
+    ({
+      localPath,
+      tag : remotePath.tag,
+      sync : 0
+    });
   });
+  return con;
 }
 
 //
