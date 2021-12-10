@@ -3,7 +3,7 @@
 
 Retries an Github Action step or command on failure.
 
-This action is intended to wrap Github actions based on NodeJS interpreter and shell commands.
+Works with either shell commands or other actions to retry.
 
 ## Why
 
@@ -24,8 +24,9 @@ It is a cause of failed jobs. For this case, the action `wretry.action` can retr
 
 - Retries Github actions. The action can be an action repository that is not published on `Marketplace`.
 - Retries shell command.
+- Can retry single action or single command ( multiline command ), but not both simultaneously.
+- Retries only `main`, `pre` and `post` stages of external actions.
 - Always has `pre` and `post` stages. If external action has `pre` or/and `post` stage, then action run it also.
-- Retries only `main` action script. Retries no `pre` and `post` stages of external actions.
 - Handles no conditions in external actions. All stages of external action will be performed.
 - Retries actions with defined number of attempts ( default is 2 ).
 - Retries actions with defined delay between attempts ( default is 0 ).
@@ -63,7 +64,7 @@ Depends on output of given Github action.
 ### Retry action
 
 ```yaml
-uses: Wandalen/wretry.action@0.2.7
+uses: Wandalen/wretry.action@v1.0.11
 with:
   action: action/node-setup@2.3.0
   with: |
@@ -76,7 +77,7 @@ with:
 ### Retry command
 
 ```yaml
-uses: Wandalen/wretry.action@0.2.7
+uses: Wandalen/wretry.action@v1.0.11
 with:
   command: npm i
   attempt_limit: 3
