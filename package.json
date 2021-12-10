@@ -3,9 +3,9 @@
   "version": "1.0.11",
   "description": "Retries an Github Action step on failure",
   "enabled": 0,
-  "author": "Kostiantyn Wandalen <wanalen@01.school>",
+  "author": "Kostiantyn Wandalen <wandalen@obox.systems>",
   "contributors": [
-    "Kostiantyn Wandalen <wanalen@01.school>",
+    "Kostiantyn Wandalen <wandalen@obox.systems>",
     "Dmytro Kryvoruchko <dm.vict.kr@gmail.com>"
   ],
   "license": "MIT",
