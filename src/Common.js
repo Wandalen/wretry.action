@@ -48,8 +48,8 @@ function actionOptionsParse( src )
   const result = Object.create( null );
   for( let i = 0 ; i < src.length ; i++ )
   {
-    const splits = src[ i ].split( ':' );
-    result[ splits[ 0 ].trim() ] = splits[ 1 ].trim();
+    const splits = _.strStructureParse({ src : src[ i ], toNumberMaybe : 0 });
+    _.map.extend( result, splits );
   }
   return result;
 }
