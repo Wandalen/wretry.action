@@ -118,7 +118,7 @@ function actionClone( test )
   });
   a.ready.then( ( op ) =>
   {
-    test.identical( op, null );
+    test.identical( op, true );
     test.identical( __.git.tagLocalRetrive({ localPath }), 'v0.0.2' );
     a.fileProvider.filesDelete( localPath );
     return null;
@@ -134,7 +134,7 @@ function actionClone( test )
   });
   a.ready.then( ( op ) =>
   {
-    test.identical( op, null );
+    test.identical( op, true );
     test.identical( __.git.tagLocalRetrive({ localPath }), 'v0.0.1' );
     a.fileProvider.filesDelete( localPath );
     return null;
@@ -150,7 +150,7 @@ function actionClone( test )
   });
   a.ready.then( ( op ) =>
   {
-    test.identical( op, null );
+    test.identical( op, true );
     test.identical( __.git.tagLocalRetrive({ localPath }), 'v0.0.1' );
     a.fileProvider.filesDelete( localPath );
     return null;
