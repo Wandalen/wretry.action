@@ -92,7 +92,7 @@ submodule:
     path: 'npm:///@actions/core!^1.4.0'
     enabled: 0
   wgittools:
-    path: 'npm:///wgittools'
+    path: 'npm:///wgittools!alpha'
     enabled: 0
   wTesting:
     path: 'npm:///wTesting'
