@@ -255,6 +255,11 @@ function actionOptionsParse( test )
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : 'value', number : '2' } );
 
+  test.case = 'string with uri';
+  var src = [ 'url:https://google.com' ];
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { url : 'https://google.com' } );
+
   test.close( 'without spaces' );
 
   /* - */
@@ -285,6 +290,11 @@ function actionOptionsParse( test )
   var src = [ ' str  : value', 'number : 2   ' ];
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : 'value', number : '2' } );
+
+  test.case = 'string with uri';
+  var src = [ ' url  : https://google.com    ' ];
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { url : 'https://google.com' } );
 
   test.close( 'with spaces' );
 

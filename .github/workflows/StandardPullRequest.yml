@@ -38,9 +38,13 @@ jobs :
       with :
         fetch-depth: 2
     - name : ${{ matrix.node-version }}
-      uses : actions/setup-node@v1
+      uses : Wandalen/wretry.action@v1.0.11
       with :
-        node-version : ${{ matrix.node-version }}
+        action : actions/setup-node@v2
+        with : |
+          node-version : ${{ matrix.node-version }}
+        attempt_limit : 3
+        attempt_delay: 1000
     - name : Save npm version
       id : getnpmver
       run : |
@@ -48,8 +52,18 @@ jobs :
     - name : Update npm if current version is 6
       if : "startsWith( steps.getnpmver.outputs.npmver, '6.' )"
       run : npm install -g npm@latest-6
-    - run : npm -g i willbe@delta
-    - run : will .npm.install
+    - name : Install willbe
+      uses : Wandalen/wretry.action@v1.0.11
+      with :
+        command : npm i -g willbe@delta
+        attempt_limit : 3
+        attempt_delay: 1000
+    - name : Install submodules
+      uses : Wandalen/wretry.action@v1.0.11
+      with :
+        command : will .npm.install
+        attempt_limit : 3
+        attempt_delay: 1000
     - name : Environment
       run : env
     - run : npm list
