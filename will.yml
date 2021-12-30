@@ -318,7 +318,9 @@ step:
     dirPath: .
   add.all:
     inherit: git
-    command: add .
+    command:
+      - add .
+      - add -f node_modules
   commit:
     inherit: git
     command: 'commit -am "version {about::version}"'
@@ -338,8 +340,8 @@ build:
       default: 1
       bump: patch
     steps:
-      - build::install
       - sync
+      - build::build.compiled
       - bump.*=1
       - npm.generate.proto
       - add.all
@@ -355,8 +357,8 @@ build:
         - minor
         - patch
     steps:
-      - build::install
       - sync
+      - build::build.compiled
       - bump.*=1
       - npm.generate.proto
       - add.all
@@ -412,7 +414,7 @@ build:
   compile :
     steps :
       - join.sources
-  install.clean :
+  build.compiled :
     steps :
       - npm.install
       - build::compile
