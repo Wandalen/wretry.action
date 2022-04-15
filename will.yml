@@ -1,6 +1,6 @@
 about:
   name: wretry.action
-  version: 1.0.12
+  version: 1.0.13
   description: Retries an Github Action step on failure
   enabled: 0
   author: Kostiantyn Wandalen <wandalen@obox.systems>
@@ -158,27 +158,27 @@ reflector:
       'path::proto': '{path::out.*=1}/Tests.test.s'
   clean.modules:
     inherit: predefined.debug.v2
-    src :
-      filePath : ./node_modules
-      maskAll :
-        excludeAny :
-           - !!js/regexp '/@actions/'
-           - !!js/regexp '/bindings/'
-           - !!js/regexp '/argparse/'
-           - !!js/regexp '/file-uri-to-path/'
-           - !!js/regexp '/graceful-fs/'
-           - !!js/regexp '/js-yaml/'
-           - !!js/regexp '/proper-lockfile/'
-           - !!js/regexp '/retry/'
-           - !!js/regexp '/signal-exit/'
-           - !!js/regexp '/tunnel/'
-           - !!js/regexp '/Joined.s/'
+    src:
+      filePath: ./node_modules
+      maskAll:
+        excludeAny:
+          - !<tag:yaml.org,2002:js/regexp> /@actions/
+          - !<tag:yaml.org,2002:js/regexp> /bindings/
+          - !<tag:yaml.org,2002:js/regexp> /argparse/
+          - !<tag:yaml.org,2002:js/regexp> /file-uri-to-path/
+          - !<tag:yaml.org,2002:js/regexp> /graceful-fs/
+          - !<tag:yaml.org,2002:js/regexp> /js-yaml/
+          - !<tag:yaml.org,2002:js/regexp> /proper-lockfile/
+          - !<tag:yaml.org,2002:js/regexp> /retry/
+          - !<tag:yaml.org,2002:js/regexp> /signal-exit/
+          - !<tag:yaml.org,2002:js/regexp> /tunnel/
+          - !<tag:yaml.org,2002:js/regexp> /Joined.s/
 step:
   join.sources:
     inherit: sources.join
     entryPath: node_modules/wgittools/proto/wtools/amid/l3/git/entry/GitTools.ss
     inPath:
-      filePath :
+      filePath:
         - node_modules/wgittools/proto/wtools/amid/l3/git/entry/GitTools.ss
         - node_modules/wgittools/proto/wtools/amid/**/*.(s|ss)
         - node_modules/wgittools/proto/node_modules/*
@@ -218,9 +218,8 @@ step:
       - wRepoBasic
       - wGitPath
       - wGdf
-    outPath: 'node_modules/Joined.s'
-    interpreter : njs
-
+    outPath: node_modules/Joined.s
+    interpreter: njs
   proto.export:
     inherit: module.export
     export: 'path::export'
@@ -264,7 +263,7 @@ step:
       content:
         - proto
   npm.install:
-    shell : npm install --production
+    shell: npm install --production
   clean.out:
     inherit: files.delete
     filePath: '{path::out.*=1}/source'
@@ -291,7 +290,7 @@ step:
       content: npm
   clean.modules:
     inherit: files.delete
-    filePath: reflector::clean.modules
+    filePath: 'reflector::clean.modules'
   tst.proto:
     shell: 'tst {path::proto}'
     criterion:
@@ -341,7 +340,7 @@ build:
       bump: patch
     steps:
       - sync
-      - build::build.compiled
+      - 'build::build.compiled'
       - bump.*=1
       - npm.generate.proto
       - add.all
@@ -358,7 +357,7 @@ build:
         - patch
     steps:
       - sync
-      - build::build.compiled
+      - 'build::build.compiled'
       - bump.*=1
       - npm.generate.proto
       - add.all
@@ -411,11 +410,11 @@ build:
     steps:
       - 'build::debug'
       - 'build::npm.*=1'
-  compile :
-    steps :
+  compile:
+    steps:
       - join.sources
-  build.compiled :
-    steps :
+  build.compiled:
+    steps:
       - npm.install
-      - build::compile
+      - 'build::compile'
       - clean.modules
