@@ -1,6 +1,6 @@
 about:
   name: wretry.action
-  version: 1.0.13
+  version: 1.0.14
   description: Retries an Github Action step on failure
   enabled: 0
   author: Kostiantyn Wandalen <wandalen@obox.systems>
