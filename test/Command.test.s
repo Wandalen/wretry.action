@@ -80,9 +80,10 @@ function retryWithoutCommand( test )
     a.ready.then( () =>
     {
       a.fileProvider.filesDelete( a.abs( '.' ) );
-      a.fileProvider.filesReflect({ reflectMap : { [ context.actionDirPath ] : actionPath } });
+      a.fileProvider.dirMake( actionPath );
       return null;
     });
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
     a.shellNonThrowing( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -131,9 +132,10 @@ function retryWithWrongComand( test )
     a.ready.then( () =>
     {
       a.fileProvider.filesDelete( a.abs( '.' ) );
-      a.fileProvider.filesReflect({ reflectMap : { [ context.actionDirPath ] : actionPath } });
+      a.fileProvider.dirMake( actionPath );
       return null;
     });
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
     a.shellNonThrowing( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -181,9 +183,10 @@ function retryWithValidComand( test )
     a.ready.then( () =>
     {
       a.fileProvider.filesDelete( a.abs( '.' ) );
-      a.fileProvider.filesReflect({ reflectMap : { [ context.actionDirPath ] : actionPath } });
+      a.fileProvider.dirMake( actionPath );
       return null;
     });
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
     a.shellNonThrowing( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -197,7 +200,7 @@ const Proto =
 {
   name : 'Command',
   silencing : 1,
-  routineTimeOut : 120000,
+  routineTimeOut : 30000,
 
   onSuiteBegin,
   onRoutineBegin,

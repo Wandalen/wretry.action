@@ -1,17 +1,19 @@
 const core = require( '@actions/core' );
 const common = require( './Common.js' );
-const _ = require( 'wTools' );
-_.include( 'wConsequence' );
+require( '../node_modules/Joined.s' );
+const _ = wTools;
 
 //
 
 function retry( scriptType )
 {
-  try
+  return _.Consequence.Try( () =>
   {
     let routine;
+    let con = _.take( null );
     const actionName = core.getInput( 'action' );
     const command = core.getMultilineInput( 'command' );
+
     if( !actionName )
     {
       if( !command.length )
@@ -35,44 +37,49 @@ function retry( scriptType )
     {
       if( command.length )
       throw _.error.brief( 'Expects Github action name or command, but not both.' );
+
       const remoteActionPath = common.remotePathFromActionName( actionName );
       const localActionPath = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
-      common.actionClone( localActionPath, remoteActionPath );
 
-      const config = common.actionConfigRead( localActionPath );
-      if( !config.runs[ scriptType ] )
-      return null;
-
-      const optionsStrings = core.getMultilineInput( 'with' );
-      const options = common.actionOptionsParse( optionsStrings );
-      _.map.sureHasOnly( options, config.inputs );
-      const envOptions = common.envOptionsFrom( options );
-      common.envOptionsSetup( envOptions );
-
-      if( _.strBegins( config.runs.using, 'node' ) )
+      con.then( () => common.actionClone( localActionPath, remoteActionPath ) );
+      con.then( () =>
       {
-        const runnerPath = _.path.nativize( _.path.join( __dirname, 'Runner.js' ) );
-        const scriptPath = _.path.nativize( _.path.join( localActionPath, config.runs[ scriptType ] ) );
-        routine = () =>
+        const config = common.actionConfigRead( localActionPath );
+        if( !config.runs[ scriptType ] )
+        return null;
+
+        const optionsStrings = core.getMultilineInput( 'with' );
+        const options = common.actionOptionsParse( optionsStrings );
+        _.map.sureHasOnly( options, config.inputs );
+        const envOptions = common.envOptionsFrom( options );
+        common.envOptionsSetup( envOptions );
+
+        if( _.strBegins( config.runs.using, 'node' ) )
         {
-          const o =
+          const runnerPath = _.path.nativize( _.path.join( __dirname, 'Runner.js' ) );
+          const scriptPath = _.path.nativize( _.path.join( localActionPath, config.runs[ scriptType ] ) );
+          routine = () =>
           {
-            currentPath : _.path.current(),
-            execPath : `node ${ runnerPath } ${ scriptPath }`,
-            inputMirroring : 0,
-            stdio : 'inherit',
-            mode : 'spawn',
-            ipc : 1,
+            const o =
+            {
+              currentPath : _.path.current(),
+              execPath : `node ${ runnerPath } ${ scriptPath }`,
+              inputMirroring : 0,
+              stdio : 'inherit',
+              mode : 'spawn',
+              ipc : 1,
+            };
+            _.process.start( o );
+            o.pnd.on( 'message', ( data ) => _.map.extend( process.env, data ) );
+            return o.ready;
           };
-          _.process.start( o );
-          o.pnd.on( 'message', ( data ) => _.map.extend( process.env, data ) );
-          return o.ready;
-        };
-      }
-      else
-      {
-        throw _.error.brief( 'implemented only for NodeJS interpreter' );
-      }
+        }
+        else
+        {
+          throw _.error.brief( 'implemented only for NodeJS interpreter' );
+        }
+        return null;
+      });
     }
 
     /* */
@@ -80,21 +87,25 @@ function retry( scriptType )
     const attemptLimit = _.number.from( core.getInput( 'attempt_limit' ) ) || 2;
     const attemptDelay = _.number.from( core.getInput( 'attempt_delay' ) ) || 0;
 
-    const ready = _.retry
-    ({
-      routine,
-      attemptLimit,
-      attemptDelay,
-      onSuccess,
+    return con.then( () =>
+    {
+      if( routine )
+      return _.retry
+      ({
+        routine,
+        attemptLimit,
+        attemptDelay,
+        onSuccess,
+      });
+      return null;
     });
-    ready.deasync();
-    return ready.sync();
-  }
-  catch( error )
+  })
+  .catch( ( error ) =>
   {
     _.error.attend( error );
     core.setFailed( _.error.brief( error.message ) );
-  }
+    return error;
+  });
 
   /* */
 

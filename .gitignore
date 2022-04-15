@@ -2,6 +2,17 @@
 !/.github
 !/.circleci
 !/.*
+!/node_modules/@actions
+!/node_modules/bindings
+!/node_modules/argparse
+!/node_modules/file-uri-to-path
+!/node_modules/graceful-fs
+!/node_modules/js-yaml
+!/node_modules/proper-lockfile
+!/node_modules/retry
+!/node_modules/signal-exit
+!/node_modules/tunnel
+!/node_modules/Joined.s
 
 /_*
 /build

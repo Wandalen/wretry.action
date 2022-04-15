@@ -83,3 +83,14 @@ with:
   attempt_limit: 3
   attempt_delay: 2000
 ```
+
+### Development and contributing
+
+To build compiled dependencies utility `willbe` is required. To install utility run :
+
+```
+npm i -g 'willbe@latest'
+```
+
+`willbe` is not required to use the action in your project as submodule.
+

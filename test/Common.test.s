@@ -7,6 +7,7 @@ if( typeof module !== 'undefined' )
 {
   const _ = require( 'wTools' );
   _.include( 'wTesting' );
+  _.include( 'wGitTools' );
 }
 
 const _ = _global_.wTools;
@@ -91,35 +92,73 @@ function actionClone( test )
   const a = test.assetFor( false );
   const localPath = a.abs( '.' );
 
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'action without hash or tag';
+    var remotePath = common.remotePathFromActionName( 'dmvict/test.action' );
+    return common.actionClone( localPath, remotePath );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    test.identical( __.git.tagLocalRetrive({ localPath }), 'master' );
+    a.fileProvider.filesDelete( localPath );
+    return null;
+  });
+
   /* */
 
-  test.case = 'action without hash or tag';
-  var remotePath = common.remotePathFromActionName( 'dmvict/test.action' );
-  var got = common.actionClone( localPath, remotePath );
-  test.identical( got, undefined );
-  test.identical( __.git.tagLocalRetrive({ localPath }), 'master' );
-  a.fileProvider.filesDelete( localPath );
+  a.ready.then( () =>
+  {
+    test.case = 'action with tag';
+    var remotePath = common.remotePathFromActionName( 'dmvict/test.action@v0.0.2' );
+    return common.actionClone( localPath, remotePath );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    test.identical( __.git.tagLocalRetrive({ localPath }), 'v0.0.2' );
+    a.fileProvider.filesDelete( localPath );
+    return null;
+  });
 
-  test.case = 'action with tag';
-  var remotePath = common.remotePathFromActionName( 'dmvict/test.action@v0.0.2' );
-  var got = common.actionClone( localPath, remotePath );
-  test.identical( got, undefined );
-  test.identical( __.git.tagLocalRetrive({ localPath }), 'v0.0.2' );
-  a.fileProvider.filesDelete( localPath );
+  /* */
 
-  test.case = 'action with short hash';
-  var remotePath = common.remotePathFromActionName( 'dmvict/test.action@3d21630' );
-  var got = common.actionClone( localPath, remotePath );
-  test.identical( got, undefined );
-  test.identical( __.git.tagLocalRetrive({ localPath }), 'v0.0.1' );
-  a.fileProvider.filesDelete( localPath );
+  a.ready.then( () =>
+  {
+    test.case = 'action with short hash';
+    var remotePath = common.remotePathFromActionName( 'dmvict/test.action@3d21630' );
+    return common.actionClone( localPath, remotePath );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    test.identical( __.git.tagLocalRetrive({ localPath }), 'v0.0.1' );
+    a.fileProvider.filesDelete( localPath );
+    return null;
+  });
 
-  test.case = 'action with long hash';
-  var remotePath = common.remotePathFromActionName( 'dmvict/test.action@3d2163092fd3c83e02895189bf8fb845c5dc9e3f' );
-  var got = common.actionClone( localPath, remotePath );
-  test.identical( got, undefined );
-  test.identical( __.git.tagLocalRetrive({ localPath }), 'v0.0.1' );
-  a.fileProvider.filesDelete( localPath );
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'action with long hash';
+    var remotePath = common.remotePathFromActionName( 'dmvict/test.action@3d2163092fd3c83e02895189bf8fb845c5dc9e3f' );
+    return common.actionClone( localPath, remotePath );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    test.identical( __.git.tagLocalRetrive({ localPath }), 'v0.0.1' );
+    a.fileProvider.filesDelete( localPath );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
 }
 
 actionClone.timeOut = 30000;
@@ -131,34 +170,49 @@ function actionConfigRead( test )
   const a = test.assetFor( false );
   const actionPath = a.abs( '.' );
 
-  /* */
+  /* - */
 
-  test.case = 'read directory with action file';
-  common.actionClone( actionPath, common.remotePathFromActionName( 'dmvict/test.action@v0.0.2' ) );
-  var got = common.actionConfigRead( actionPath );
-  var exp =
+  a.ready.then( () =>
   {
-    name : 'test.action',
-    author : 'dmvict <dm.vict.kr@gmail.com>',
-    description : 'An action for testing purpose, no real usage expected.',
-    inputs :
+    test.case = 'read directory with action file';
+    return common.actionClone( actionPath, common.remotePathFromActionName( 'dmvict/test.action@v0.0.2' ) );
+  });
+  a.ready.then( ( op ) =>
+  {
+    var got = common.actionConfigRead( actionPath );
+    var exp =
     {
-      value : { 'description' : 'A test value', 'required' : true, 'default' : 0 }
-    },
-    runs : { 'using' : 'node12', 'main' : 'src/index.js' }
-  };
-  test.identical( got, exp );
-  a.fileProvider.filesDelete( actionPath );
+      name : 'test.action',
+      author : 'dmvict <dm.vict.kr@gmail.com>',
+      description : 'An action for testing purpose, no real usage expected.',
+      inputs :
+      {
+        value : { 'description' : 'A test value', 'required' : true, 'default' : 0 }
+      },
+      runs : { 'using' : 'node12', 'main' : 'src/index.js' }
+    };
+    test.identical( got, exp );
+    a.fileProvider.filesDelete( actionPath );
+    return null;
+  });
 
   /* - */
 
-  if( !Config.debug )
-  return;
+  if( Config.debug )
+  {
+    a.ready.then( () => common.actionClone( actionPath, common.remotePathFromActionName( 'dmvict/test.action@v0.0.2' ) ) );
+    a.ready.then( () =>
+    {
+      test.case = 'config file does not exists';
+      a.fileProvider.filesDelete( a.abs( actionPath, 'action.yml' ) );
+      test.shouldThrowErrorSync( () => common.actionConfigRead( actionPath ) );
+      return null;
+    });
+  }
 
-  test.case = 'config file does not exists';
-  common.actionClone( actionPath, common.remotePathFromActionName( 'dmvict/test.action@v0.0.2' ) );
-  a.fileProvider.filesDelete( a.abs( actionPath, 'action.yml' ) );
-  test.shouldThrowErrorSync( () => common.actionConfigRead( actionPath ) );
+  /* - */
+
+  return a.ready;
 }
 
 actionConfigRead.timeOut = 20000;

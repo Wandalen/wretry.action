@@ -9,6 +9,7 @@ about:
     - Dmytro Kryvoruchko <dm.vict.kr@gmail.com>
   license: MIT
   npm.scripts:
+    postinstall: will .build compile
     test: wtest .run "test/**"
   npm.homepage: 'https://github.com/Wandalen/wretry.action#action::wretry.action'
   keywords:
@@ -91,7 +92,7 @@ submodule:
     path: 'npm:///@actions/core!^1.4.0'
     enabled: 0
   wgittools:
-    path: 'npm:///wgittools'
+    path: 'npm:///wgittools!alpha'
     enabled: 0
   wTesting:
     path: 'npm:///wTesting'
@@ -155,7 +156,71 @@ reflector:
     filePath:
       '**.test*': 1
       'path::proto': '{path::out.*=1}/Tests.test.s'
+  clean.modules:
+    inherit: predefined.debug.v2
+    src :
+      filePath : ./node_modules
+      maskAll :
+        excludeAny :
+           - !!js/regexp '/@actions/'
+           - !!js/regexp '/bindings/'
+           - !!js/regexp '/argparse/'
+           - !!js/regexp '/file-uri-to-path/'
+           - !!js/regexp '/graceful-fs/'
+           - !!js/regexp '/js-yaml/'
+           - !!js/regexp '/proper-lockfile/'
+           - !!js/regexp '/retry/'
+           - !!js/regexp '/signal-exit/'
+           - !!js/regexp '/tunnel/'
+           - !!js/regexp '/Joined.s/'
 step:
+  join.sources:
+    inherit: sources.join
+    entryPath: node_modules/wgittools/proto/wtools/amid/l3/git/entry/GitTools.ss
+    inPath:
+      filePath :
+        - node_modules/wgittools/proto/wtools/amid/l3/git/entry/GitTools.ss
+        - node_modules/wgittools/proto/wtools/amid/**/*.(s|ss)
+        - node_modules/wgittools/proto/node_modules/*
+    modulesList:
+      - wTools
+      - wBlueprint
+      - wProto
+      - wCopyable
+      - wCloner
+      - wTraverser
+      - wStringer
+      - wStringsExtra
+      - wLooker
+      - wEqualer
+      - wSelector
+      - wPathBasic
+      - wUriBasic
+      - wPathTools
+      - wWebUriBasic
+      - wReplicator
+      - wArraySorted
+      - wArraySparse
+      - wIntrospectorBasic
+      - wIntrospectorExtra
+      - wConsequence
+      - wProcedure
+      - wFilesBasic
+      - wRegexpObject
+      - wFieldsStack
+      - wVerbal
+      - wLogger
+      - wEventHandler
+      - wColor256
+      - wColor
+      - wProcess
+      - wRemote
+      - wRepoBasic
+      - wGitPath
+      - wGdf
+    outPath: 'node_modules/Joined.s'
+    interpreter : njs
+
   proto.export:
     inherit: module.export
     export: 'path::export'
@@ -198,6 +263,8 @@ step:
     criterion:
       content:
         - proto
+  npm.install:
+    shell : npm install --production
   clean.out:
     inherit: files.delete
     filePath: '{path::out.*=1}/source'
@@ -222,6 +289,9 @@ step:
       raw: compiled
       tests: no.tests
       content: npm
+  clean.modules:
+    inherit: files.delete
+    filePath: reflector::clean.modules
   tst.proto:
     shell: 'tst {path::proto}'
     criterion:
@@ -248,7 +318,9 @@ step:
     dirPath: .
   add.all:
     inherit: git
-    command: add .
+    command:
+      - add .
+      - add -f node_modules
   commit:
     inherit: git
     command: 'commit -am "version {about::version}"'
@@ -269,6 +341,7 @@ build:
       bump: patch
     steps:
       - sync
+      - build::build.compiled
       - bump.*=1
       - npm.generate.proto
       - add.all
@@ -285,6 +358,7 @@ build:
         - patch
     steps:
       - sync
+      - build::build.compiled
       - bump.*=1
       - npm.generate.proto
       - add.all
@@ -337,3 +411,11 @@ build:
     steps:
       - 'build::debug'
       - 'build::npm.*=1'
+  compile :
+    steps :
+      - join.sources
+  build.compiled :
+    steps :
+      - npm.install
+      - build::compile
+      - clean.modules
