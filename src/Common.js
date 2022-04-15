@@ -29,12 +29,14 @@ function actionClone( localPath, remotePath )
   });
   con.then( () =>
   {
+    if( remotePath.tag !== 'master' )
     return _.git.tagLocalChange
     ({
       localPath,
       tag : remotePath.tag,
       sync : 0
     });
+    return true;
   });
   return con;
 }
