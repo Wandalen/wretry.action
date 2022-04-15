@@ -96,6 +96,20 @@ function actionClone( test )
 
   a.ready.then( () =>
   {
+    test.case = 'action without hash or tag, default branch is main';
+    var remotePath = common.remotePathFromActionName( 'actions/hello-world-javascript-action' );
+    return common.actionClone( localPath, remotePath );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    test.identical( __.git.tagLocalRetrive({ localPath }), 'main' );
+    a.fileProvider.filesDelete( localPath );
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
     test.case = 'action without hash or tag';
     var remotePath = common.remotePathFromActionName( 'dmvict/test.action' );
     return common.actionClone( localPath, remotePath );
