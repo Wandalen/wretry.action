@@ -708,7 +708,7 @@ function retryWithExternalActionOnRemote( test )
   }
 }
 
-retryWithExternalActionOnRemote.timeOut = 120000;
+retryWithExternalActionOnRemote.timeOut = 240000;
 
 //
 
