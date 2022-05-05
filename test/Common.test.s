@@ -175,7 +175,7 @@ function actionClone( test )
   return a.ready;
 }
 
-actionClone.timeOut = 30000;
+actionClone.timeOut = 60000;
 
 //
 
