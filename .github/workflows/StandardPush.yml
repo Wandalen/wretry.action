@@ -32,7 +32,7 @@ jobs :
       with :
         fetch-depth: 2
     - name : ${{ matrix.node-version }}
-      uses : Wandalen/wretry.action@v1.0.11
+      uses : Wandalen/wretry.action@v1.0.15
       with :
         action : actions/setup-node@v2
         with : |
@@ -46,14 +46,19 @@ jobs :
     - name : Update npm if current version is 6
       if : "startsWith( steps.getnpmver.outputs.npmver, '6.' )"
       run : npm install -g npm@latest-6
+    - name : Update node-gyp
+      if: ${{ matrix.os == 'windows-latest' }}
+      run : |
+        npm install --global node-gyp@9.0.0
+        npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}- run : npm i
     - name : Install willbe
-      uses : Wandalen/wretry.action@v1.0.11
+      uses : Wandalen/wretry.action@v1.0.15
       with :
         command : npm i -g willbe@delta
         attempt_limit : 3
         attempt_delay: 1000
     - name : Install submodules
-      uses : Wandalen/wretry.action@v1.0.11
+      uses : Wandalen/wretry.action@v1.0.15
       with :
         command : will .npm.install
         attempt_limit : 3
