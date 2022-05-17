@@ -50,7 +50,7 @@ jobs :
       if: ${{ matrix.os == 'windows-latest' }}
       run : |
         npm install --global node-gyp@9.0.0
-        npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}- run : npm i
+        npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
     - name : Install willbe
       uses : Wandalen/wretry.action@v1.0.15
       with :
