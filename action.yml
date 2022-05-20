@@ -16,6 +16,9 @@ inputs:
   with:
     description: 'An options map for Github action'
     required: false
+  current_path:
+    description: 'Setup working directory for the action. Works with only commands. Default is `github.workspace` path.'
+    required: false
   attempt_limit:
     description: 'Number of attempts'
     required: false
