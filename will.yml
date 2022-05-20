@@ -89,7 +89,7 @@ path:
     - src/Main.js
 submodule:
   '@actions/core':
-    path: 'npm:///@actions/core!^1.4.0'
+    path: 'npm:///@actions/core!^1.8.2'
     enabled: 0
   wgittools:
     path: 'npm:///wgittools!alpha'
