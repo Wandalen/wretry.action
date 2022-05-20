@@ -218,6 +218,7 @@ step:
       - wRepoBasic
       - wGitPath
       - wGdf
+      - wUnit
     outPath: node_modules/Joined.s
     interpreter: njs
   proto.export:
