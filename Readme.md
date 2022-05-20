@@ -48,6 +48,10 @@ The command to run.
 
 An options map for Github action. It is a multiline string with pairs `key : value`.
 
+### `current_path`
+
+Setup working directory for the action. Works with only commands. Default is `github.workspace` path.
+
 ### `attempt_limit`
 
 Set number of attempts. Default is 2.
