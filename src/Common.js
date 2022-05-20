@@ -71,11 +71,16 @@ function actionOptionsParse( src )
 
 //
 
-function envOptionsFrom( options )
+function envOptionsFrom( options, inputs )
 {
   const result = Object.create( null );
   for( let key in options )
   result[ `INPUT_${key.replace(/ /g, '_').toUpperCase()}` ] = options[ key ];
+  if( inputs )
+  for( let key in inputs )
+  if( !( key in options ) )
+  if( inputs[ key ].default !== undefined )
+  result[ `INPUT_${key.replace(/ /g, '_').toUpperCase()}` ] = inputs[ key ].default;
   return result;
 }
 
