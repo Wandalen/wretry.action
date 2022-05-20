@@ -14,31 +14,35 @@ function remotePathFromActionName( name )
 
 function actionClone( localPath, remotePath )
 {
-  const con = _.take( null );
-  con.then( () =>
+  if( !_.fileProvider.fileExists( localPath ) )
   {
-    return _.git.repositoryClone
-    ({
-      remotePath,
-      localPath,
-      sync : 0,
-      attemptLimit : 4,
-      attemptDelay : 500,
-      attemptDelayMultiplier : 4,
+    const con = _.take( null );
+    con.then( () =>
+    {
+      return _.git.repositoryClone
+      ({
+        remotePath,
+        localPath,
+        sync : 0,
+        attemptLimit : 4,
+        attemptDelay : 500,
+        attemptDelayMultiplier : 4,
+      });
     });
-  });
-  con.then( () =>
-  {
-    if( remotePath.tag !== 'master' )
-    return _.git.tagLocalChange
-    ({
-      localPath,
-      tag : remotePath.tag,
-      sync : 0
+    con.then( () =>
+    {
+      if( remotePath.tag !== 'master' )
+      return _.git.tagLocalChange
+      ({
+        localPath,
+        tag : remotePath.tag,
+        sync : 0
+      });
+      return true;
     });
-    return true;
-  });
-  return con;
+    return con;
+  }
+  return null;
 }
 
 //
