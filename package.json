@@ -31,8 +31,9 @@
     "src/Main.js"
   ],
   "dependencies": {
+    "@actions/core": "^1.8.2",
     "wgittools": "alpha",
-    "@actions/core": "^1.8.2"
+    "willbe": "^0.5.535"
   },
   "devDependencies": {
     "wTesting": ""
