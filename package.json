@@ -1,6 +1,6 @@
 {
   "name": "wretry.action",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "Retries an Github Action step on failure",
   "enabled": 0,
   "author": "Kostiantyn Wandalen <wandalen@obox.systems>",
@@ -31,9 +31,8 @@
     "src/Main.js"
   ],
   "dependencies": {
-    "@actions/core": "^1.8.2",
     "wgittools": "alpha",
-    "willbe": "^0.5.535"
+    "@actions/core": "^1.8.2"
   },
   "devDependencies": {
     "wTesting": ""
