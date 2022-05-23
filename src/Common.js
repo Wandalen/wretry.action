@@ -45,9 +45,15 @@ function actionClone( localPath, remotePath )
 
 function actionConfigRead( actionDir )
 {
+  let configPath = _.path.join( actionDir, 'action.yml' );
+  if( !_.fileProvider.fileExists( configPath ) )
+  configPath = _.path.join( actionDir, 'action.yaml' )
+
+  _.assert( _.fileProvider.fileExists( configPath ), 'Expects action path `action.yml` or `action.yaml`' );
+
   return _.fileProvider.fileRead
   ({
-    filePath : _.path.join( actionDir, 'action.yml' ),
+    filePath : configPath,
     encoding : 'yaml',
   });
 }

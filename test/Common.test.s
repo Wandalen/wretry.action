@@ -183,15 +183,39 @@ function actionConfigRead( test )
 {
   const a = test.assetFor( false );
   const actionPath = a.abs( '.' );
+  const remoteActionPath = common.remotePathFromActionName( 'dmvict/test.action@v0.0.2' );
 
   /* - */
 
-  a.ready.then( () =>
+  begin().then( () =>
   {
-    test.case = 'read directory with action file';
-    return common.actionClone( actionPath, common.remotePathFromActionName( 'dmvict/test.action@v0.0.2' ) );
+    test.case = 'read directory with action file, extension - yml';
+    var got = common.actionConfigRead( actionPath );
+    var exp =
+    {
+      name : 'test.action',
+      author : 'dmvict <dm.vict.kr@gmail.com>',
+      description : 'An action for testing purpose, no real usage expected.',
+      inputs :
+      {
+        value : { 'description' : 'A test value', 'required' : true, 'default' : 0 }
+      },
+      runs : { 'using' : 'node12', 'main' : 'src/index.js' }
+    };
+    test.identical( got, exp );
+    a.fileProvider.filesDelete( actionPath );
+    return null;
   });
-  a.ready.then( ( op ) =>
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'read directory with action file, extension - yaml';
+    a.fileProvider.fileRename({ srcPath : a.abs( 'action.yml' ), dstPath : a.abs( 'action.yaml' ) });
+    return null;
+  });
+  a.ready.then( () =>
   {
     var got = common.actionConfigRead( actionPath );
     var exp =
@@ -214,11 +238,18 @@ function actionConfigRead( test )
 
   if( Config.debug )
   {
-    a.ready.then( () => common.actionClone( actionPath, common.remotePathFromActionName( 'dmvict/test.action@v0.0.2' ) ) );
-    a.ready.then( () =>
+    begin().then( () =>
     {
       test.case = 'config file does not exists';
       a.fileProvider.filesDelete( a.abs( actionPath, 'action.yml' ) );
+      test.shouldThrowErrorSync( () => common.actionConfigRead( actionPath ) );
+      return null;
+    });
+
+    begin().then( () =>
+    {
+      test.case = 'not known extension';
+      a.fileProvider.fileRename({ srcPath : a.abs( 'action.yml' ), dstPath : a.abs( 'action.json' ) });
       test.shouldThrowErrorSync( () => common.actionConfigRead( actionPath ) );
       return null;
     });
@@ -227,6 +258,17 @@ function actionConfigRead( test )
   /* - */
 
   return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    return a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( actionPath );
+      return common.actionClone( actionPath, common.remotePathFromActionName( 'dmvict/test.action@v0.0.2' ) );
+    });
+  }
 }
 
 actionConfigRead.timeOut = 20000;
