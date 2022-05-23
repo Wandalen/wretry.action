@@ -10,20 +10,28 @@ function retry( scriptType )
   return _.Consequence.Try( () =>
   {
     let routine;
-    let con = _.take( null );
+    const con = _.take( null );
     const actionName = core.getInput( 'action' );
     const command = core.getMultilineInput( 'command' );
 
     if( !actionName )
     {
+      debugger;
       if( !command.length )
       throw _.error.brief( 'Please, specify Github action name or shell command.' );
+
+      let currentPath = core.getInput( 'current_path' ) || _.path.current();
+
+      if( !_.path.isAbsolute( currentPath ) )
+      {
+        currentPath = _.path.join( _.path.current(), currentPath );
+      }
 
       routine = () =>
       {
         const o =
         {
-          currentPath : _.path.current(),
+          currentPath,
           execPath : command,
           inputMirroring : 0,
           stdio : 'inherit',

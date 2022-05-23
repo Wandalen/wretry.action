@@ -192,6 +192,82 @@ function retryWithValidComand( test )
   }
 }
 
+//
+
+function retryWithOptionCurrentPath( test )
+{
+  let context = this;
+  const a = test.assetFor( false );
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'without action name';
+    const command = process.platform === 'win32' ? 'chdir' : 'echo $PWD'
+    core.exportVariable( `INPUT_COMMAND`, command );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
+    test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
+    test.identical( _.strCount( op.output, a.path.nativize( actionPath ) ), 1 );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'without action name';
+    const command = process.platform === 'win32' ? 'chdir' : 'echo $PWD'
+    core.exportVariable( `INPUT_COMMAND`, command );
+    core.exportVariable( `INPUT_CURRENT_PATH`, '..' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
+    test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
+    test.identical( _.strCount( op.output, a.path.nativize( a.abs( actionPath, '..' ) ) ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.shellNonThrowing( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
+    return a.ready;
+  }
+}
+
 // --
 // declare
 // --
@@ -216,6 +292,7 @@ const Proto =
     retryWithoutCommand,
     retryWithWrongComand,
     retryWithValidComand,
+    retryWithOptionCurrentPath,
   },
 };
 
