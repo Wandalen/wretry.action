@@ -3,6 +3,9 @@ if( typeof wTools === 'undefined' )
 require( '../node_modules/Joined.s' );
 const _ = wTools;
 
+let GithubActionsParser = null;
+let ActionsGithub = null;
+
 //
 
 function remotePathFromActionName( name )
@@ -80,14 +83,48 @@ function actionOptionsParse( src )
 function envOptionsFrom( options, inputs )
 {
   const result = Object.create( null );
+
   for( let key in options )
   result[ `INPUT_${key.replace(/ /g, '_').toUpperCase()}` ] = options[ key ];
+
   if( inputs )
-  for( let key in inputs )
-  if( !( key in options ) )
-  if( inputs[ key ].default !== undefined )
-  result[ `INPUT_${key.replace(/ /g, '_').toUpperCase()}` ] = inputs[ key ].default;
+  {
+    for( let key in inputs )
+    if( !( key in options ) && inputs[ key ].default !== undefined )
+    {
+      let value = inputs[ key ].default;
+      if( _.str.is( value ) )
+      if( value.startsWith( '${{' ) && value.endsWith( '}}' ) )
+      {
+        if( GithubActionsParser === null )
+        GithubActionsParser = require( 'github-actions-parser' );
+        value = GithubActionsParser.evaluateExpression( value, { get : getContextVariable } );
+      }
+      result[ `INPUT_${key.replace(/ /g, '_').toUpperCase()}` ] = value;
+    }
+  }
+
   return result;
+
+  /* */
+
+  function getContextVariable( contextName )
+  {
+    debugger;
+    if( contextName === "env" )
+    {
+      return process.env;
+    }
+    else if( contextName === "github" )
+    {
+      if( ActionsGithub === null )
+      ActionsGithub = require( '@actions/github' );
+
+      ActionsGithub.context.event = ActionsGithub.context.payload;
+      return ActionsGithub.context;
+    }
+    _.assert( false, 'Unknown context' );
+  }
 }
 
 //
