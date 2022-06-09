@@ -89,10 +89,16 @@ path:
     - src/Main.js
 submodule:
   '@actions/core':
-    path: 'npm:///@actions/core!^1.8.2'
+    path: 'npm:///@actions/core!1.8.2'
+    enabled: 0
+  '@actions/github':
+    path: 'npm:///@actions/github!5.0.3'
+    enabled: 0
+  github-actions-parser:
+    path: 'npm:///github-actions-parser!0.26.0'
     enabled: 0
   wgittools:
-    path: 'npm:///wgittools!alpha'
+    path: 'npm:///wgittools'
     enabled: 0
   wTesting:
     path: 'npm:///wTesting'
@@ -166,6 +172,7 @@ reflector:
           - !<tag:yaml.org,2002:js/regexp> /bindings/
           - !<tag:yaml.org,2002:js/regexp> /argparse/
           - !<tag:yaml.org,2002:js/regexp> /file-uri-to-path/
+          - !<tag:yaml.org,2002:js/regexp> /github-actions-parser/
           - !<tag:yaml.org,2002:js/regexp> /graceful-fs/
           - !<tag:yaml.org,2002:js/regexp> /js-yaml/
           - !<tag:yaml.org,2002:js/regexp> /proper-lockfile/
