@@ -110,7 +110,6 @@ function envOptionsFrom( options, inputs )
 
   function getContext( contextName )
   {
-    debugger;
     if( contextName === "env" )
     {
       return process.env;

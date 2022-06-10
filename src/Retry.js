@@ -16,7 +16,6 @@ function retry( scriptType )
 
     if( !actionName )
     {
-      debugger;
       if( !command.length )
       throw _.error.brief( 'Please, specify Github action name or shell command.' );
 
