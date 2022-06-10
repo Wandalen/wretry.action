@@ -467,7 +467,7 @@ function envOptionsFrom( test )
 function envOptionsFromWithContextExpressionInputs( test )
 {
   const a = test.assetFor( false );
-  process.env.GITHUB_EVENT_PATH = a.abs( __dirname, '_asset/context/event.json' );
+  process.env.GITHUB_EVENT_PATH = a.path.nativize( a.abs( __dirname, '_asset/context/event.json' ) );
   process.env.TEST = 'test';
   process.env.RETRY_ACTION = 'dmvict/test.action@v0.0.2';
 
