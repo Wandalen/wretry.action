@@ -464,6 +464,145 @@ function envOptionsFrom( test )
 
 //
 
+function envOptionsFromWithContextExpressionInputs( test )
+{
+  const a = test.assetFor( false );
+  process.env.GITHUB_EVENT_PATH = a.path.nativize( a.abs( __dirname, '_asset/context/event.json' ) );
+  process.env.TEST = 'test';
+  process.env.RETRY_ACTION = 'dmvict/test.action@v0.0.2';
+
+  /* - */
+
+  test.case = 'resolve environment';
+  var inputs =
+  {
+    environment :
+    {
+      description : 'environment',
+      default : '${{ env.TEST }}'
+    }
+  };
+  var src = {};
+  var got = common.envOptionsFrom( src, inputs );
+  test.identical( got, { INPUT_ENVIRONMENT : 'test' } );
+  test.true( got !== src );
+
+  test.case = 'resolve string from github context';
+  var inputs =
+  {
+    github_string :
+    {
+      description : 'string in github context',
+      default : '${{ github.action_path }}'
+    }
+  };
+  var src = {};
+  var got = common.envOptionsFrom( src, inputs );
+  test.identical( got, { INPUT_GITHUB_STRING : a.path.nativize( a.abs( __dirname, '../../../test.action' ) ) } );
+  test.true( got !== src );
+
+  test.case = 'resolve string from object in github context';
+  var inputs =
+  {
+    github_object :
+    {
+      description : 'object in github context',
+      default : '${{ github.event.repository.default_branch }}'
+    },
+  };
+  var src = {};
+  var got = common.envOptionsFrom( src, inputs );
+  test.identical( got, { INPUT_GITHUB_OBJECT : 'master' } );
+  test.true( got !== src );
+
+  test.case = 'resolve expression with environment and defined value';
+  var inputs =
+  {
+    expression_with_strings :
+    {
+      description : 'compare resolved with value',
+      default : '${{ env.TEST == \'test\' }}'
+    },
+  };
+  var src = {};
+  var got = common.envOptionsFrom( src, inputs );
+  test.identical( got, { INPUT_EXPRESSION_WITH_STRINGS : true } );
+  test.true( got !== src );
+
+  test.case = 'resolve expression with two resolved values';
+  var inputs =
+  {
+    expression_with_resolved_strings :
+    {
+      description : 'compare two resolved values',
+      default : '${{ env.TEST == github.ref_name }}'
+    },
+  };
+  var src = {};
+  var got = common.envOptionsFrom( src, inputs );
+  test.identical( got, { INPUT_EXPRESSION_WITH_RESOLVED_STRINGS : false } );
+  test.true( got !== src );
+
+  test.case = 'resolve expression with two resolved values from objects';
+  var inputs =
+  {
+    expression_with_objects_false :
+    {
+      description : 'compare two resolved values',
+      default : '${{ github.event.repository.master_branch != github.event.repository.default_branch }}'
+    },
+    expression_with_objects_true :
+    {
+      description : 'compare two resolved values',
+      default : '${{ github.event.repository.master_branch == github.event.repository.default_branch }}'
+    },
+  };
+  var src = {};
+  var got = common.envOptionsFrom( src, inputs );
+  test.identical( got, { INPUT_EXPRESSION_WITH_OBJECTS_FALSE : false, INPUT_EXPRESSION_WITH_OBJECTS_TRUE : true } );
+  test.true( got !== src );
+
+  test.case = 'resolve expression with two resolved values and boolean AND';
+  var inputs =
+  {
+    expression_with_objects_false :
+    {
+      description : 'compare two resolved values',
+      default : '${{ github.event.repository.master_branch != github.event.repository.default_branch && false }}'
+    },
+    expression_with_objects_true :
+    {
+      description : 'compare two resolved values',
+      default : '${{ github.event.repository.master_branch == github.event.repository.default_branch && true }}'
+    },
+  };
+  var src = {};
+  var got = common.envOptionsFrom( src, inputs );
+  test.identical( got, { INPUT_EXPRESSION_WITH_OBJECTS_FALSE : false, INPUT_EXPRESSION_WITH_OBJECTS_TRUE : true } );
+  test.true( got !== src );
+
+  test.case = 'resolve expression with two resolved values and boolean OR';
+  var inputs =
+  {
+    expression_with_objects_false :
+    {
+      description : 'compare two resolved values',
+      default : '${{ github.event.repository.master_branch != github.event.repository.default_branch || true }}'
+    },
+    expression_with_objects_true :
+    {
+      description : 'compare two resolved values',
+      default : '${{ github.event.repository.master_branch == github.event.repository.default_branch || true }}'
+    },
+  };
+  var src = {};
+  var got = common.envOptionsFrom( src, inputs );
+  test.identical( got, { INPUT_EXPRESSION_WITH_OBJECTS_FALSE : true, INPUT_EXPRESSION_WITH_OBJECTS_TRUE : true } );
+  test.true( got !== src );
+}
+
+//
+
 function envOptionsSetup( test )
 {
   const beginEnvs = _.map.extend( null, process.env );
@@ -497,6 +636,7 @@ const Proto =
     actionConfigRead,
     actionOptionsParse,
     envOptionsFrom,
+    envOptionsFromWithContextExpressionInputs,
     envOptionsSetup,
   },
 };

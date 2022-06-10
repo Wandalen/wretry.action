@@ -19,6 +19,10 @@ inputs:
   current_path:
     description: 'Setup working directory for the action. Works with only commands. Default is `github.workspace` path.'
     required: false
+  github_token:
+    description: 'Get runner secret key. Extends context `github` if it required. Not documented in file `Readme.md`.'
+    required: false
+    default: ${{ github.token }}
   attempt_limit:
     description: 'Number of attempts'
     required: false
