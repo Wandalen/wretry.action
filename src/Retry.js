@@ -46,6 +46,7 @@ function retry( scriptType )
       if( command.length )
       throw _.error.brief( 'Expects Github action name or command, but not both.' );
 
+      process.env.RETRY_ACTION = actionName;
       const remoteActionPath = common.remotePathFromActionName( actionName );
       const localActionPath = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
 
