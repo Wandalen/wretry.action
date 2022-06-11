@@ -313,6 +313,9 @@ step:
   clean.modules:
     inherit: files.delete
     filePath: 'reflector::clean.modules'
+  clean.npm:
+    inherit: files.delete
+    filePath: ./node_modules
   tst.proto:
     shell: 'tst {path::proto}'
     criterion:
@@ -362,6 +365,7 @@ build:
       bump: patch
     steps:
       - sync
+      - clean.npm
       - 'build::build.compiled'
       - bump.*=1
       - npm.generate.proto
@@ -379,6 +383,7 @@ build:
         - patch
     steps:
       - sync
+      - clean.npm
       - 'build::build.compiled'
       - bump.*=1
       - npm.generate.proto
