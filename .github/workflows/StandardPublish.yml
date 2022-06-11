@@ -46,7 +46,7 @@ jobs :
       if : "startsWith( steps.getnpmver.outputs.npmver, '6.' )"
       run : npm install -g npm@latest-6
     - name : Update node-gyp
-      if: ${{ matrix.os == 'windows-latest' }}
+      if: ${{ matrix.os == 'windows-latest' && matrix.node-version != '18.x' }}
       run : |
         npm install --global node-gyp@9.0.0
         npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
