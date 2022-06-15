@@ -535,14 +535,9 @@ function retryWithOptionAttemptDelay( test )
 
   function actionSetup()
   {
-    a.ready.then( () =>
-    {
-      a.fileProvider.filesDelete( a.abs( '.' ) );
-      a.fileProvider.dirMake( actionPath );
-      return null;
-    });
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null; } );
+    a.ready.then( () => { a.fileProvider.dirMake( actionPath ); return null; } );
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
-    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
 }
