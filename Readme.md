@@ -97,5 +97,4 @@ To build compiled dependencies utility `willbe` is required. To install utility 
 npm i -g 'willbe@latest'
 ```
 
-
 `willbe` is not required to use the action in your project as submodule.
