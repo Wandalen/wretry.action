@@ -83,8 +83,17 @@ function retryWithoutCommand( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
-    a.shellNonThrowing( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
+    a.ready.then( () =>
+    {
+      return __.git.repositoryClone
+      ({
+        localPath : actionPath,
+        remotePath : __.git.path.normalize( context.actionDirPath ),
+        attemptLimit : 4,
+        attemptDelay : 250,
+        attemptDelayMultiplier : 4,
+      });
+    });
     return a.ready;
   }
 }
@@ -135,8 +144,17 @@ function retryWithWrongComand( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
-    a.shellNonThrowing( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
+    a.ready.then( () =>
+    {
+      return __.git.repositoryClone
+      ({
+        localPath : actionPath,
+        remotePath : __.git.path.normalize( context.actionDirPath ),
+        attemptLimit : 4,
+        attemptDelay : 250,
+        attemptDelayMultiplier : 4,
+      });
+    });
     return a.ready;
   }
 }
@@ -186,8 +204,17 @@ function retryWithValidComand( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
-    a.shellNonThrowing( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
+    a.ready.then( () =>
+    {
+      return __.git.repositoryClone
+      ({
+        localPath : actionPath,
+        remotePath : __.git.path.normalize( context.actionDirPath ),
+        attemptLimit : 4,
+        attemptDelay : 250,
+        attemptDelayMultiplier : 4,
+      });
+    });
     return a.ready;
   }
 }
@@ -262,8 +289,17 @@ function retryWithOptionCurrentPath( test )
       a.fileProvider.dirMake( actionPath );
       return null;
     });
-    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
-    a.shellNonThrowing( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
+    a.ready.then( () =>
+    {
+      return __.git.repositoryClone
+      ({
+        localPath : actionPath,
+        remotePath : __.git.path.normalize( context.actionDirPath ),
+        attemptLimit : 4,
+        attemptDelay : 250,
+        attemptDelayMultiplier : 4,
+      });
+    });
     return a.ready;
   }
 }
