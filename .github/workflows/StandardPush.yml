@@ -54,7 +54,7 @@ jobs :
     - name : Install willbe
       uses : Wandalen/wretry.action@v1.0.15
       with :
-        command : npm i -g willbe@delta
+        command : npm i -g willbe@latest
         attempt_limit : 3
         attempt_delay: 1000
     - name : Install submodules
