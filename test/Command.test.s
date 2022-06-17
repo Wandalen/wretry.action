@@ -312,7 +312,7 @@ const Proto =
 {
   name : 'Command',
   silencing : 1,
-  routineTimeOut : 30000,
+  routineTimeOut : 60000,
 
   onSuiteBegin,
   onRoutineBegin,
