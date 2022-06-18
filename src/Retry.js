@@ -59,11 +59,12 @@ function retry( scriptType )
         const optionsStrings = core.getMultilineInput( 'with' );
         const options = common.actionOptionsParse( optionsStrings );
         _.map.sureHasOnly( options, config.inputs );
-        const envOptions = common.envOptionsFrom( options, config.inputs );
-        common.envOptionsSetup( envOptions );
 
         if( _.strBegins( config.runs.using, 'node' ) )
         {
+          const envOptions = common.envOptionsFrom( options, config.inputs );
+          common.envOptionsSetup( envOptions );
+
           const runnerPath = _.path.nativize( _.path.join( __dirname, 'Runner.js' ) );
           const scriptPath = _.path.nativize( _.path.join( localActionPath, config.runs[ scriptType ] ) );
           routine = () =>
