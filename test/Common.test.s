@@ -648,6 +648,8 @@ function envOptionsFromJobContextExpressionInputs( test )
   test.true( got !== src );
 }
 
+envOptionsFromJobContextExpressionInputs.timeOut = 30000;
+
 //
 
 function envOptionsSetup( test )
