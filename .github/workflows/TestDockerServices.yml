@@ -76,4 +76,4 @@ jobs :
     - run : npm list
       continue-on-error : true
     - name : Test services
-      run : npx tst .run test/DockerServices.test.s r:envOptionsFromJobContextExpressionInputs
+      run : npx tst .run test/DockerServices.test.s
