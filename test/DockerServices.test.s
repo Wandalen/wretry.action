@@ -46,10 +46,7 @@ function onRoutineEnd()
 
 function envOptionsFromJobContextExpressionInputs( test )
 {
-  if( !_.process.insideTestContainer() || process.platform === 'macos' )
-  return test.true( true );
-
-  if( process.env.GITHUB_WORKFLOW !== 'github_services' )
+  if( !_.process.insideTestContainer() || process.env.GITHUB_JOB !== 'github_services' )
   return test.true( true );
 
   /* - */
@@ -106,11 +103,9 @@ function envOptionsFromJobContextExpressionInputs( test )
 
 function retryActionWithDefaultInputsFromJobContext( test )
 {
-  if( !_.process.insideTestContainer() || process.platform === 'macos' )
+  if( !_.process.insideTestContainer() || process.env.GITHUB_JOB !== 'github_services' )
   return test.true( true );
 
-  if( process.env.GITHUB_WORKFLOW !== 'github_services' )
-  return test.true( true );
   const context = this;
   const a = test.assetFor( false );
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
