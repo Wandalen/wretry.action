@@ -464,7 +464,7 @@ function envOptionsFrom( test )
 
 //
 
-function envOptionsFromWithContextExpressionInputs( test )
+function envOptionsFromEnvAndGithubContextExpressionInputs( test )
 {
   const a = test.assetFor( false );
   process.env.GITHUB_EVENT_PATH = a.path.nativize( a.abs( __dirname, '_asset/context/event.json' ) );
@@ -603,6 +603,53 @@ function envOptionsFromWithContextExpressionInputs( test )
 
 //
 
+function envOptionsFromJobContextExpressionInputs( test )
+{
+  test.case = 'resolve job status, field always exists';
+  var inputs =
+  {
+    job_status :
+    {
+      description : 'environment',
+      default : '${{ job.status }}'
+    }
+  };
+  var src = {};
+  var got = common.envOptionsFrom( src, inputs );
+  test.identical( got, { INPUT_JOB_STATUS : '' } );
+  test.true( got !== src );
+
+  test.case = 'resolve not existed field';
+  var inputs =
+  {
+    job_network :
+    {
+      description : 'unknown',
+      default : '${{ job.network }}'
+    }
+  };
+  var src = {};
+  var got = common.envOptionsFrom( src, inputs );
+  test.identical( got, { INPUT_JOB_NETWORK : '' } );
+  test.true( got !== src );
+
+  test.case = 'resolve field not existed for workflow without services, nested';
+  var inputs =
+  {
+    job_network :
+    {
+      description : 'network',
+      default : '${{ job.container.network }}'
+    }
+  };
+  var src = {};
+  var got = common.envOptionsFrom( src, inputs );
+  test.identical( got, { INPUT_JOB_NETWORK : '' } );
+  test.true( got !== src );
+}
+
+//
+
 function envOptionsSetup( test )
 {
   const beginEnvs = _.map.extend( null, process.env );
@@ -636,7 +683,8 @@ const Proto =
     actionConfigRead,
     actionOptionsParse,
     envOptionsFrom,
-    envOptionsFromWithContextExpressionInputs,
+    envOptionsFromEnvAndGithubContextExpressionInputs,
+    envOptionsFromJobContextExpressionInputs,
     envOptionsSetup,
   },
 };

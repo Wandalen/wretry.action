@@ -156,7 +156,6 @@ function retryFetchActionWithoutTagOrHash( test )
 {
   const context = this;
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
@@ -214,7 +213,6 @@ function retryFetchActionWithTag( test )
 {
   const context = this;
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
@@ -272,7 +270,6 @@ function retryFetchActionWithHash( test )
 {
   const context = this;
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'dmvict/test.action';
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
@@ -356,7 +353,6 @@ function retryWithOptionAttemptLimit( test )
 {
   const context = this;
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
@@ -461,7 +457,6 @@ function retryWithOptionAttemptDelay( test )
 {
   const context = this;
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'dmvict/test.action@v0.0.2';
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
@@ -552,7 +547,6 @@ function retryWithExternalActionOnLocal( test )
   if( _.process.insideTestContainer() )
   return test.true( true  );
 
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'actions/setup-node@v2.3.0';
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
@@ -619,7 +613,6 @@ function retryWithExternalActionOnRemote( test )
   if( !_.process.insideTestContainer() )
   return test.true( true  );
 
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'actions/setup-node@v2.3.0';
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
@@ -711,7 +704,6 @@ function retryActionWithPreScript( test )
 {
   const context = this;
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
@@ -777,7 +769,6 @@ function retryActionWithPostScript( test )
 {
   const context = this;
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
@@ -858,7 +849,6 @@ function retryActionWithPreAndPostScript( test )
 {
   const context = this;
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
@@ -939,7 +929,6 @@ function retryActionWithDefaultInputs( test )
 {
   const context = this;
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
 
@@ -1071,7 +1060,6 @@ function retryActionWithDefaultInputsAsExpressions( test )
 {
   const context = this;
   const a = test.assetFor( false );
-  const actionRepo = 'https://github.com/Wandalen/wretry.action.git';
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
   const isTestContainer = _.process.insideTestContainer();
