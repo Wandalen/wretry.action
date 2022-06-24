@@ -194,6 +194,7 @@ function envOptionsFrom( options, inputs )
         service.id = parsed[ 0 ].Id;
         service.ports = Object.create( null );
         for( let key in parsed[ 0 ].NetworkSettings.Ports )
+        if( parsed[ 0 ].NetworkSettings.Ports[ key ] !== null )
         service.ports[ key.split( '/' )[ 0 ] ] = parsed[ 0 ].NetworkSettings.Ports[ key ][ 0 ].HostPort;
         service.network = context.container.network;
 
