@@ -1,6 +1,6 @@
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner2-direct.svg)](https://stand-with-ukraine.pp.ua)
 
-# action::retry [![status](https://github.com/Wandalen/wretry.action/actions/workflows/StandardPublish.yml/badge.svg)](https://github.com/Wandalen/wretry.action/actions/workflows/StandardPublish.yml) [![stable](https://img.shields.io/badge/stability-stable-brightgreen.svg)](https://github.com/emersion/stability-badges#stable)
+# action::retry [![status](https://github.com/Wandalen/wretry.action/actions/workflows/wRetryActionPublish.yml/badge.svg)](https://github.com/Wandalen/wretry.action/actions/workflows/wRetryActionPublish.yml) [![stable](https://img.shields.io/badge/stability-stable-brightgreen.svg)](https://github.com/emersion/stability-badges#stable)
 
 Retries an Github Action step or command on failure.
 
@@ -31,6 +31,7 @@ It is a cause of failed jobs. For this case, the action `wretry.action` can retr
 - Handles no conditions in external actions. All stages of external action will be performed.
 - Retries actions with defined number of attempts ( default is 2 ).
 - Retries actions with defined delay between attempts ( default is 0 ).
+- Resolves external action default inputs from next contexts : `github`, `env`, `job`.
 
 ## Inputs
 
