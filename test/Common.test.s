@@ -616,9 +616,6 @@ function envOptionsFromJobContextExpressionInputs( test )
   };
   var src = {};
   var got = common.envOptionsFrom( src, inputs );
-  if( _.process.insideTestContainer() )
-  test.identical( got, { INPUT_JOB_STATUS : 'success' } );
-  else
   test.identical( got, { INPUT_JOB_STATUS : '' } );
   test.true( got !== src );
 

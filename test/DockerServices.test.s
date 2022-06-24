@@ -65,7 +65,7 @@ function envOptionsFromJobContextExpressionInputs( test )
   };
   var src = {};
   var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_JOB_STATUS : 'success' } );
+  test.identical( got, { INPUT_JOB_STATUS : '' } );
 
   test.case = 'resolve job container network';
   var inputs =
