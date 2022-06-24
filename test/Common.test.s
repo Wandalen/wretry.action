@@ -464,7 +464,7 @@ function envOptionsFrom( test )
 
 //
 
-function envOptionsFromWithContextExpressionInputs( test )
+function envOptionsFromEnvAndGithubContextExpressionInputs( test )
 {
   const a = test.assetFor( false );
   process.env.GITHUB_EVENT_PATH = a.path.nativize( a.abs( __dirname, '_asset/context/event.json' ) );
@@ -603,6 +603,28 @@ function envOptionsFromWithContextExpressionInputs( test )
 
 //
 
+function envOptionsFromJobContextExpressionInputs( test )
+{
+  test.case = 'resolve job status, field always exists';
+  var inputs =
+  {
+    job_status :
+    {
+      description : 'environment',
+      default : '${{ job.status }}'
+    }
+  };
+  var src = {};
+  var got = common.envOptionsFrom( src, inputs );
+  if( _.process.insideTestContainer() )
+  test.identical( got, { INPUT_JOB_STATUS : 'success' } );
+  else
+  test.identical( got, { INPUT_JOB_STATUS : '' } );
+  test.true( got !== src );
+}
+
+//
+
 function envOptionsSetup( test )
 {
   const beginEnvs = _.map.extend( null, process.env );
@@ -636,7 +658,8 @@ const Proto =
     actionConfigRead,
     actionOptionsParse,
     envOptionsFrom,
-    envOptionsFromWithContextExpressionInputs,
+    envOptionsFromEnvAndGithubContextExpressionInputs,
+    envOptionsFromJobContextExpressionInputs,
     envOptionsSetup,
   },
 };
