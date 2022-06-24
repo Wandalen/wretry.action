@@ -22,9 +22,7 @@ function retry( scriptType )
       let currentPath = core.getInput( 'current_path' ) || _.path.current();
 
       if( !_.path.isAbsolute( currentPath ) )
-      {
-        currentPath = _.path.join( _.path.current(), currentPath );
-      }
+      currentPath = _.path.join( _.path.current(), currentPath );
 
       routine = () =>
       {

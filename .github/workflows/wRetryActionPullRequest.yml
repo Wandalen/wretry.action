@@ -13,7 +13,7 @@ jobs :
         with :
           access_token : ${{ github.token }}
 
-  Fast :
+  fast :
     env :
       PRIVATE_WTOOLS_BOT_TOKEN : ${{ secrets.PRIVATE_WTOOLS_BOT_TOKEN }}
       PRIVATE_WTOOLS_BOT_SSH_KEY : ${{ secrets.PRIVATE_WTOOLS_BOT_SSH_KEY }}
@@ -75,3 +75,76 @@ jobs :
       run : xvfb-run --auto-servernum npm test
     - if : "!startsWith( matrix.os, 'ubuntu' )"
       run : npm test
+
+  github_services :
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        ports:
+          - 5432
+    env :
+      PRIVATE_WTOOLS_BOT_TOKEN : ${{ secrets.PRIVATE_WTOOLS_BOT_TOKEN }}
+      PRIVATE_WTOOLS_BOT_SSH_KEY : ${{ secrets.PRIVATE_WTOOLS_BOT_SSH_KEY }}
+      PRIVATE_WTOOLS_BOT_NPM_PASS : ${{ secrets.PRIVATE_WTOOLS_BOT_NPM_PASS }}
+      PRIVATE_WTOOLS_BOT_EMAIL : ${{ secrets.PRIVATE_WTOOLS_BOT_EMAIL }}
+    strategy :
+      fail-fast : false
+      matrix :
+        os : [ ubuntu-latest ]
+        node-version : [ 12.9.1, 14.x, 16.x, 18.x ]
+    runs-on : ${{ matrix.os }}
+    steps :
+    - name : Setup git
+      run : |
+        git config --global core.autocrlf input
+        git config --global user.email "testing@testing.com"
+        git config --global user.name "Testing"
+        git config --global pull.rebase false
+        git config --global init.defaultBranch master
+    - uses : actions/checkout@v2
+      with :
+        fetch-depth: 2
+    - name : ${{ matrix.node-version }}
+      uses : Wandalen/wretry.action@v1.0.15
+      with :
+        action : actions/setup-node@v2
+        with : |
+          node-version : ${{ matrix.node-version }}
+        attempt_limit : 3
+        attempt_delay: 1000
+    - name : Save npm version
+      id : getnpmver
+      run : |
+        echo "::set-output name=npmver::$(npm -v)"
+    - name : Update npm if current version is 6
+      if : "startsWith( steps.getnpmver.outputs.npmver, '6.' )"
+      run : npm install -g npm@latest-6
+    - name : Update node-gyp
+      if: ${{ matrix.os == 'windows-latest' && matrix.node-version != '18.x' }}
+      run : |
+        npm install --global node-gyp@9.0.0
+        npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
+    - name : Install willbe
+      uses : Wandalen/wretry.action@v1.0.15
+      with :
+        command : npm i -g willbe@latest
+        attempt_limit : 3
+        attempt_delay: 1000
+    - name : Install submodules
+      uses : Wandalen/wretry.action@v1.0.15
+      with :
+        command : will .npm.install
+        attempt_limit : 3
+        attempt_delay: 1000
+    - name : Environment
+      run : env
+    - run : npm list
+      continue-on-error : true
+    - name : Test services
+      run : npx tst .run test/DockerServices.test.s
+
+  job_context_action :
+    uses : Wandalen/wretry.action/.github/workflows/JobContextActionTest.yml@master
