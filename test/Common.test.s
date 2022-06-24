@@ -621,6 +621,34 @@ function envOptionsFromJobContextExpressionInputs( test )
   else
   test.identical( got, { INPUT_JOB_STATUS : '' } );
   test.true( got !== src );
+
+  test.case = 'resolve not existed field';
+  var inputs =
+  {
+    job_network :
+    {
+      description : 'unknown',
+      default : '${{ job.network }}'
+    }
+  };
+  var src = {};
+  var got = common.envOptionsFrom( src, inputs );
+  test.identical( got, { INPUT_JOB_NETWORK : '' } );
+  test.true( got !== src );
+
+  test.case = 'resolve field not existed for workflow without services, nested';
+  var inputs =
+  {
+    job_network :
+    {
+      description : 'network',
+      default : '${{ job.container.network }}'
+    }
+  };
+  var src = {};
+  var got = common.envOptionsFrom( src, inputs );
+  test.identical( got, { INPUT_JOB_NETWORK : '' } );
+  test.true( got !== src );
 }
 
 //
