@@ -77,3 +77,6 @@ jobs :
       continue-on-error : true
     - name : Test services
       run : npx tst .run test/DockerServices.test.s
+
+  test :
+    uses : Wandalen/wretry.action/.github/workflows/JobContextActionTest.yml@master
