@@ -39,13 +39,11 @@ jobs :
           node-version : ${{ matrix.node-version }}
         attempt_limit : 3
         attempt_delay: 1000
-    - name : Save npm version
-      id : getnpmver
+    - name : Update npm
+      if : ${{ matrix.os == 'windows-latest' && matrix.node-version > '14.x' }}
       run : |
-        echo "::set-output name=npmver::$(npm -v)"
-    - name : Update npm if current version is 6
-      if : "startsWith( steps.getnpmver.outputs.npmver, '6.' )"
-      run : npm install -g npm@latest-6
+        npm install --global --production npm-windows-upgrade
+        npm-windows-upgrade --npm-version latest
     - name : Update node-gyp
       if: ${{ matrix.os == 'windows-latest' && matrix.node-version != '18.x' }}
       run : |
