@@ -4,7 +4,7 @@ on : [ workflow_call ]
 
 jobs :
 
-  Fast :
+  fast :
     services:
       postgres:
         image: postgres

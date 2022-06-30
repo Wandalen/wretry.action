@@ -145,3 +145,7 @@ jobs :
   job_context_action :
     if : "startsWith( github.event.head_commit.message, 'version' ) && startsWith( github.ref, 'refs/tags/v' )"
     uses : Wandalen/wretry.action/.github/workflows/JobContextActionTest.yml@master
+
+  matrix_context_action :
+    if : "startsWith( github.event.head_commit.message, 'version' ) && startsWith( github.ref, 'refs/tags/v' )"
+    uses : Wandalen/wretry.action/.github/workflows/MatrixContextActionTest.yml@master

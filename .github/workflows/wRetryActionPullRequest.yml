@@ -148,3 +148,6 @@ jobs :
 
   job_context_action :
     uses : Wandalen/wretry.action/.github/workflows/JobContextActionTest.yml@master
+
+  matrix_context_action :
+    uses : Wandalen/wretry.action/.github/workflows/MatrixContextActionTest.yml@master
