@@ -559,6 +559,7 @@ function retryWithExternalActionOnLocal( test )
     core.exportVariable( `INPUT_ACTION`, testAction );
     core.exportVariable( `INPUT_WITH`, 'node-version : 13.x' );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    core.exportVariable( `INPUT_GITHUB_CONTEXT`, '{ "token": "github_token" }' );
     return null;
   });
 
