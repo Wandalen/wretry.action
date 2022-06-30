@@ -99,61 +99,6 @@ function envOptionsFromJobContextExpressionInputs( test )
   test.identical( got.INPUT_JOB_NETWORK, got.INPUT_SERVICE_NETWORK );
 }
 
-//
-
-function retryActionWithDefaultInputsFromJobContext( test )
-{
-  if( !_.process.insideTestContainer() || process.env.GITHUB_JOB !== 'github_services' )
-  return test.true( true );
-
-  const context = this;
-  const a = test.assetFor( false );
-  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
-  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
-
-  const testAction = 'dmvict/test.action@defaults_from_job_context';
-
-  /* - */
-
-  a.ready.then( () =>
-  {
-    test.case = 'missed required argument, default bool value exists';
-    core.exportVariable( `INPUT_ACTION`, testAction );
-    core.exportVariable( `INPUT_JOB_STATUS`, 'success' );
-    return null;
-  });
-
-  actionSetup();
-
-  a.shellNonThrowing({ currentPath : actionPath, execPath });
-  a.ready.then( ( op ) =>
-  {
-    test.identical( op.exitCode, 0 );
-    test.identical( _.strCount( op.output, '::error::' ), 0 );
-    return null;
-  });
-
-  /* - */
-
-  return a.ready;
-
-  /* */
-
-  function actionSetup()
-  {
-    a.ready.then( () =>
-    {
-      a.fileProvider.filesDelete( a.abs( '.' ) );
-      a.fileProvider.dirMake( actionPath );
-      return null;
-    });
-    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
-    return a.ready;
-  }
-}
-
-retryActionWithDefaultInputsFromJobContext.timeOut = 120000;
-
 // --
 // declare
 // --
@@ -176,7 +121,6 @@ const Proto =
   tests :
   {
     envOptionsFromJobContextExpressionInputs,
-    retryActionWithDefaultInputsFromJobContext,
   },
 };
 
