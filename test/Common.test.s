@@ -470,6 +470,84 @@ function envOptionsFromEnvAndGithubContextExpressionInputs( test )
   process.env.GITHUB_EVENT_PATH = a.path.nativize( a.abs( __dirname, '_asset/context/event.json' ) );
   process.env.TEST = 'test';
   process.env.RETRY_ACTION = 'dmvict/test.action@v0.0.2';
+  process.env.INPUT_GITHUB_CONTEXT =
+`{
+  "token": "private_token",
+  "job": "fast",
+  "ref": "refs/heads/master",
+  "sha": "df6a916d",
+  "repository": "user/repo",
+  "repository_owner": "user",
+  "repository_owner_id": "47529590",
+  "repositoryUrl": "git://github.com/user/repo.git",
+  "run_id": "2567345311",
+  "run_number": "114",
+  "retention_days": "90",
+  "run_attempt": "1",
+  "artifact_cache_size_limit": "10",
+  "repository_id": "438224811",
+  "actor_id": "47529590",
+  "actor": "user",
+  "workflow": "push",
+  "head_ref": "",
+  "base_ref": "",
+  "event_name": "push",
+  "event": {
+    "after": "df6a916d93",
+    "base_ref": null,
+    "before": "9e72f69b4382",
+    "commits": [
+      {
+        "author": {
+        },
+        "committer": {
+        },
+        "distinct": true,
+        "id": "df6a916d93",
+        "message": "test",
+        "timestamp": "2022-06-27T09:54:49+03:00",
+        "tree_id": "a1579bd0a5ae",
+        "url": "https://github.com/user/repo/commit/df6a916d93f"
+      }
+    ],
+    "head_commit": {
+      "author": {
+      },
+      "committer": {
+      },
+      "distinct": true,
+      "id": "df6a916d93",
+      "message": "test",
+      "timestamp": "2022-06-27T09:54:49+03:00",
+      "tree_id": "a1579bd0a5ae",
+      "url": "https://github.com/user/repo/commit/df6a916d93f"
+    },
+    "pusher": {
+    },
+    "ref": "refs/heads/exp2",
+    "repository": {
+      "default_branch": "master",
+      "master_branch": "master"
+    },
+    "sender": {
+    }
+  },
+  "server_url": "https://github.com",
+  "api_url": "https://api.github.com",
+  "graphql_url": "https://api.github.com/graphql",
+  "ref_name": "master",
+  "ref_protected": false,
+  "ref_type": "branch",
+  "secret_source": "Actions",
+  "workspace": "/home/runner/work/repo/repo",
+  "action": "__user_test_action",
+  "event_path": "/home/runner/work/_temp/_github_workflow/event.json",
+  "action_repository": "",
+  "action_ref": "",
+  "path": "/home/runner/work/_temp/_runner_file_commands/add_path_e2aba804-be04-4f71-963f-a8c64be62d19",
+  "env": "/home/runner/work/_temp/_runner_file_commands/set_env_e2aba804-be04-4f71-963f-a8c64be62d19",
+  "step_summary": "/home/runner/work/_temp/_runner_file_commands/step_summary_e2aba804-be04-4f71-963f-a8c64be62d19"
+}`;
 
   /* - */
 
