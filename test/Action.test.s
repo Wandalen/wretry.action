@@ -1195,7 +1195,7 @@ function retryActionWithDefaultInputsFromMatrixContext( test )
 `{
   "os": "ubuntu-latest"
 }`;
-    core.exportVariable( `INPUT_MATRIX`, matrix );
+    core.exportVariable( `INPUT_MATRIX_CONTEXT`, matrix );
     return null;
   });
 
