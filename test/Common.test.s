@@ -605,18 +605,61 @@ function envOptionsFromEnvAndGithubContextExpressionInputs( test )
 
 function envOptionsFromJobContextExpressionInputs( test )
 {
+  process.env.INPUT_JOB_CONTEXT =
+`{
+  "status": "success",
+  "container": {
+    "network": "github_network"
+  },
+  "services": {
+    "postgres": {
+      "id": "80ce7090f",
+      "ports": {
+        "5432": "5432"
+      },
+      "network": "github_network"
+    }
+  }
+}`;
+
+  /* - */
+
+  test.case = 'resolve full job context';
+  var inputs =
+  {
+    job_status :
+    {
+      description : 'job.status',
+      default : '${{ toJSON( job ) }}'
+    }
+  };
+  var src = {};
+  var got = common.envOptionsFrom( src, inputs );
+  test.identical( _.map.keys( got ), [ 'INPUT_JOB_STATUS' ] );
+  var parsed = JSON.parse( got.INPUT_JOB_STATUS );
+  test.identical( _.map.keys( parsed ), [ 'status', 'container', 'services' ] );
+  test.identical( parsed.status, 'success' );
+  test.identical( _.map.keys( parsed.container ), [ 'network' ] );
+  test.identical( _.map.keys( parsed.services ), [ 'postgres' ] );
+  test.identical( _.map.keys( parsed.services.postgres ), [ 'id', 'ports', 'network' ] );
+  test.identical( parsed.container.network, parsed.services.postgres.network );
+  test.identical( parsed.container.network, 'github_network' );
+  test.identical( parsed.services.postgres.id, '80ce7090f' );
+  test.identical( parsed.services.postgres.ports, { '5432' : '5432' } );
+  test.true( got !== src );
+
   test.case = 'resolve job status, field always exists';
   var inputs =
   {
     job_status :
     {
-      description : 'environment',
+      description : 'job.status',
       default : '${{ job.status }}'
     }
   };
   var src = {};
   var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_JOB_STATUS : '' } );
+  test.identical( got, { INPUT_JOB_STATUS : 'success' } );
   test.true( got !== src );
 
   test.case = 'resolve not existed field';
@@ -633,7 +676,7 @@ function envOptionsFromJobContextExpressionInputs( test )
   test.identical( got, { INPUT_JOB_NETWORK : '' } );
   test.true( got !== src );
 
-  test.case = 'resolve field not existed for workflow without services, nested';
+  test.case = 'resolve nested field';
   var inputs =
   {
     job_network :
@@ -644,7 +687,7 @@ function envOptionsFromJobContextExpressionInputs( test )
   };
   var src = {};
   var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_JOB_NETWORK : '' } );
+  test.identical( got, { INPUT_JOB_NETWORK : 'github_network' } );
   test.true( got !== src );
 }
 
@@ -654,7 +697,7 @@ envOptionsFromJobContextExpressionInputs.timeOut = 30000;
 
 function envOptionsFromMatrixContextExpressionInputs( test )
 {
-  process.env.INPUT_MATRIX =
+  process.env.INPUT_MATRIX_CONTEXT =
 `{
   "os": "ubunty-latest",
   "version" : 16
@@ -665,7 +708,7 @@ function envOptionsFromMatrixContextExpressionInputs( test )
   test.case = 'resolve full context';
   var inputs =
   {
-    matrix_context :
+    matrix :
     {
       description : 'matrix',
       default : '${{ toJSON( matrix ) }}'
@@ -673,21 +716,21 @@ function envOptionsFromMatrixContextExpressionInputs( test )
   };
   var src = {};
   var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_MATRIX_CONTEXT : '{"os":"ubunty-latest","version":16}' } );
+  test.identical( got, { INPUT_MATRIX : '{"os":"ubunty-latest","version":16}' } );
   test.true( got !== src );
 
   test.case = 'resolve field';
   var inputs =
   {
-    matrix_context :
+    matrix :
     {
-      description : 'matrix',
+      description : 'matrix field',
       default : '${{ matrix.os }}'
     }
   };
   var src = {};
   var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_MATRIX_CONTEXT : 'ubunty-latest' } );
+  test.identical( got, { INPUT_MATRIX : 'ubunty-latest' } );
   test.true( got !== src );
 }
 
