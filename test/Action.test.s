@@ -1074,7 +1074,15 @@ function retryActionWithDefaultInputsAsExpressions( test )
     core.exportVariable( `INPUT_ACTION`, testAction );
     process.env.TEST = 'test';
     if( !isTestContainer )
-    process.env.GITHUB_RETENTION_DAYS = '90';
+    {
+      process.env.INPUT_GITHUB_CONTEXT =
+`{
+  "retention_days": "90",
+  "event": {
+    "ref": "refs/heads/exp2"
+  }
+}`;
+    }
     return null;
   });
 
