@@ -652,6 +652,47 @@ envOptionsFromJobContextExpressionInputs.timeOut = 30000;
 
 //
 
+function envOptionsFromMatrixContextExpressionInputs( test )
+{
+  process.env.INPUT_MATRIX =
+`{
+  "os": "ubunty-latest",
+  "version" : 16
+}`;
+
+  /* - */
+
+  test.case = 'resolve full context';
+  var inputs =
+  {
+    matrix_context :
+    {
+      description : 'matrix',
+      default : '${{ toJSON( matrix ) }}'
+    }
+  };
+  var src = {};
+  var got = common.envOptionsFrom( src, inputs );
+  test.identical( got, { INPUT_MATRIX_CONTEXT : '{"os":"ubunty-latest","version":16}' } );
+  test.true( got !== src );
+
+  test.case = 'resolve field';
+  var inputs =
+  {
+    matrix_context :
+    {
+      description : 'matrix',
+      default : '${{ matrix.os }}'
+    }
+  };
+  var src = {};
+  var got = common.envOptionsFrom( src, inputs );
+  test.identical( got, { INPUT_MATRIX_CONTEXT : 'ubunty-latest' } );
+  test.true( got !== src );
+}
+
+//
+
 function envOptionsSetup( test )
 {
   const beginEnvs = _.map.extend( null, process.env );
@@ -687,6 +728,7 @@ const Proto =
     envOptionsFrom,
     envOptionsFromEnvAndGithubContextExpressionInputs,
     envOptionsFromJobContextExpressionInputs,
+    envOptionsFromMatrixContextExpressionInputs,
     envOptionsSetup,
   },
 };
