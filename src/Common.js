@@ -130,6 +130,11 @@ function envOptionsFrom( options, inputs )
       jobContext.status = core.getInput( 'job_status' );
       return jobContext;
     }
+    else if( contextName === 'matrix' )
+    {
+      const matrixContext = JSON.parse( core.getInput( 'matrix' ) );
+      return matrixContext;
+    }
 
     _.assert( false, `The requested context "${ contextName }" does not supported by action.` );
   }
@@ -186,6 +191,7 @@ function envOptionsFrom( options, inputs )
       for( let i = 0 ; i < ids.length ; i++ )
       {
         const output = execSyncNonThrowing( `docker inspect ${ ids[ i ].trim() }` );
+        console.log( output.toString() );
         const parsed = JSON.parse( output.toString() );
         if( !context.container.network )
         context.container.network = parsed[ 0 ].HostConfig.NetworkMode;

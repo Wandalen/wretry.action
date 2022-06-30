@@ -27,6 +27,10 @@ inputs:
     description: 'Get job status. It is autooption to extends context `job` for an external action. Not documented in file `Readme.md`.'
     required: false
     default: ${{ job.status }}
+  matrix:
+    description: 'Get matrix context. It is autooption to pass context `matrix` for an external action. Not documented in file `Readme.md`.'
+    required: false
+    default: ${{ toJSON( matrix ) }}
   attempt_limit:
     description: 'Number of attempts'
     required: false
