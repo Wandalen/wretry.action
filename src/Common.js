@@ -126,13 +126,12 @@ function envOptionsFrom( options, inputs )
     }
     else if( contextName === 'job' )
     {
-      const jobContext = jobContextGet();
-      jobContext.status = core.getInput( 'job_status' );
+      const jobContext = JSON.parse( core.getInput( 'job_context' ) );
       return jobContext;
     }
     else if( contextName === 'matrix' )
     {
-      const matrixContext = JSON.parse( core.getInput( 'matrix' ) );
+      const matrixContext = JSON.parse( core.getInput( 'matrix_context' ) );
       return matrixContext;
     }
 
@@ -174,71 +173,6 @@ function envOptionsFrom( options, inputs )
     github.context.token = core.getInput( 'github_token' );
     github.context.workflow = github.context.workflow;
     github.context.workspace = process.env.GITHUB_WORKSPACE;
-  }
-
-  /* */
-
-  function jobContextGet()
-  {
-    const context = Object.create( null );
-
-    if( dockerExists() )
-    {
-      const containersIds = execSyncNonThrowing( 'docker ps --all --filter status=running --no-trunc --format "{{.ID}}"' );
-      const ids = _.strSplit({ src : containersIds.toString(), delimeter : '\n', preservingEmpty : 0 });
-      context.container = Object.create( null );
-      context.services = Object.create( null );
-      for( let i = 0 ; i < ids.length ; i++ )
-      {
-        const output = execSyncNonThrowing( `docker inspect ${ ids[ i ].trim() }` );
-        console.log( output.toString() );
-        const parsed = JSON.parse( output.toString() );
-        if( !context.container.network )
-        context.container.network = parsed[ 0 ].HostConfig.NetworkMode;
-
-        const service = Object.create( null );
-        service.id = parsed[ 0 ].Id;
-        service.ports = Object.create( null );
-        for( let key in parsed[ 0 ].NetworkSettings.Ports )
-        if( parsed[ 0 ].NetworkSettings.Ports[ key ] !== null )
-        service.ports[ key.split( '/' )[ 0 ] ] = parsed[ 0 ].NetworkSettings.Ports[ key ][ 0 ].HostPort;
-        service.network = context.container.network;
-
-        context.services[ parsed[ 0 ].Args[ 0 ] ] = service;
-      }
-    }
-
-    return context;
-  }
-
-  function dockerExists()
-  {
-    return !_.error.is( execSyncNonThrowing( 'docker -v' ) );
-  }
-
-  /*
-     To get context, synchronous command execution is required.
-     _.process uses Consequence in each `start*` routine and for synchronous execution it requires `deasync`.
-     `deasync` is the binary module. To prevent failures during action build and decrease time of setup the action,
-     we exclude `deasync` and compile.
-
-     So, to run commands synchronously and with no async this wrapper is used.
-  */
-
-  function execSyncNonThrowing( command )
-  {
-    if( ChildProcess === null )
-    ChildProcess = require( 'child_process' );
-
-    try
-    {
-      return ChildProcess.execSync( command, { stdio : 'pipe' } );
-    }
-    catch( err )
-    {
-      _.error.attend( err );
-      return err;
-    }
   }
 }
 
