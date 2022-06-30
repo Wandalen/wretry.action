@@ -1111,6 +1111,62 @@ function retryActionWithDefaultInputsAsExpressions( test )
 
 retryActionWithDefaultInputsAsExpressions.timeOut = 120000;
 
+//
+
+function retryActionWithDefaultInputsFromMatrixContext( test )
+{
+  const context = this;
+  const a = test.assetFor( false );
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+
+  const testAction = 'dmvict/test.action@defaults_from_matrix_context';
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'missed required argument, default bool value exists';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    const matrix =
+`{
+  "os": "ubuntu-latest"
+}`;
+    core.exportVariable( `INPUT_MATRIX`, matrix );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::' ), 0 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    return a.ready;
+  }
+}
+
+retryActionWithDefaultInputsFromMatrixContext.timeOut = 120000;
+
 // --
 // declare
 // --
@@ -1153,6 +1209,7 @@ const Proto =
 
     retryActionWithDefaultInputs,
     retryActionWithDefaultInputsAsExpressions,
+    retryActionWithDefaultInputsFromMatrixContext,
   },
 };
 
