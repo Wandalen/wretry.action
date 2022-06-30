@@ -4,8 +4,7 @@ require( '../node_modules/Joined.s' );
 const _ = wTools;
 
 let GithubActionsParser = null;
-let ActionsGithub = null;
-let ChildProcess = null;
+// let ChildProcess = null;
 
 //
 
@@ -117,12 +116,9 @@ function envOptionsFrom( options, inputs )
     }
     else if( contextName === 'github' )
     {
-      if( ActionsGithub === null )
-      {
-        ActionsGithub = require( '@actions/github' );
-        githubContextSetup( ActionsGithub );
-      }
-      return ActionsGithub.context;
+      let githubContext = JSON.parse( core.getInput( 'github_context' ) );
+      githubContext = githubContextUpdate( githubContext );
+      return githubContext;
     }
     else if( contextName === 'job' )
     {
@@ -140,39 +136,13 @@ function envOptionsFrom( options, inputs )
 
   /* */
 
-  function githubContextSetup( github )
+  function githubContextUpdate( githubContext )
   {
     const remoteActionPath = remotePathFromActionName( process.env.RETRY_ACTION );
     const localActionPath = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
-    github.context.action_path = localActionPath;
-    github.context.action_ref = remoteActionPath.tag;
-    github.context.action_repository = process.env.GITHUB_ACTION_REPOSITORY;
-    // github.context.action_status = undefined;
-    github.context.api_url = github.context.apiUrl;
-    github.context.base_ref = process.env.GITHUB_BASE_REF;
-    github.context.env = process.env.GITHUB_ENV;
-    github.context.event = github.context.payload;
-    github.context.event_name = github.context.eventName;
-    github.context.event_path = process.env.GITHUB_EVENT_PATH;
-    github.context.graphql_url = github.context.graphqlUrl;
-    github.context.head_ref = process.env.GITHUB_HEAD_REF;
-    github.context.job = process.env.GITHUB_JOB;
-    github.context.ref_name = process.env.GITHUB_REF_NAME;
-    github.context.ref_protected = process.env.GITHUB_REF_PROTECTED;
-    github.context.ref_type = process.env.GITHUB_REF_TYPE;
-    github.context.path = process.env.GITHUB_PATH;
-    github.context.repository = process.env.GITHUB_REPOSITORY;
-    github.context.repository_owner = process.env.GITHUB_REPOSITORY_OWNER;
-    github.context.repositoryUrl = `https://github.com/${process.env.GITHUB_REPOSITORY}.git`;
-    github.context.retention_days = process.env.GITHUB_RETENTION_DAYS;
-    github.context.run_id = github.context.runId;
-    github.context.run_number = github.context.runNumber;
-    github.context.run_attempt = process.env.GITHUB_RUN_ATTEMPT;
-    github.context.server_url = github.context.serverUrl;
-    github.context.sha = github.context.sha;
-    github.context.token = core.getInput( 'github_token' );
-    github.context.workflow = github.context.workflow;
-    github.context.workspace = process.env.GITHUB_WORKSPACE;
+    githubContext.action_path = localActionPath;
+    githubContext.action_ref = remoteActionPath.tag;
+    return githubContext;
   }
 }
 

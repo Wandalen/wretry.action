@@ -19,8 +19,8 @@ inputs:
   current_path:
     description: 'Setup working directory for the action. Works with only commands. Default is `github.workspace` path.'
     required: false
-  github_token:
-    description: 'Get runner secret key. It is autooption to extends context `github` for an external action. Not documented in file `Readme.md`.'
+  github_context:
+    description: 'Get github context. It is autooption to pass context `github` into an external action. Not documented in file `Readme.md`.'
     required: false
     default: ${{ github.token }}
   job_context:
