@@ -33,7 +33,6 @@
   "dependencies": {
     "wgittools": "alpha",
     "github-actions-parser": "0.26.0",
-    "@actions/github": "5.0.3",
     "@actions/core": "1.8.2"
   },
   "devDependencies": {
