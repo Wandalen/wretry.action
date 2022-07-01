@@ -51,8 +51,8 @@ function imageBuild( actionPath, image )
   {
     const actionName = _.path.name( actionPath );
     const imageName = `${ actionName }_repo:${ actionName }_tag`.toLowerCase();
-    const dockerfilePath = _.path.join( actionPath, 'Dockerfile' );
-    const command = `docker build -t ${ imageName } -f ${ dockerfilePath } ${ actionPath }`;
+    const dockerfilePath = _.path.nativize( _.path.join( actionPath, 'Dockerfile' ) );
+    const command = `docker build -t ${ imageName } -f ${ dockerfilePath } ${ _.path.nativize( actionPath ) }`;
     const build = execSyncNonThrowing( command );
     if( _.error.is( build ) )
     throw _.error.brief( build );
