@@ -69,7 +69,7 @@ function imageBuild( test )
   const ubuntuIs = _.str.begins( process.env.ImageOS, 'ubuntu' );
   const windowsLatestIs = process.env.ImageOS === 'win22';
 
-  if( !ubuntuIs && !windowsLatestIs )
+  if( !ubuntuIs )
   return test.shouldThrowErrorSync( () => docker.imageBuild( a.routinePath, 'Dockerfile' ) );
 
   /* - */
