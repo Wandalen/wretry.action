@@ -241,10 +241,7 @@ function envOptionsFrom( options, inputs )
 function envOptionsSetup( options )
 {
   for( let key in options )
-  {
-    core.exportVariable( key, options[ key ] );
-    process.env[ key ] = options[ key ];
-  }
+  core.exportVariable( key, options[ key ] );
 }
 
 // --
