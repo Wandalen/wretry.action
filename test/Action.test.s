@@ -1076,13 +1076,15 @@ function retryActionWithDefaultInputsAsExpressions( test )
     process.env.TEST = 'test';
     if( !isTestContainer )
     {
-      process.env.INPUT_GITHUB_CONTEXT =
+      const github_context =
 `{
   "retention_days": "90",
   "event": {
     "ref": "refs/heads/exp2"
   }
 }`;
+      core.exportVariable( 'INPUT_ENV_CONTEXT', '{}' );
+      core.exportVariable( 'INPUT_GITHUB_CONTEXT', github_context );
     }
     return null;
   });
@@ -1124,9 +1126,6 @@ retryActionWithDefaultInputsAsExpressions.timeOut = 120000;
 
 function retryActionWithDefaultInputsFromJobContext( test )
 {
-  if( !_.process.insideTestContainer() )
-  return test.true( true );
-
   const context = this;
   const a = test.assetFor( false );
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
@@ -1140,7 +1139,22 @@ function retryActionWithDefaultInputsFromJobContext( test )
   {
     test.case = 'missed required argument, default bool value exists';
     core.exportVariable( `INPUT_ACTION`, testAction );
-    core.exportVariable( `INPUT_JOB_STATUS`, 'success' );
+    if( !_.process.insideTestContainer() )
+    {
+      const job_context =
+`{
+  "status": "success",
+  "container": {
+    "network": "github_network"
+  },
+  "services": {
+    "postgres": {
+      "network": "github_network"
+    }
+  }
+}`
+      core.exportVariable( `INPUT_JOB_CONTEXT`, job_context );
+    }
     return null;
   });
 
@@ -1192,11 +1206,7 @@ function retryActionWithDefaultInputsFromMatrixContext( test )
   {
     test.case = 'missed required argument, default bool value exists';
     core.exportVariable( `INPUT_ACTION`, testAction );
-    const matrix =
-`{
-  "os": "ubuntu-latest"
-}`;
-    core.exportVariable( `INPUT_MATRIX_CONTEXT`, matrix );
+    core.exportVariable( `INPUT_MATRIX_CONTEXT`, '{\n  "os": "ubuntu-latest"\n}' );
     return null;
   });
 
