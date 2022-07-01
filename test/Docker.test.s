@@ -48,7 +48,7 @@ function exists( test )
 
   /* - */
 
-  test.case = "docker exists on ubuntu-latest and windows-latest";
+  test.case = 'docker exists on ubuntu-latest and windows-latest';
   var got = docker.exists();
   if( ubuntuIs || windowsLatestIs )
   test.identical( got, true );
@@ -74,7 +74,7 @@ function imageBuild( test )
 
   /* - */
 
-  test.case = "build an image";
+  test.case = 'build an image';
   var got = docker.imageBuild( a.routinePath, 'Dockerfile' );
   test.identical( got, 'imagebuild_repo:imagebuild_tag' );
 
@@ -91,6 +91,51 @@ function imageBuild( test )
     test.identical( err.originalMessage, msg );
   };
   test.shouldThrowErrorSync( () => docker.imageBuild( a.routinePath, 'wrong:image' ), onResolve );
+}
+
+//
+
+function runCommandForm( test )
+{
+  const a = test.assetFor( false );
+  const workspacePath = a.path.nativize( a.abs( '.' ) );
+  process.env.GITHUB_WORKSPACE = workspacePath;
+  process.env.INPUT_ENV_CONTEXT = '{}';
+
+  /* - */
+
+  test.case = 'empty inputs options';
+  var got = docker.runCommandForm( 'repo:tag', {} );
+  var exp =
+`docker run --name tag --label repo --workdir /github/workspace --rm -e HOME -e GITHUB_JOB -e GITHUB_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_REPOSITORY_OWNER -e GITHUB_RUN_ID -e GITHUB_RUN_NUMBER -e GITHUB_RETENTION_DAYS -e GITHUB_RUN_ATTEMPT -e GITHUB_ACTOR -e GITHUB_WORKFLOW -e GITHUB_HEAD_REF -e GITHUB_BASE_REF -e GITHUB_EVENT_NAME -e GITHUB_SERVER_URL -e GITHUB_API_URL -e GITHUB_GRAPHQL_URL -e GITHUB_REF_NAME -e GITHUB_REF_PROTECTED -e GITHUB_REF_TYPE -e GITHUB_WORKSPACE -e GITHUB_ACTION -e GITHUB_EVENT_PATH -e GITHUB_ACTION_REPOSITORY -e GITHUB_ACTION_REF -e GITHUB_PATH -e GITHUB_ENV -e GITHUB_STEP_SUMMARY -e RUNNER_OS -e RUNNER_ARCH -e RUNNER_NAME -e RUNNER_TOOL_CACHE -e RUNNER_TEMP -e RUNNER_WORKSPACE -e ACTIONS_RUNTIME_URL -e ACTIONS_RUNTIME_TOKEN -e ACTIONS_CACHE_URL -e GITHUB_ACTIONS=true -e CI=true -v "/var/run/docker.sock":"/var/run/docker.sock" -v "/home/runner/work/_temp/_github_home":"/github/home" -v "/home/runner/work/_temp/_github_workflow":"/github/workflow" -v "/home/runner/work/_temp/_runner_file_commands":"/github/file_commands" -v "${ workspacePath }":"/github/workspace" repo:tag`;
+  test.identical( got, exp );
+
+  test.case = 'not empty inputs options';
+  var got = docker.runCommandForm( 'repo:tag', { 'INPUT_STR' : 'str', 'INPUT_NUMBER' : '2' } );
+  var exp =
+`docker run --name tag --label repo --workdir /github/workspace --rm -e INPUT_STR -e INPUT_NUMBER -e HOME -e GITHUB_JOB -e GITHUB_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_REPOSITORY_OWNER -e GITHUB_RUN_ID -e GITHUB_RUN_NUMBER -e GITHUB_RETENTION_DAYS -e GITHUB_RUN_ATTEMPT -e GITHUB_ACTOR -e GITHUB_WORKFLOW -e GITHUB_HEAD_REF -e GITHUB_BASE_REF -e GITHUB_EVENT_NAME -e GITHUB_SERVER_URL -e GITHUB_API_URL -e GITHUB_GRAPHQL_URL -e GITHUB_REF_NAME -e GITHUB_REF_PROTECTED -e GITHUB_REF_TYPE -e GITHUB_WORKSPACE -e GITHUB_ACTION -e GITHUB_EVENT_PATH -e GITHUB_ACTION_REPOSITORY -e GITHUB_ACTION_REF -e GITHUB_PATH -e GITHUB_ENV -e GITHUB_STEP_SUMMARY -e RUNNER_OS -e RUNNER_ARCH -e RUNNER_NAME -e RUNNER_TOOL_CACHE -e RUNNER_TEMP -e RUNNER_WORKSPACE -e ACTIONS_RUNTIME_URL -e ACTIONS_RUNTIME_TOKEN -e ACTIONS_CACHE_URL -e GITHUB_ACTIONS=true -e CI=true -v "/var/run/docker.sock":"/var/run/docker.sock" -v "/home/runner/work/_temp/_github_home":"/github/home" -v "/home/runner/work/_temp/_github_workflow":"/github/workflow" -v "/home/runner/work/_temp/_runner_file_commands":"/github/file_commands" -v "${ workspacePath }":"/github/workspace" repo:tag`;
+  test.identical( got, exp );
+
+  test.case = 'not empty inputs options, env context';
+  process.env.INPUT_ENV_CONTEXT = '{"FOO": "bar"}';
+  var got = docker.runCommandForm( 'repo:tag', { 'INPUT_STR' : 'str', 'INPUT_NUMBER' : '2' } );
+  var exp =
+`docker run --name tag --label repo --workdir /github/workspace --rm -e FOO -e INPUT_STR -e INPUT_NUMBER -e HOME -e GITHUB_JOB -e GITHUB_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_REPOSITORY_OWNER -e GITHUB_RUN_ID -e GITHUB_RUN_NUMBER -e GITHUB_RETENTION_DAYS -e GITHUB_RUN_ATTEMPT -e GITHUB_ACTOR -e GITHUB_WORKFLOW -e GITHUB_HEAD_REF -e GITHUB_BASE_REF -e GITHUB_EVENT_NAME -e GITHUB_SERVER_URL -e GITHUB_API_URL -e GITHUB_GRAPHQL_URL -e GITHUB_REF_NAME -e GITHUB_REF_PROTECTED -e GITHUB_REF_TYPE -e GITHUB_WORKSPACE -e GITHUB_ACTION -e GITHUB_EVENT_PATH -e GITHUB_ACTION_REPOSITORY -e GITHUB_ACTION_REF -e GITHUB_PATH -e GITHUB_ENV -e GITHUB_STEP_SUMMARY -e RUNNER_OS -e RUNNER_ARCH -e RUNNER_NAME -e RUNNER_TOOL_CACHE -e RUNNER_TEMP -e RUNNER_WORKSPACE -e ACTIONS_RUNTIME_URL -e ACTIONS_RUNTIME_TOKEN -e ACTIONS_CACHE_URL -e GITHUB_ACTIONS=true -e CI=true -v "/var/run/docker.sock":"/var/run/docker.sock" -v "/home/runner/work/_temp/_github_home":"/github/home" -v "/home/runner/work/_temp/_github_workflow":"/github/workflow" -v "/home/runner/work/_temp/_runner_file_commands":"/github/file_commands" -v "${ workspacePath }":"/github/workspace" repo:tag`;
+  test.identical( got, exp );
+
+  /* - */
+
+  if( !Config.debug )
+  return;
+
+  test.case = 'invalid image name format';
+  test.shouldThrowErrorSync( () => docker.runCommandForm( 'repo', {} ) );
+
+  test.case = 'empty tag name';
+  test.shouldThrowErrorSync( () => docker.runCommandForm( 'repo:', {} ) );
+
+  test.case = 'empty repo name';
+  test.shouldThrowErrorSync( () => docker.runCommandForm( ':tag', {} ) );
 }
 
 // --
@@ -115,6 +160,7 @@ const Proto =
   {
     exists,
     imageBuild,
+    runCommandForm,
   },
 };
 

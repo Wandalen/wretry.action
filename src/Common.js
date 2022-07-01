@@ -57,7 +57,7 @@ function actionConfigRead( actionDir )
   if( !_.fileProvider.fileExists( configPath ) )
   configPath = _.path.join( actionDir, 'action.yaml' )
 
-  _.assert( _.fileProvider.fileExists( configPath ), 'Expects action path `action.yml` or `action.yaml`' );
+  _.sure( _.fileProvider.fileExists( configPath ), 'Expects action path `action.yml` or `action.yaml`' );
 
   return _.fileProvider.fileRead
   ({
@@ -131,7 +131,7 @@ function envOptionsFrom( options, inputs )
       return jobContext;
     }
 
-    _.assert( false, `The requested context "${ contextName }" does not supported by action.` );
+    _.sure( false, `The requested context "${ contextName }" does not supported by action.` );
   }
 
   /* */
