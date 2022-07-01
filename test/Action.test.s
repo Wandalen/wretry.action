@@ -1115,7 +1115,7 @@ retryActionWithDefaultInputsAsExpressions.timeOut = 120000;
 
 function retryDockerTrivialAction( test )
 {
-  const ubuntuIs = _.str.begins( process.env.ImageOS, 'ubuntu' );
+  const ubuntuIs = process.env.ImageOS && _.str.begins( process.env.ImageOS, 'ubuntu' );
   const windowsLatestIs = process.env.ImageOS === 'win22';
 
   if( !_.process.insideTestContainer() || ( !ubuntuIs && !windowsLatestIs ) )
