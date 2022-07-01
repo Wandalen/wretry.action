@@ -19,10 +19,14 @@ inputs:
   current_path:
     description: 'Setup working directory for the action. Works with only commands. Default is `github.workspace` path.'
     required: false
+  env_context:
+    description: 'Get env context. It is autooption to pass context `env` into an external action. Not documented in file `Readme.md`.'
+    required: false
+    default: ${{ toJSON( env ) }}
   github_context:
     description: 'Get github context. It is autooption to pass context `github` into an external action. Not documented in file `Readme.md`.'
     required: false
-    default: ${{ github.token }}
+    default: ${{ toJSON( github ) }}
   job_context:
     description: 'Get job context. It is autooption to pass context `job` into an external action. Not documented in file `Readme.md`.'
     required: false

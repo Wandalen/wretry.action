@@ -112,7 +112,10 @@ function envOptionsFrom( options, inputs )
   {
     if( contextName === 'env' )
     {
+      let envContext = JSON.parse( core.getInput( 'env_context' ) );
+      if( _.map.keys( envContext ).length === 0 )
       return process.env;
+      return envContext;
     }
     else if( contextName === 'github' )
     {
