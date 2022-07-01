@@ -131,7 +131,7 @@ function envOptionsFrom( options, inputs )
       return matrixContext;
     }
 
-    _.assert( false, `The requested context "${ contextName }" does not supported by action.` );
+    _.assert( false, `The requested context "${ contextName }" does not supported by action. Please, open an issue with the request for the feature.` );
   }
 
   /* */
