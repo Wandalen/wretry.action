@@ -1118,7 +1118,7 @@ function retryDockerTrivialAction( test )
   const ubuntuIs = process.env.ImageOS && _.str.begins( process.env.ImageOS, 'ubuntu' );
   const windowsLatestIs = process.env.ImageOS === 'win22';
 
-  if( !_.process.insideTestContainer() || ( !ubuntuIs && !windowsLatestIs ) )
+  if( !_.process.insideTestContainer() || !ubuntuIs )
   return test.true( true );
 
   const context = this;
