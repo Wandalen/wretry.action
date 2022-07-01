@@ -1,5 +1,4 @@
 const core = require( '@actions/core' );
-const common = require( './Common.js' );
 require( '../node_modules/Joined.s' );
 const _ = wTools;
 
@@ -40,6 +39,8 @@ function retry( scriptType )
     }
     else
     {
+      const common = require( './Common.js' );
+
       if( command.length )
       throw _.error.brief( 'Expects Github action name or command, but not both.' );
 
@@ -51,25 +52,27 @@ function retry( scriptType )
       con.then( () =>
       {
         const config = common.actionConfigRead( localActionPath );
-        if( !config.runs[ scriptType ] )
+        if( shouldExit( config, scriptType ) )
         return null;
+
+        const currentPath = process.env.GITHUB_WORKSPACE || _.path.current();
 
         const optionsStrings = core.getMultilineInput( 'with' );
         const options = common.actionOptionsParse( optionsStrings );
         _.map.sureHasOnly( options, config.inputs );
 
-        if( _.strBegins( config.runs.using, 'node' ) )
-        {
-          const envOptions = common.envOptionsFrom( options, config.inputs );
-          common.envOptionsSetup( envOptions );
+        const inputEnvOptions = common.envOptionsFrom( options, config.inputs );
+        common.envOptionsSetup( inputEnvOptions );
 
+        if( _.str.begins( config.runs.using, 'node' ) )
+        {
           const runnerPath = _.path.nativize( _.path.join( __dirname, 'Runner.js' ) );
           const scriptPath = _.path.nativize( _.path.join( localActionPath, config.runs[ scriptType ] ) );
           routine = () =>
           {
             const o =
             {
-              currentPath : _.path.current(),
+              currentPath,
               execPath : `node ${ runnerPath } ${ scriptPath }`,
               inputMirroring : 0,
               stdio : 'inherit',
@@ -81,9 +84,29 @@ function retry( scriptType )
             return o.ready;
           };
         }
+        else if( config.runs.using === 'docker' )
+        {
+          const docker = require( './Docker.js' );
+          const imageName = docker.imageBuild( localActionPath, config.runs.image );
+          const execPath = docker.runCommandForm( imageName, inputEnvOptions );
+
+          routine = () =>
+          {
+            const o =
+            {
+              currentPath,
+              execPath,
+              inputMirroring : 0,
+              stdio : 'inherit',
+              mode : 'shell',
+            };
+            _.process.start( o );
+            return o.ready;
+          };
+        }
         else
         {
-          throw _.error.brief( 'implemented only for NodeJS interpreter' );
+          throw _.error.brief( `Runner "${ config.runs.using }" does not implemented yet. Please, open an issue with the request for the feature.` );
         }
         return null;
       });
@@ -122,6 +145,19 @@ function retry( scriptType )
     return false;
     return true
   };
+}
+
+//
+
+function shouldExit( config, scriptType )
+{
+  if( !config.runs[ scriptType ] && _.strBegins( config.runs.using, 'node' ) )
+  return true;
+
+  if( config.runs.using === 'docker' && ( scriptType === 'pre' || scriptType === 'post' ) )
+  return true;
+
+  return false;
 }
 
 module.exports = { retry };
