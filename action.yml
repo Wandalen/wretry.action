@@ -1,4 +1,4 @@
-name: 'retry action'
+name: 'js retry action'
 author : |
   Wandalen <wandalen@obox.systems>
   dmvict <dm.vict.kr@gmail.com>
@@ -20,19 +20,19 @@ inputs:
     description: 'Setup working directory for the action. Works with only commands. Default is `github.workspace` path.'
     required: false
   env_context:
-    description: 'Get env context. It is autooption to pass context `env` into an external action. Not documented in file `Readme.md`.'
+    description: 'Pass context `env` into an external action. Action cannot resolve separate environments of workflow at the startup and provide all environments. If you need valid context `env`, then add option `env_context : ${{ toJSON( env ) }}`.'
     required: false
     default: '{}'
   github_context:
-    description: 'Get github context. It is autooption to pass context `github` into an external action. Not documented in file `Readme.md`.'
+    description: 'Pass context `github` into an external action. Default is global context `github`.'
     required: false
     default: ${{ toJSON( github ) }}
   job_context:
-    description: 'Get job context. It is autooption to pass context `job` into an external action. Not documented in file `Readme.md`.'
+    description: 'Pass context `job` into an external action. Default is context `job` of a job.'
     required: false
     default: ${{ toJSON( job ) }}
   matrix_context:
-    description: 'Get matrix context. It is autooption to pass context `matrix` into an external action. Not documented in file `Readme.md`.'
+    description: 'Pass context `matrix` into an external action. Default is context `matrix` of a job.'
     required: false
     default: ${{ toJSON( matrix ) }}
   attempt_limit:

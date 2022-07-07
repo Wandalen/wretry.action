@@ -1,6 +1,6 @@
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner2-direct.svg)](https://stand-with-ukraine.pp.ua)
 
-# action::retry [![status](https://github.com/Wandalen/wretry.action/actions/workflows/wRetryActionPublish.yml/badge.svg)](https://github.com/Wandalen/wretry.action/actions/workflows/wRetryActionPublish.yml) [![stable](https://img.shields.io/badge/stability-stable-brightgreen.svg)](https://github.com/emersion/stability-badges#stable)
+# action::retry [![status](https://github.com/Wandalen/wretry.action/actions/workflows/JsActionPublish.yml/badge.svg)](https://github.com/Wandalen/wretry.action/actions/workflows/JsActionPublish.yml) [![stable](https://img.shields.io/badge/stability-stable-brightgreen.svg)](https://github.com/emersion/stability-badges#stable)
 
 Retries an Github Action step or command on failure.
 
@@ -23,15 +23,15 @@ It is a cause of failed jobs. For this case, the action `wretry.action` can retr
 
 ## Features
 
-- Retries Github actions. The action can be an action repository that is not published on `Marketplace`.
-- Retries shell command.
+- Retries Github `JavaScript` actions. The action can be an action repository that is not published on `Marketplace`.
+- Retries shell commands.
 - Can retry single action or single command ( multiline command ), but not both simultaneously.
-- Retries only `main`, `pre` and `post` stages of external actions.
+- Retries `main`, `pre` and `post` stages of external actions.
 - Always has `pre` and `post` stages. If external action has `pre` or/and `post` stage, then action run it also.
-- Handles no conditions in external actions. All stages of external action will be performed.
+- Handles no conditions in external actions ( fields `pre-if` and `post-if` ). All stages of external action will be performed.
+- Resolves external action default inputs from next contexts : `github`, `env`, `job`, `matrix`.
 - Retries actions with defined number of attempts ( default is 2 ).
 - Retries actions with defined delay between attempts ( default is 0 ).
-- Resolves external action default inputs from next contexts : `github`, `env`, `job`, `matrix`.
 
 ## Inputs
 
@@ -53,6 +53,22 @@ An options map for Github action. It is a multiline string with pairs `key : val
 
 Setup working directory for the action. Works with only commands. Default is `github.workspace` path.
 
+### `env_context`
+
+Pass context `env` into an external action. Action cannot resolve separate environments of workflow at the startup and provide all environments. If you need valid context `env`, then add option `env_context : ${{ toJSON( env ) }}`.
+
+### `github_context`
+
+Pass context `github` into an external action. Default is global context `github`.
+
+### `job_context`
+
+Pass context `job` into an external action. Default is context `job` of a job.
+
+### `matrix_context`
+
+Pass context `matrix` into an external action. Default is context `matrix` of a job.
+
 ### `attempt_limit`
 
 Set number of attempts. Default is 2.
@@ -70,7 +86,7 @@ Depends on output of given Github action.
 ### Retry action
 
 ```yaml
-uses: Wandalen/wretry.action@v1.0.11
+uses: Wandalen/wretry.action@js_action
 with:
   action: action/node-setup@2.3.0
   with: |
@@ -83,7 +99,7 @@ with:
 ### Retry command
 
 ```yaml
-uses: Wandalen/wretry.action@v1.0.11
+uses: Wandalen/wretry.action@js_action
 with:
   command: npm i
   attempt_limit: 3
@@ -97,6 +113,5 @@ To build compiled dependencies utility `willbe` is required. To install utility 
 ```
 npm i -g 'willbe@latest'
 ```
-
 
 `willbe` is not required to use the action in your project as submodule.
