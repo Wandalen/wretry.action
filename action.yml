@@ -19,14 +19,6 @@ inputs:
   current_path:
     description: 'Setup working directory for the action. Works with only commands. Default is `github.workspace` path.'
     required: false
-  github_token:
-    description: 'Get runner secret key. It is autooption to extends context `github` for an external action. Not documented in file `Readme.md`.'
-    required: false
-    default: ${{ github.token }}
-  job_status:
-    description: 'Get job status. It is autooption to extends context `job` for an external action. Not documented in file `Readme.md`.'
-    required: false
-    default: ${{ job.status }}
   attempt_limit:
     description: 'Number of attempts'
     required: false
@@ -36,7 +28,19 @@ inputs:
     required: false
     default: 0
 runs:
-  using: 'node12'
-  pre: 'src/Pre.js'
-  main: 'src/Main.js'
-  post: 'src/Post.js'
+  using: "composite"
+  steps:
+    - name: retry
+      uses: Wandalen/wretry.action@js_action
+      with:
+        action: ${{ inputs.action }}
+        command: ${{ inputs.command }}
+        with: ${{ inputs.with }}
+        current_path: ${{ inputs.current_path }}
+        attempt_limit: ${{ inputs.attempt_limit }}
+        attempt_delay: ${{ inputs.attempt_delay }}
+        env_context: ${{ toJSON( env ) }}
+        github_context: ${{ toJSON( github ) }}
+        job_context: ${{ toJSON( job ) }}
+        matrix_context: ${{ toJSON( matrix ) }}
+

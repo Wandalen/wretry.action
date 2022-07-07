@@ -31,7 +31,7 @@ It is a cause of failed jobs. For this case, the action `wretry.action` can retr
 - Handles no conditions in external actions. All stages of external action will be performed.
 - Retries actions with defined number of attempts ( default is 2 ).
 - Retries actions with defined delay between attempts ( default is 0 ).
-- Resolves external action default inputs from next contexts : `github`, `env`, `job`.
+- Resolves external action default inputs from next contexts : `github`, `env`, `job`, `matrix`.
 
 ## Inputs
 
