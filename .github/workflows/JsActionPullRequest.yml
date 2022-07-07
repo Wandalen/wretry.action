@@ -28,7 +28,9 @@ jobs :
         git config --global user.name "Testing"
         git config --global pull.rebase false
         git config --global init.defaultBranch master
-        git config --system core.longpaths true
+    - name : Setup git for windows
+      if : ${{ matrix.os == 'windows-latest' }}
+      run : git config --system core.longpaths true
     - uses : actions/checkout@v2
       with :
         fetch-depth: 2
