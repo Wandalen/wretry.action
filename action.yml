@@ -22,7 +22,7 @@ inputs:
   env_context:
     description: 'Get env context. It is autooption to pass context `env` into an external action. Not documented in file `Readme.md`.'
     required: false
-    default: ${{ toJSON( env ) }}
+    default: '{}'
   github_context:
     description: 'Get github context. It is autooption to pass context `github` into an external action. Not documented in file `Readme.md`.'
     required: false
