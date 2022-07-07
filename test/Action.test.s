@@ -610,13 +610,16 @@ function retryWithExternalActionOnRemote( test )
 {
   const context = this;
   const a = test.assetFor( false );
+  const token = process.env.GITHUB_TOKEN;
 
-  if( !_.process.insideTestContainer() )
+  if( !token || !_.process.insideTestContainer() )
   return test.true( true  );
 
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'actions/setup-node@v2.3.0';
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+
+  core.exportVariable( `INPUT_GITHUB_CONTEXT`, `{"token":"${ token}"}` );
 
   actionSetup();
 
@@ -634,6 +637,7 @@ function retryWithExternalActionOnRemote( test )
   a.shellNonThrowing({ currentPath : actionPath, execPath, outputPiping : 0 });
   a.ready.then( ( op ) =>
   {
+    console.log( op.output );
     test.identical( op.exitCode, 0 );
     test.ge( _.strCount( op.output, '::debug::isExplicit:' ), 0 );
     test.ge( _.strCount( op.output, '::debug::explicit? false' ), 0 );
@@ -661,6 +665,7 @@ function retryWithExternalActionOnRemote( test )
   a.shellNonThrowing({ currentPath : actionPath, execPath, outputPiping : 0 });
   a.ready.then( ( op ) =>
   {
+    console.log( op.output );
     test.notIdentical( op.exitCode, 0 );
     test.ge( _.strCount( op.output, '::debug::isExplicit:' ), 0 );
     test.ge( _.strCount( op.output, '::debug::explicit? false' ), 0 );
