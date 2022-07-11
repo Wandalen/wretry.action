@@ -36,6 +36,7 @@ path:
   tests: ./test
   export: '{path::proto}/**'
   doc: ./doc
+  step: ./step
   out.raw.debug:
     path: '{path::out}/debug'
     criterion:
@@ -272,6 +273,8 @@ step:
         - proto
   npm.install:
     shell: npm install --production
+  npm.install.dev:
+    shell: npm install wFiles
   clean.out:
     inherit: files.delete
     filePath: '{path::out.*=1}/source'
@@ -326,6 +329,12 @@ step:
   sync:
     inherit: git.sync
     dirPath: .
+  switch.js_action:
+    inherit: git
+    command: 'switch js_action'
+  switch.master:
+    inherit: git
+    command: 'switch composite'
   add.all:
     inherit: git
     command:
@@ -337,9 +346,15 @@ step:
   tag:
     inherit: git.tag
     tag: 'v{about::version}'
+  tag.js_action:
+    inherit: git.tag
+    tag: 'v{about::version}_js_action'
   push:
     inherit: git.push
     dirPath: .
+  action.write :
+    currentPath : 'path::in'
+    shell : 'node {path::step}/ActionWrite.s version:{about::version} logger:3'
   release:
     inherit: repo.release
     tag: 'v{about::version}'
@@ -351,15 +366,25 @@ build:
       bump: patch
     steps:
       - sync
+      - switch.js_action
       - clean.npm
       - 'build::build.compiled'
       - bump.*=1
       - npm.generate.proto
       - add.all
       - commit
-      - tag
+      - tag.js_action
       - push
-      - release
+      - switch.master
+      - clean.npm
+      - npm.install.dev
+      - action.write
+      - clean.npm
+      - add.all
+      - commit
+      - tag
+      # - push
+      # - release
   action.release:
     criterion:
       publish: 1
@@ -369,14 +394,17 @@ build:
         - patch
     steps:
       - sync
+      - switch.js_action
       - clean.npm
       - 'build::build.compiled'
       - bump.*=1
       - npm.generate.proto
       - add.all
       - commit
-      - tag
+      - tag.js_action
       - push
+      - switch.master
+      - action.write
       - release
   doc.export:
     criterion:
