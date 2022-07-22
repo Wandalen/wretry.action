@@ -158,7 +158,6 @@ function retryFetchActionWithoutTagOrHash( test )
   const a = test.assetFor( false );
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
-  const isTestContainer = _.process.insideTestContainer();
 
   const testAction = 'actions/hello-world-javascript-action';
 
@@ -179,7 +178,7 @@ function retryFetchActionWithoutTagOrHash( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
-    if( !isTestContainer )
+    if( !_.process.insideTestContainer() )
     test.ge( _.strCount( op.output, '::set-env' ), 1 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 0 );
     test.identical( _.strCount( op.output, /::error::.*Attempts exhausted, made 3 attempts/ ), 0 );
@@ -215,7 +214,6 @@ function retryFetchActionWithTag( test )
   const a = test.assetFor( false );
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
-  const isTestContainer = _.process.insideTestContainer();
 
   const testAction = 'dmvict/test.action@v0.0.2';
 
@@ -236,7 +234,7 @@ function retryFetchActionWithTag( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
-    if( !isTestContainer )
+    if( !_.process.insideTestContainer() )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
@@ -559,6 +557,7 @@ function retryWithExternalActionOnLocal( test )
     core.exportVariable( `INPUT_ACTION`, testAction );
     core.exportVariable( `INPUT_WITH`, 'node-version : 13.x' );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    core.exportVariable( `INPUT_GITHUB_CONTEXT`, '{ "token": "github_token" }' );
     return null;
   });
 
@@ -609,13 +608,16 @@ function retryWithExternalActionOnRemote( test )
 {
   const context = this;
   const a = test.assetFor( false );
+  const token = process.env.GITHUB_TOKEN;
 
-  if( !_.process.insideTestContainer() )
+  if( !token || !_.process.insideTestContainer() )
   return test.true( true  );
 
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const testAction = 'actions/setup-node@v2.3.0';
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+
+  core.exportVariable( `INPUT_GITHUB_CONTEXT`, `{"token":"${ token}"}` );
 
   actionSetup();
 
@@ -633,6 +635,7 @@ function retryWithExternalActionOnRemote( test )
   a.shellNonThrowing({ currentPath : actionPath, execPath, outputPiping : 0 });
   a.ready.then( ( op ) =>
   {
+    console.log( op.output );
     test.identical( op.exitCode, 0 );
     test.ge( _.strCount( op.output, '::debug::isExplicit:' ), 0 );
     test.ge( _.strCount( op.output, '::debug::explicit? false' ), 0 );
@@ -660,6 +663,7 @@ function retryWithExternalActionOnRemote( test )
   a.shellNonThrowing({ currentPath : actionPath, execPath, outputPiping : 0 });
   a.ready.then( ( op ) =>
   {
+    console.log( op.output );
     test.notIdentical( op.exitCode, 0 );
     test.ge( _.strCount( op.output, '::debug::isExplicit:' ), 0 );
     test.ge( _.strCount( op.output, '::debug::explicit? false' ), 0 );
@@ -706,7 +710,6 @@ function retryActionWithPreScript( test )
   const a = test.assetFor( false );
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
-  const isTestContainer = _.process.insideTestContainer();
 
   const testAction = 'dmvict/test.action@pre';
 
@@ -728,7 +731,7 @@ function retryActionWithPreScript( test )
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'Unexpected {-pre_value-}' ), 0 );
-    if( !isTestContainer )
+    if( !_.process.insideTestContainer() )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
@@ -771,7 +774,6 @@ function retryActionWithPostScript( test )
   const a = test.assetFor( false );
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
-  const isTestContainer = _.process.insideTestContainer();
 
   const testAction = 'dmvict/test.action@post';
 
@@ -793,7 +795,7 @@ function retryActionWithPostScript( test )
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'Unexpected {-pre_value-}' ), 0 );
-    if( !isTestContainer )
+    if( !_.process.insideTestContainer() )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
@@ -851,7 +853,6 @@ function retryActionWithPreAndPostScript( test )
   const a = test.assetFor( false );
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
-  const isTestContainer = _.process.insideTestContainer();
 
   const testAction = 'dmvict/test.action@pre_and_post';
 
@@ -873,7 +874,7 @@ function retryActionWithPreAndPostScript( test )
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'Unexpected {-pre_value-}' ), 0 );
-    if( !isTestContainer )
+    if( !_.process.insideTestContainer() )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
@@ -1062,7 +1063,6 @@ function retryActionWithDefaultInputsAsExpressions( test )
   const a = test.assetFor( false );
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
-  const isTestContainer = _.process.insideTestContainer();
 
   const testAction = 'dmvict/test.action@defaults_from_expressions';
 
@@ -1073,8 +1073,15 @@ function retryActionWithDefaultInputsAsExpressions( test )
     test.case = 'missed required argument, default bool value exists';
     core.exportVariable( `INPUT_ACTION`, testAction );
     process.env.TEST = 'test';
-    if( !isTestContainer )
-    process.env.GITHUB_RETENTION_DAYS = '90';
+    const github_context =
+`{
+  "retention_days": "90",
+  "event": {
+    "ref": "refs/heads/exp2"
+  }
+}`;
+    core.exportVariable( 'INPUT_ENV_CONTEXT', '{}' );
+    core.exportVariable( 'INPUT_GITHUB_CONTEXT', github_context );
     return null;
   });
 
@@ -1085,7 +1092,7 @@ function retryActionWithDefaultInputsAsExpressions( test )
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, '::error::' ), 0 );
-    if( !isTestContainer )
+    if( !_.process.insideTestContainer() )
     test.ge( _.strCount( op.output, '::set-env' ), 5 );
     return null;
   });
@@ -1110,6 +1117,122 @@ function retryActionWithDefaultInputsAsExpressions( test )
 }
 
 retryActionWithDefaultInputsAsExpressions.timeOut = 120000;
+
+//
+
+function retryActionWithDefaultInputsFromJobContext( test )
+{
+  const context = this;
+  const a = test.assetFor( false );
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+
+  const testAction = 'dmvict/test.action@defaults_from_job_context';
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'missed required argument, default bool value exists';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    const job_context =
+`{
+  "status": "success",
+  "container": {
+    "network": "github_network"
+  },
+  "services": {
+    "postgres": {
+      "network": "github_network"
+    }
+  }
+}`
+    core.exportVariable( `INPUT_JOB_CONTEXT`, job_context );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::' ), 0 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    return a.ready;
+  }
+}
+
+retryActionWithDefaultInputsFromJobContext.timeOut = 120000;
+
+//
+
+function retryActionWithDefaultInputsFromMatrixContext( test )
+{
+  const context = this;
+  const a = test.assetFor( false );
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+
+  const testAction = 'dmvict/test.action@defaults_from_matrix_context';
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'missed required argument, default bool value exists';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_MATRIX_CONTEXT`, '{"os":"ubuntu-latest"}' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::' ), 0 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    return a.ready;
+  }
+}
+
+retryActionWithDefaultInputsFromMatrixContext.timeOut = 120000;
 
 // --
 // declare
@@ -1153,6 +1276,8 @@ const Proto =
 
     retryActionWithDefaultInputs,
     retryActionWithDefaultInputsAsExpressions,
+    retryActionWithDefaultInputsFromJobContext,
+    retryActionWithDefaultInputsFromMatrixContext,
   },
 };
 
