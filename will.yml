@@ -160,6 +160,10 @@ reflector:
     filePath:
       '**.test*': 1
       'path::proto': '{path::out.*=1}/Tests.test.s'
+  clean.npm:
+    inherit: predefined.debug.v2
+    src:
+      filePath: ./node_modules
   clean.modules:
     inherit: predefined.debug.v2
     src:
@@ -304,7 +308,7 @@ step:
     filePath: 'reflector::clean.modules'
   clean.npm:
     inherit: files.delete
-    filePath: ./node_modules
+    filePath: 'reflector::clean.npm'
   tst.proto:
     shell: 'tst {path::proto}'
     criterion:
@@ -335,6 +339,10 @@ step:
   switch.master:
     inherit: git
     command: 'switch composite'
+  add:
+    inherit: git
+    command:
+      - add .
   add.all:
     inherit: git
     command:
@@ -376,15 +384,14 @@ build:
       - tag.js_action
       - push
       - switch.master
-      - clean.npm
       - npm.install.dev
       - action.write
       - clean.npm
-      - add.all
+      - add
       - commit
       - tag
-      # - push
-      # - release
+      - push
+      - release
   action.release:
     criterion:
       publish: 1
@@ -404,7 +411,13 @@ build:
       - tag.js_action
       - push
       - switch.master
+      - npm.install.dev
       - action.write
+      - clean.npm
+      - add
+      - commit
+      - tag
+      - push
       - release
   doc.export:
     criterion:

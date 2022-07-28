@@ -1,11 +1,11 @@
-name: 'retry action'
-author : |
+name: retry action
+author: |
   Wandalen <wandalen@obox.systems>
   dmvict <dm.vict.kr@gmail.com>
 branding:
-  icon: 'activity'
-  color: 'white'
-description: 'Retries an Github Action step on failure'
+  icon: activity
+  color: white
+description: Retries an Github Action step on failure
 inputs:
   action:
     description: 'Github action name. Should be defined action or command, not both.'
@@ -14,33 +14,34 @@ inputs:
     description: 'Command to run. Should be defined action or command, not both.'
     required: false
   with:
-    description: 'An options map for Github action'
+    description: An options map for Github action
     required: false
   current_path:
-    description: 'Setup working directory for the action. Works with only commands. Default is `github.workspace` path.'
+    description: >-
+      Setup working directory for the action. Works with only commands. Default
+      is `github.workspace` path.
     required: false
   attempt_limit:
-    description: 'Number of attempts'
+    description: Number of attempts
     required: false
     default: 2
   attempt_delay:
-    description: 'A delay between attempts in ms'
+    description: A delay between attempts in ms
     required: false
     default: 0
 runs:
-  using: "composite"
+  using: composite
   steps:
     - name: retry
-      uses: Wandalen/wretry.action@js_action
+      uses: Wandalen/wretry.action@v1.0.28_js_action
       with:
-        action: ${{ inputs.action }}
-        command: ${{ inputs.command }}
-        with: ${{ inputs.with }}
-        current_path: ${{ inputs.current_path }}
-        attempt_limit: ${{ inputs.attempt_limit }}
-        attempt_delay: ${{ inputs.attempt_delay }}
-        env_context: ${{ toJSON( env ) }}
-        github_context: ${{ toJSON( github ) }}
-        job_context: ${{ toJSON( job ) }}
-        matrix_context: ${{ toJSON( matrix ) }}
-
+        action: '${{ inputs.action }}'
+        command: '${{ inputs.command }}'
+        with: '${{ inputs.with }}'
+        current_path: '${{ inputs.current_path }}'
+        attempt_limit: '${{ inputs.attempt_limit }}'
+        attempt_delay: '${{ inputs.attempt_delay }}'
+        env_context: '${{ toJSON( env ) }}'
+        github_context: '${{ toJSON( github ) }}'
+        job_context: '${{ toJSON( job ) }}'
+        matrix_context: '${{ toJSON( matrix ) }}'
