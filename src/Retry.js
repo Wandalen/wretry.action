@@ -151,10 +151,10 @@ function retry( scriptType )
 
 function shouldExit( config, scriptType )
 {
-  if( !config.runs[ scriptType ] && _.strBegins( config.runs.using, 'node' ) )
+  if( _.strBegins( config.runs.using, 'node' ) && !config.runs[ scriptType ] )
   return true;
 
-  if( config.runs.using === 'docker' && ( scriptType === 'pre' || scriptType === 'post' ) )
+  if( config.runs.using === 'docker' && !config.runs[ `${ scriptType }-entrypoint` ] )
   return true;
 
   return false;
