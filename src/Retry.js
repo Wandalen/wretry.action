@@ -86,9 +86,16 @@ function retry( scriptType )
         }
         else if( config.runs.using === 'docker' )
         {
+          if( scriptType === 'pre' || scriptType === 'post' )
+          throw _.error.brief
+          (
+            `The required feature "${ scriptType }-entrypoint" does not implemented.`
+            + '\nPlease, open an issue with the request for the feature.'
+          );
           const docker = require( './Docker.js' );
           const imageName = docker.imageBuild( localActionPath, config.runs.image );
           const execPath = docker.runCommandForm( imageName, inputEnvOptions );
+          const args = docker.commandArgsFrom( config.runs.args, options );
 
           routine = () =>
           {
@@ -96,6 +103,7 @@ function retry( scriptType )
             {
               currentPath,
               execPath,
+              args,
               inputMirroring : 0,
               stdio : 'inherit',
               mode : 'shell',
@@ -106,7 +114,10 @@ function retry( scriptType )
         }
         else
         {
-          throw _.error.brief( `Runner "${ config.runs.using }" does not implemented yet. Please, open an issue with the request for the feature.` );
+          throw _.error.brief
+          (
+            `Runner "${ config.runs.using }" does not implemented yet.\nPlease, open an issue with the request for the feature.`
+          );
         }
         return null;
       });
@@ -154,7 +165,7 @@ function shouldExit( config, scriptType )
   if( _.strBegins( config.runs.using, 'node' ) && !config.runs[ scriptType ] )
   return true;
 
-  if( config.runs.using === 'docker' && !config.runs[ `${ scriptType }-entrypoint` ] )
+  if( config.runs.using === 'docker' && !scriptType === 'main' && !config.runs[ `${ scriptType }-entrypoint` ] )
   return true;
 
   return false;
