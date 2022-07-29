@@ -83,7 +83,7 @@ function imageBuild( test )
   {
     test.identical( arg, undefined );
     test.true( _.error.is( err ) );
-    var msg = 'The action does not support requested Docker image type "wrong:image". Please, open an issue with the request for the feature.';
+    var msg = 'The action does not support requested Docker image type "wrong:image".\nPlease, open an issue with the request for the feature.';
     test.identical( err.originalMessage, msg );
   };
   test.shouldThrowErrorSync( () => docker.imageBuild( a.routinePath, 'wrong:image' ), onResolve );
