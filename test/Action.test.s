@@ -1239,7 +1239,6 @@ retryActionWithDefaultInputsFromMatrixContext.timeOut = 120000;
 function retryDockerTrivialAction( test )
 {
   const ubuntuIs = process.env.ImageOS && _.str.begins( process.env.ImageOS, 'ubuntu' );
-  const windowsLatestIs = process.env.ImageOS === 'win22';
 
   if( !_.process.insideTestContainer() || !ubuntuIs )
   return test.true( true );
@@ -1257,6 +1256,7 @@ function retryDockerTrivialAction( test )
     test.case = 'run docker action';
     core.exportVariable( `INPUT_ACTION`, testAction );
     core.exportVariable( `INPUT_ENV_CONTEXT`, '{}' );
+    core.exportVariable( `INPUT_INPUTS_CONTEXT`, '{}' );
     core.exportVariable( `GITHUB_WORKSPACE`, actionPath );
     return null;
   });

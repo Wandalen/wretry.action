@@ -60,7 +60,7 @@ function exists( test )
 
 function imageBuild( test )
 {
-  const ubuntuIs = _.str.begins( process.env.ImageOS, 'ubuntu' );
+  const ubuntuIs = process.env.ImageOS && _.str.begins( process.env.ImageOS, 'ubuntu' );
 
   if( !_.process.insideTestContainer() || !ubuntuIs )
   return test.true( true );
@@ -134,6 +134,55 @@ function runCommandForm( test )
   test.shouldThrowErrorSync( () => docker.runCommandForm( ':tag', {} ) );
 }
 
+//
+
+
+function commandArgsFrom( test )
+{
+  const inputs = { foo : 'bar' };
+  process.env.INPUT_INPUTS_CONTEXT = '{}';
+
+  test.case = 'args - undefined';
+  var got = docker.commandArgsFrom( undefined, inputs );
+  test.identical( got, [] );
+
+  test.case = 'no resolve';
+  var src = [ 'one', 'two' ];
+  var got = docker.commandArgsFrom( src, inputs );
+  test.identical( got, [ 'one', 'two' ] );
+  test.true( got !== src );
+
+  test.case = 'resolve from inputs map';
+  var src = [ 'one', '${{ inputs.foo }}' ];
+  var got = docker.commandArgsFrom( src, inputs );
+  test.identical( got, [ 'one', 'bar' ] );
+  test.true( got !== src );
+
+  test.case = 'resolve from inputs context';
+  process.env.INPUT_INPUTS_CONTEXT = '{"foo":"baz"}';
+  var src = [ 'one', '${{ inputs.foo }}' ];
+  var got = docker.commandArgsFrom( src, inputs );
+  test.identical( got, [ 'one', 'baz' ] );
+  test.true( got !== src );
+  process.env.INPUT_INPUTS_CONTEXT = '{}';
+
+  test.case = 'resolve from env context';
+  process.env.INPUT_ENV_CONTEXT = '{"FOO":"baz"}';
+  var src = [ 'one', '${{ env.FOO }}' ];
+  var got = docker.commandArgsFrom( src, inputs );
+  test.identical( got, [ 'one', 'baz' ] );
+  test.true( got !== src );
+  delete process.env.INPUT_ENV_CONTEXT;
+
+  /* - */
+
+  if( !Config.debug )
+  return;
+
+  test.case = 'wrong context name';
+  test.shouldThrowErrorSync( () => docker.commandArgsFrom( [ '${{ wrong.foo }}' ], { foo : 'bar' } ) );
+}
+
 // --
 // declare
 // --
@@ -157,6 +206,7 @@ const Proto =
     exists,
     imageBuild,
     runCommandForm,
+    commandArgsFrom,
   },
 };
 
