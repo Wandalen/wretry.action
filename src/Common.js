@@ -98,49 +98,55 @@ function envOptionsFrom( options, inputs )
       {
         if( GithubActionsParser === null )
         GithubActionsParser = require( 'github-actions-parser' );
-        value = GithubActionsParser.evaluateExpression( value, { get : getContext } );
+        value = GithubActionsParser.evaluateExpression( value, { get : contextGet } );
       }
       result[ `INPUT_${key.replace(/ /g, '_').toUpperCase()}` ] = value;
     }
   }
 
   return result;
+}
 
-  /* */
+//
 
-  function getContext( contextName )
+function contextGet( contextName )
+{
+  if( contextName === 'env' )
   {
-    if( contextName === 'env' )
-    {
-      let envContext = JSON.parse( core.getInput( 'env_context' ) );
-      if( _.map.keys( envContext ).length === 0 )
-      return process.env;
-      return envContext;
-    }
-    else if( contextName === 'github' )
-    {
-      let githubContext = JSON.parse( core.getInput( 'github_context' ) );
-      githubContext = githubContextUpdate( githubContext );
-      return githubContext;
-    }
-    else if( contextName === 'job' )
-    {
-      const jobContext = JSON.parse( core.getInput( 'job_context' ) );
-      return jobContext;
-    }
-    else if( contextName === 'matrix' )
-    {
-      const matrixContext = JSON.parse( core.getInput( 'matrix_context' ) );
-      return matrixContext;
-    }
-
-    _.assert( false, `The requested context "${ contextName }" does not supported by action.\nPlease, open an issue with the request for the feature.` );
+    let envContext = JSON.parse( core.getInput( 'env_context' ) );
+    if( _.map.keys( envContext ).length === 0 )
+    return process.env;
+    return envContext;
   }
+  else if( contextName === 'github' )
+  {
+    let githubContext = JSON.parse( core.getInput( 'github_context' ) );
+    githubContext = githubContextUpdate( githubContext );
+    return githubContext;
+  }
+  else if( contextName === 'job' )
+  {
+    const jobContext = JSON.parse( core.getInput( 'job_context' ) );
+    return jobContext;
+  }
+  else if( contextName === 'matrix' )
+  {
+    const matrixContext = JSON.parse( core.getInput( 'matrix_context' ) );
+    return matrixContext;
+  }
+
+  _.sure
+  (
+    false,
+    `The requested context "${ contextName }" does not supported by action.`
+    + '\nPlease, open an issue with the request for the feature.'
+  );
 
   /* */
 
   function githubContextUpdate( githubContext )
   {
+    console.log( process.env.RETRY_ACTION );
     const remoteActionPath = remotePathFromActionName( process.env.RETRY_ACTION );
     const localActionPath = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
     githubContext.action_path = localActionPath;
@@ -168,6 +174,7 @@ const Self =
   actionConfigRead,
   actionOptionsParse,
   envOptionsFrom,
+  contextGet,
   envOptionsSetup,
 };
 
