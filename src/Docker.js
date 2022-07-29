@@ -3,6 +3,8 @@ if( typeof wTools === 'undefined' )
 require( '../node_modules/Joined.s' );
 const _ = wTools;
 const ChildProcess = require( 'child_process' );
+const common = require( './Common.js' );
+let GithubActionsParser = null;
 
 //
 
@@ -43,7 +45,8 @@ function imageBuild( actionPath, image )
   (
     docker.exists(),
     'Current OS has no Docker utility.\n'
-    + 'Please, visit https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#preinstalled-software\n'
+    + 'Please, visit '
+    + 'https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#preinstalled-software\n'
     + 'and select valid workflow runner.'
   );
 
@@ -64,7 +67,12 @@ function imageBuild( actionPath, image )
     return imageName;
   }
 
-  _.sure( false, `The action does not support requested Docker image type "${ image }". Please, open an issue with the request for the feature.` );
+  _.sure
+  (
+    false,
+    `The action does not support requested Docker image type "${ image }".`
+    + '\nPlease, open an issue with the request for the feature.'
+  );
 }
 
 //
@@ -72,7 +80,7 @@ function imageBuild( actionPath, image )
 function runCommandForm( imageName, inputs )
 {
   const [ repo, tag ] = imageName.split( ':' );
-  _.sure( _.str.defined( repo) && _.str.defined( tag ), 'Expects image name in format "[repo]:[tag]".' )
+  _.sure( _.str.defined( repo ) && _.str.defined( tag ), 'Expects image name in format "[repo]:[tag]".' );
   const command = [ `docker run --name ${ tag } --label ${ repo } --workdir /github/workspace --rm` ];
   const env_keys = _.map.keys( JSON.parse( core.getInput( 'env_context' ) ) );
   const inputs_keys = _.map.keys( inputs );
@@ -141,6 +149,39 @@ function runCommandForm( imageName, inputs )
   return command.join( ' ' );
 }
 
+//
+
+function commandArgsFrom( args, inputs )
+{
+  const result = [];
+  if( args === undefined )
+  return result;
+
+  for( let i = 0 ; i < args.length ; i++ )
+  {
+    let value = args[ i ];
+    if( _.str.is( value ) )
+    if( value.startsWith( '${{' ) && value.endsWith( '}}' ) )
+    {
+      if( GithubActionsParser === null )
+      GithubActionsParser = require( 'github-actions-parser' );
+      value = GithubActionsParser.evaluateExpression( value,
+      {
+        get : ( name ) =>
+        {
+          let context = common.contextGet( name );
+          if( _.map.keys( context ).length === 0 && name === 'inputs' )
+          return inputs;
+          return context;
+        }
+      });
+    }
+    result.push( value );
+  }
+
+  return result;
+}
+
 // --
 // export
 // --
@@ -150,6 +191,7 @@ const Self =
   exists,
   imageBuild,
   runCommandForm,
+  commandArgsFrom,
 };
 
 module.exports = Self;
