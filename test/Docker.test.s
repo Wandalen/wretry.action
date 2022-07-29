@@ -60,17 +60,13 @@ function exists( test )
 
 function imageBuild( test )
 {
-  if( !_.process.insideTestContainer() )
+  const ubuntuIs = _.str.begins( process.env.ImageOS, 'ubuntu' );
+
+  if( !_.process.insideTestContainer() || !ubuntuIs )
   return test.true( true );
 
   const a = test.assetFor( 'image' );
   a.reflect();
-
-  const ubuntuIs = _.str.begins( process.env.ImageOS, 'ubuntu' );
-  const windowsLatestIs = process.env.ImageOS === 'win22';
-
-  if( !ubuntuIs )
-  return test.shouldThrowErrorSync( () => docker.imageBuild( a.routinePath, 'Dockerfile' ) );
 
   /* - */
 
