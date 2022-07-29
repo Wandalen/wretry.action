@@ -85,7 +85,7 @@ function envOptionsFrom( options, inputs )
   const result = Object.create( null );
 
   for( let key in options )
-  result[ `INPUT_${key.replace(/ /g, '_').toUpperCase()}` ] = options[ key ];
+  result[ `INPUT_${ key.replace( / /g, '_' ).toUpperCase() }` ] = options[ key ];
 
   if( inputs )
   {
@@ -100,7 +100,8 @@ function envOptionsFrom( options, inputs )
         GithubActionsParser = require( 'github-actions-parser' );
         value = GithubActionsParser.evaluateExpression( value, { get : contextGet } );
       }
-      result[ `INPUT_${key.replace(/ /g, '_').toUpperCase()}` ] = value;
+      options[ key ] = value;
+      result[ `INPUT_${ key.replace( / /g, '_' ).toUpperCase() }` ] = value;
     }
   }
 
@@ -133,6 +134,11 @@ function contextGet( contextName )
   {
     const matrixContext = JSON.parse( core.getInput( 'matrix_context' ) );
     return matrixContext;
+  }
+  else if( contextName === 'inputs' )
+  {
+    const inputsContext = JSON.parse( core.getInput( 'inputs_context' ) );
+    return inputsContext;
   }
 
   _.sure
