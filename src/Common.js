@@ -68,12 +68,18 @@ function actionConfigRead( actionDir )
 
 //
 
-function actionOptionsParse( src )
+function actionOptionsParse( src, base64Encoded )
 {
   const result = Object.create( null );
   for( let i = 0 ; i < src.length ; i++ )
   {
     const splits = _.strStructureParse({ src : src[ i ], toNumberMaybe : 0 });
+    if(base64Encoded) {
+      for (const [key, value] of Object.entries(splits)) {
+        let buff = new Buffer.from(value, 'base64').toString('ascii');
+          splits[key] = buff;
+      }
+    }
     _.map.extend( result, splits );
   }
   return result;

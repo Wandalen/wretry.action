@@ -55,7 +55,10 @@ function retry( scriptType )
         return null;
 
         const optionsStrings = core.getMultilineInput( 'with' );
+        const optionsStringsBase64Encoded = core.getMultilineInput( 'with_base4_encoded' );
         const options = common.actionOptionsParse( optionsStrings );
+        const optionsBase64Encoded  = common.actionOptionsParse( optionsStringsBase64Encoded, true );
+        _.map.extend( options, optionsBase64Encoded );
         _.map.sureHasOnly( options, config.inputs );
 
         if( _.strBegins( config.runs.using, 'node' ) )
