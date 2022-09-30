@@ -36,6 +36,7 @@ path:
   tests: ./test
   export: '{path::proto}/**'
   doc: ./doc
+  step: ./step
   out.raw.debug:
     path: '{path::out}/debug'
     criterion:
@@ -90,9 +91,6 @@ path:
 submodule:
   '@actions/core':
     path: 'npm:///@actions/core!1.8.2'
-    enabled: 0
-  '@actions/github':
-    path: 'npm:///@actions/github!5.0.3'
     enabled: 0
   github-actions-parser:
     path: 'npm:///github-actions-parser!0.26.0'
@@ -162,6 +160,10 @@ reflector:
     filePath:
       '**.test*': 1
       'path::proto': '{path::out.*=1}/Tests.test.s'
+  clean.npm:
+    inherit: predefined.debug.v2
+    src:
+      filePath: ./node_modules
   clean.modules:
     inherit: predefined.debug.v2
     src:
@@ -169,29 +171,18 @@ reflector:
       maskAll:
         excludeAny:
           - !<tag:yaml.org,2002:js/regexp> /@actions/
-          - !<tag:yaml.org,2002:js/regexp> /@octokit/
           - !<tag:yaml.org,2002:js/regexp> /argparse/
           - !<tag:yaml.org,2002:js/regexp> /bindings/
-          - !<tag:yaml.org,2002:js/regexp> /before-after-hook/
           - !<tag:yaml.org,2002:js/regexp> /chevrotain/
-          - !<tag:yaml.org,2002:js/regexp> /deprecation/
           - !<tag:yaml.org,2002:js/regexp> /file-uri-to-path/
           - !<tag:yaml.org,2002:js/regexp> /github-actions-parser/
           - !<tag:yaml.org,2002:js/regexp> /graceful-fs/
-          - !<tag:yaml.org,2002:js/regexp> /is-plain-object/
           - !<tag:yaml.org,2002:js/regexp> /js-yaml/
-          - !<tag:yaml.org,2002:js/regexp> /once/
-          - !<tag:yaml.org,2002:js/regexp> /node-fetch/
           - !<tag:yaml.org,2002:js/regexp> /proper-lockfile/
-          - !<tag:yaml.org,2002:js/regexp> /retry/
           - !<tag:yaml.org,2002:js/regexp> /regexp-to-ast/
+          - !<tag:yaml.org,2002:js/regexp> /retry/
           - !<tag:yaml.org,2002:js/regexp> /signal-exit/
-          - !<tag:yaml.org,2002:js/regexp> /tr46/
           - !<tag:yaml.org,2002:js/regexp> /tunnel/
-          - !<tag:yaml.org,2002:js/regexp> /universal-user-agent/
-          - !<tag:yaml.org,2002:js/regexp> /webidl-conversions/
-          - !<tag:yaml.org,2002:js/regexp> /whatwg-url/
-          - !<tag:yaml.org,2002:js/regexp> /wrappy/
           - !<tag:yaml.org,2002:js/regexp> /yaml-ast-parser/
           - !<tag:yaml.org,2002:js/regexp> /Joined.s/
 step:
@@ -286,6 +277,8 @@ step:
         - proto
   npm.install:
     shell: npm install --production
+  npm.install.dev:
+    shell: npm install wFiles
   clean.out:
     inherit: files.delete
     filePath: '{path::out.*=1}/source'
@@ -315,7 +308,7 @@ step:
     filePath: 'reflector::clean.modules'
   clean.npm:
     inherit: files.delete
-    filePath: ./node_modules
+    filePath: 'reflector::clean.npm'
   tst.proto:
     shell: 'tst {path::proto}'
     criterion:
@@ -340,6 +333,16 @@ step:
   sync:
     inherit: git.sync
     dirPath: .
+  switch.js_action:
+    inherit: git
+    command: 'switch js_action'
+  switch.master:
+    inherit: git
+    command: 'switch composite'
+  add:
+    inherit: git
+    command:
+      - add .
   add.all:
     inherit: git
     command:
@@ -351,9 +354,15 @@ step:
   tag:
     inherit: git.tag
     tag: 'v{about::version}'
+  tag.js_action:
+    inherit: git.tag
+    tag: 'v{about::version}_js_action'
   push:
     inherit: git.push
     dirPath: .
+  action.write :
+    currentPath : 'path::in'
+    shell : 'node {path::step}/ActionWrite.s version:{about::version} logger:3'
   release:
     inherit: repo.release
     tag: 'v{about::version}'
@@ -365,11 +374,20 @@ build:
       bump: patch
     steps:
       - sync
+      - switch.js_action
       - clean.npm
       - 'build::build.compiled'
       - bump.*=1
       - npm.generate.proto
       - add.all
+      - commit
+      - tag.js_action
+      - push
+      - switch.master
+      - npm.install.dev
+      - action.write
+      - clean.npm
+      - add
       - commit
       - tag
       - push
@@ -383,11 +401,20 @@ build:
         - patch
     steps:
       - sync
+      - switch.js_action
       - clean.npm
       - 'build::build.compiled'
       - bump.*=1
       - npm.generate.proto
       - add.all
+      - commit
+      - tag.js_action
+      - push
+      - switch.master
+      - npm.install.dev
+      - action.write
+      - clean.npm
+      - add
       - commit
       - tag
       - push

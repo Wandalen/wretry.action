@@ -23,15 +23,15 @@ It is a cause of failed jobs. For this case, the action `wretry.action` can retr
 
 ## Features
 
-- Retries Github actions. The action can be an action repository that is not published on `Marketplace`.
-- Retries shell command.
+- Retries Github `JavaScript` actions. The action can be an action repository that is not published on `Marketplace`.
+- Retries shell commands.
 - Can retry single action or single command ( multiline command ), but not both simultaneously.
-- Retries only `main`, `pre` and `post` stages of external actions.
+- Retries `main`, `pre` and `post` stages of external actions.
 - Always has `pre` and `post` stages. If external action has `pre` or/and `post` stage, then action run it also.
-- Handles no conditions in external actions. All stages of external action will be performed.
+- Handles no conditions in external actions ( fields `pre-if` and `post-if` ). All stages of external action will be performed.
+- Resolves external action default inputs from next contexts : `github`, `env`, `job`, `matrix`.
 - Retries actions with defined number of attempts ( default is 2 ).
 - Retries actions with defined delay between attempts ( default is 0 ).
-- Resolves external action default inputs from next contexts : `github`, `env`, `job`.
 
 ## Inputs
 
@@ -121,6 +121,5 @@ To build compiled dependencies utility `willbe` is required. To install utility 
 ```
 npm i -g 'willbe@latest'
 ```
-
 
 `willbe` is not required to use the action in your project as submodule.
