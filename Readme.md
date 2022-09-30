@@ -49,6 +49,30 @@ The command to run.
 
 An options map for Github action. It is a multiline string with pairs `key : value`.
 
+An example of declaration of option with single line value :
+```yaml
+
+- uses: Wandalen/wretry.action@master
+  with:
+    action: owner/action-repo@version
+    with: |
+      option1: value
+      option2: value
+```
+An example of declaration of option with multiline string :
+```yaml
+
+- uses: Wandalen/wretry.action@master
+  with:
+    action: owner/action-repo@version
+    with: |
+      option1: |
+        value1
+        value2
+          value3
+      option2: value
+```
+
 ### `current_path`
 
 Setup working directory for the action. Works with only commands. Default is `github.workspace` path.
@@ -70,24 +94,24 @@ Depends on output of given Github action.
 ### Retry action
 
 ```yaml
-uses: Wandalen/wretry.action@v1.0.11
-with:
-  action: action/node-setup@2.3.0
-  with: |
-    node-version: 14.x
-    architecture: x64
-  attempt_limit: 3
-  attempt_delay: 2000
+- uses: Wandalen/wretry.action@master
+  with:
+    action: action/node-setup@2.3.0
+    with: |
+      node-version: 14.x
+      architecture: x64
+    attempt_limit: 3
+    attempt_delay: 2000
 ```
 
 ### Retry command
 
 ```yaml
-uses: Wandalen/wretry.action@v1.0.11
-with:
-  command: npm i
-  attempt_limit: 3
-  attempt_delay: 2000
+- uses: Wandalen/wretry.action@master
+  with:
+    command: npm i
+    attempt_limit: 3
+    attempt_delay: 2000
 ```
 
 ### Development and contributing
