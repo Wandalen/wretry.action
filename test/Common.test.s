@@ -356,6 +356,37 @@ function actionOptionsParse( test )
 
   /* - */
 
+  test.open( 'multiline' );
+
+  test.case = 'value is multiline string';
+  var src = [ 'str: |', '  abc', '  def' ];
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { str : 'abc\ndef' } );
+
+  test.case = 'several pairs, one pair has value with multiline string';
+  var src = [ 'str: |', '  abc', '  def', 'num: 2' ];
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { str : 'abc\ndef', num : '2' } );
+
+  test.case = 'the last key with bare';
+  var src = [ 'str: |' ];
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { str : '|' } );
+
+  test.case = 'not last key with bare';
+  var src = [ 'str: |', 'num : 2' ];
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { str : '|', num : '2' } );
+
+  test.case = 'value is multiline string with different levels';
+  var src = [ 'str: |', '  abc', '    def', '      gih' ];
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { str : 'abc\n  def\n    gih' } );
+
+  test.close( 'multiline' );
+
+  /* - */
+
   if( !Config.debug )
   return;
 
