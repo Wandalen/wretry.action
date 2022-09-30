@@ -698,6 +698,15 @@ function envOptionsSetup( test )
   var src = { 'option1' : 'a', 'INPUT_V' : 'input' };
   common.envOptionsSetup( src );
   test.identical( _.mapBut_( null, process.env, beginEnvs ), { 'option1' : 'a', 'INPUT_V' : 'input' } );
+  delete process.env.option1;
+  delete process.env.INPUT_V;
+
+  test.case = 'option with multiline value';
+  var src = { 'INPUT_V' : 'abc\ndef' };
+  common.envOptionsSetup( src );
+  test.identical( _.mapBut_( null, process.env, beginEnvs ), { 'INPUT_V' : 'abc\ndef' } );
+  delete process.env.option1;
+  delete process.env.INPUT_V;
 }
 
 // --
