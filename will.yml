@@ -338,7 +338,7 @@ step:
     command: 'switch js_action'
   switch.master:
     inherit: git
-    command: 'switch composite'
+    command: 'switch master'
   add:
     inherit: git
     command:
