@@ -73,7 +73,48 @@ function actionOptionsParse( src )
   for( let i = 0 ; i < src.length ; i++ )
   {
     const splits = _.strStructureParse({ src : src[ i ], toNumberMaybe : 0 });
-    _.map.extend( result, splits );
+    for( let key in splits )
+    if( splits[ key ] === '|' && i + 1 < src.length )
+    {
+      let keySpacesNumber = src[ i ].search( /\S/ );
+      let spacesNumber = src[ i + 1 ].search( /\S/ );
+      if( spacesNumber > keySpacesNumber )
+      {
+        i += 1;
+        splits[ key ] = "";
+        let multilineSplits = splits;
+        let multileneKey= key;
+        let multilineKeyIs = true;
+        while( multilineKeyIs && i < src.length )
+        {
+          if( src[ i ].search( /\S/ ) >= spacesNumber )
+          {
+            multilineSplits[ multileneKey ] += `\n${ src[ i ].substring( spacesNumber ) }`;
+            i += 1;
+          }
+          else
+          {
+            multilineSplits[ multileneKey ] = multilineSplits[ multileneKey ].substring( 1 );
+            _.map.extend( result, multilineSplits );
+            multilineKeyIs = false;
+            i -= 1;
+          }
+        }
+        if( i === src.length && multilineKeyIs )
+        {
+          multilineSplits[ multileneKey ] = multilineSplits[ multileneKey ].substring( 1 );
+          _.map.extend( result, multilineSplits );
+        }
+      }
+      else
+      {
+        _.map.extend( result, splits );
+      }
+    }
+    else
+    {
+      _.map.extend( result, splits );
+    }
   }
   return result;
 }
