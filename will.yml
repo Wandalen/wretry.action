@@ -1,6 +1,6 @@
 about:
   name: wretry.action
-  version: 1.0.28
+  version: 1.0.29
   description: Retries an Github Action step on failure
   enabled: 0
   author: Kostiantyn Wandalen <wandalen@obox.systems>
@@ -335,10 +335,10 @@ step:
     dirPath: .
   switch.js_action:
     inherit: git
-    command: 'switch js_action'
+    command: switch js_action
   switch.master:
     inherit: git
-    command: 'switch master'
+    command: switch master
   add:
     inherit: git
     command:
@@ -360,9 +360,9 @@ step:
   push:
     inherit: git.push
     dirPath: .
-  action.write :
-    currentPath : 'path::in'
-    shell : 'node {path::step}/ActionWrite.s version:{about::version} logger:3'
+  action.write:
+    currentPath: 'path::in'
+    shell: 'node {path::step}/ActionWrite.s version:{about::version} logger:3'
   release:
     inherit: repo.release
     tag: 'v{about::version}'
