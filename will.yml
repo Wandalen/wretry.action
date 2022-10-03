@@ -386,7 +386,6 @@ build:
       - switch.master
       - npm.install.dev
       - action.write
-      - clean.npm
       - add
       - commit
       - tag
@@ -413,7 +412,6 @@ build:
       - switch.master
       - npm.install.dev
       - action.write
-      - clean.npm
       - add
       - commit
       - tag
