@@ -4,6 +4,7 @@ name : publish
 on :
   push :
     branches : [ master ]
+    tags: 'v*'
 
 jobs :
 
