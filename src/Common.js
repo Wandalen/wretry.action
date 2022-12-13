@@ -81,7 +81,7 @@ function actionOptionsParse( src )
       if( spacesNumber > keySpacesNumber )
       {
         i += 1;
-        splits[ key ] = "";
+        splits[ key ] = '';
         let multilineSplits = splits;
         let multileneKey= key;
         let multilineKeyIs = true;

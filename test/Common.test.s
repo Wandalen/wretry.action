@@ -383,6 +383,11 @@ function actionOptionsParse( test )
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : 'abc\n  def\n    gih' } );
 
+  test.case = 'value is multiline string with different levels';
+  var src = [ 'str: |', '  abc', '   ', '      gih' ];
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { str : 'abc\n\n    gih' } );
+
   test.close( 'multiline' );
 
   /* - */

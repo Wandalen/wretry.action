@@ -1336,6 +1336,62 @@ function retryActionWithDefaultInputsFromMatrixContext( test )
 
 retryActionWithDefaultInputsFromMatrixContext.timeOut = 120000;
 
+//
+
+function retryCodecowAction( test )
+{
+  const context = this;
+  const a = test.assetFor( false );
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+
+  const testAction = 'codecov/codecov-action@v3';
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'missed required argument, default bool value exists';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_FILES`, './action.yml' );
+    core.exportVariable( `INPUT_FLAGS`, 'tests-deterministic' );
+    core.exportVariable( `INPUT_NAME`, 'codecov-QMCPACK' );
+    core.exportVariable( `INPUT_FAIL_CI_IF_ERROR`, 'true' );
+    core.exportVariable( `INPUT_DRY_RUN`, 'true' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.notIdentical( op.exitCode, 0 );
+    console.log( op.output );
+    test.identical( _.strCount( op.output, '::error::' ), 3 );
+    test.identical( _.strCount( op.output, '::error::Codecov: Failed to properly upload' ), 2 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    return a.ready;
+  }
+}
+
 // --
 // declare
 // --
@@ -1382,6 +1438,10 @@ const Proto =
     retryActionWithDefaultInputsAsExpressions,
     retryActionWithDefaultInputsFromJobContext,
     retryActionWithDefaultInputsFromMatrixContext,
+
+    //
+
+    retryCodecowAction,
   },
 };
 
