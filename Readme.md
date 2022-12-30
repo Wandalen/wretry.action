@@ -96,7 +96,7 @@ Depends on output of given Github action.
 ```yaml
 - uses: Wandalen/wretry.action@master
   with:
-    action: action/node-setup@2.3.0
+    action: action/setup-node@2.3.0
     with: |
       node-version: 14.x
       architecture: x64
