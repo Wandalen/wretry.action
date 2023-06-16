@@ -163,7 +163,10 @@ reflector:
   clean.npm:
     inherit: predefined.debug.v2
     src:
-      filePath: ./node_modules
+      filePath:
+        - ./node_modules
+        - ./package-lock.json
+    mandatory: 0
   clean.modules:
     inherit: predefined.debug.v2
     src:
