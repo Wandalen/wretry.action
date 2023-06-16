@@ -4,7 +4,6 @@ name : js_action_publish
 on :
   push :
     branches : [ js_action ]
-    tags: 'v*'
 
 jobs :
 
