@@ -90,7 +90,7 @@ path:
     - src/Main.js
 submodule:
   '@actions/core':
-    path: 'npm:///@actions/core!1.8.2'
+    path: 'npm:///@actions/core!1.10.0'
     enabled: 0
   github-actions-parser:
     path: 'npm:///github-actions-parser!0.26.0'
