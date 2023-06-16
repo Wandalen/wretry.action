@@ -69,6 +69,8 @@ function actionConfigRead( actionDir )
 
 function actionOptionsParse( src )
 {
+  src = src.split( '\n' );
+
   const result = Object.create( null );
   for( let i = 0 ; i < src.length ; i++ )
   {
@@ -78,23 +80,57 @@ function actionOptionsParse( src )
     {
       let keySpacesNumber = src[ i ].search( /\S/ );
       let spacesNumber = src[ i + 1 ].search( /\S/ );
+
+      let prefix = [];
+      if( spacesNumber == -1 )
+      {
+        i += 1;
+        while( i < src.length )
+        {
+          let entryPosition = src[ i ].search( /\S/ );
+          if( entryPosition === -1 )
+          {
+            prefix.push( '\n' );
+            i += 1;
+          }
+          else if( entryPosition > keySpacesNumber )
+          {
+            spacesNumber = entryPosition;
+            break;
+          }
+          else if ( entryPosition <= keySpacesNumber )
+          {
+            break;
+          }
+        }
+        i -= 1;
+      }
+
       if( spacesNumber > keySpacesNumber )
       {
         i += 1;
-        splits[ key ] = "";
+        splits[ key ] = '';
         let multilineSplits = splits;
         let multileneKey= key;
         let multilineKeyIs = true;
         while( multilineKeyIs && i < src.length )
         {
-          if( src[ i ].search( /\S/ ) >= spacesNumber )
+          let positionEntry = src[ i ].search( /\S/ );
+          if( positionEntry >= spacesNumber )
           {
             multilineSplits[ multileneKey ] += `\n${ src[ i ].substring( spacesNumber ) }`;
             i += 1;
           }
+          else if( positionEntry === -1 )
+          {
+            multilineSplits[ multileneKey ] += `\n${ src[ i ] }`;
+            i += 1;
+          }
           else
           {
+            let pref = prefix.join( '' );
             multilineSplits[ multileneKey ] = multilineSplits[ multileneKey ].substring( 1 );
+            multilineSplits[ multileneKey ] = `${ pref }${ multilineSplits[ multileneKey ] }`;
             _.map.extend( result, multilineSplits );
             multilineKeyIs = false;
             i -= 1;
@@ -102,7 +138,9 @@ function actionOptionsParse( src )
         }
         if( i === src.length && multilineKeyIs )
         {
+          let pref = prefix.join( '\n' );
           multilineSplits[ multileneKey ] = multilineSplits[ multileneKey ].substring( 1 );
+          multilineSplits[ multileneKey ] = `${ pref }${ multilineSplits[ multileneKey ] }`;
           _.map.extend( result, multilineSplits );
         }
       }
