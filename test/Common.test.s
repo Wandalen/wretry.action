@@ -278,7 +278,7 @@ actionConfigRead.timeOut = 20000;
 function actionOptionsParse( test )
 {
   test.case = 'empty array';
-  var src = [];
+  var src = '';
   var got = common.actionOptionsParse( src );
   test.identical( got, {} );
 
@@ -287,32 +287,32 @@ function actionOptionsParse( test )
   test.open( 'without spaces' );
 
   test.case = 'string with delimeter, no value';
-  var src = [ 'str:' ];
+  var src = 'str:';
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : '' } );
 
   test.case = 'string with delimeter, no key';
-  var src = [ ':str' ];
+  var src = ':str';
   var got = common.actionOptionsParse( src );
   test.identical( got, { '' : 'str' } );
 
   test.case = 'string with delimeter, key-value';
-  var src = [ 'str:value' ];
+  var src = 'str:value';
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : 'value' } );
 
   test.case = 'string with delimeter, key-value, value is number';
-  var src = [ 'str:3' ];
+  var src = 'str:3';
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : '3' } );
 
   test.case = 'several strings';
-  var src = [ 'str:value', 'number:2' ];
+  var src = 'str:value\nnumber:2';
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : 'value', number : '2' } );
 
   test.case = 'string with uri';
-  var src = [ 'url:https://google.com' ];
+  var src = 'url:https://google.com';
   var got = common.actionOptionsParse( src );
   test.identical( got, { url : 'https://google.com' } );
 
@@ -323,32 +323,32 @@ function actionOptionsParse( test )
   test.open( 'with spaces' );
 
   test.case = 'string with delimeter, no value';
-  var src = [ ' str : ' ];
+  var src = ' str : ';
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : '' } );
 
   test.case = 'string with delimeter, no key';
-  var src = [ ' :  str  ' ];
+  var src = ' :  str  ';
   var got = common.actionOptionsParse( src );
   test.identical( got, { '' : 'str' } );
 
   test.case = 'string with delimeter, key-value';
-  var src = [ '  str    : value   ' ];
+  var src = '  str    : value   ';
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : 'value' } );
 
   test.case = 'string with delimeter, key-value, value is number';
-  var src = [ '  str : 3' ];
+  var src = '  str : 3';
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : '3' } );
 
   test.case = 'several strings';
-  var src = [ ' str  : value', 'number : 2   ' ];
+  var src = ' str  : value \nnumber : 2   ';
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : 'value', number : '2' } );
 
   test.case = 'string with uri';
-  var src = [ ' url  : https://google.com    ' ];
+  var src = ' url  : https://google.com    ';
   var got = common.actionOptionsParse( src );
   test.identical( got, { url : 'https://google.com' } );
 
@@ -359,29 +359,34 @@ function actionOptionsParse( test )
   test.open( 'multiline' );
 
   test.case = 'value is multiline string';
-  var src = [ 'str: |', '  abc', '  def' ];
+  var src = 'str: |\n  abc\n  def';
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : 'abc\ndef' } );
 
   test.case = 'several pairs, one pair has value with multiline string';
-  var src = [ 'str: |', '  abc', '  def', 'num: 2' ];
+  var src = 'str: |\n  abc\n  def\nnum: 2';
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : 'abc\ndef', num : '2' } );
 
   test.case = 'the last key with bare';
-  var src = [ 'str: |' ];
+  var src = 'str: |';
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : '|' } );
 
   test.case = 'not last key with bare';
-  var src = [ 'str: |', 'num : 2' ];
+  var src = 'str: |\nnum : 2';
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : '|', num : '2' } );
 
   test.case = 'value is multiline string with different levels';
-  var src = [ 'str: |', '  abc', '    def', '      gih' ];
+  var src = 'str: |\n  abc\n    def\n      gih';
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : 'abc\n  def\n    gih' } );
+
+  test.case = 'value is multiline string with different levels and empty lines';
+  var src = '  str: |\n\n    abc\n      def\n\n        gih\n ';
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { str : '\nabc\n  def\n\n    gih\n ' } );
 
   test.close( 'multiline' );
 
@@ -391,7 +396,7 @@ function actionOptionsParse( test )
   return;
 
   test.case = 'without delimeter';
-  var src = [ 'str' ];
+  var src = 'str';
   test.shouldThrowErrorSync( () => common.actionOptionsParse( src ) );
 }
 
