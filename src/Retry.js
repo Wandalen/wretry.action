@@ -54,7 +54,7 @@ function retry( scriptType )
         if( !config.runs[ scriptType ] )
         return null;
 
-        const optionsStrings = core.getMultilineInput( 'with' );
+        const optionsStrings = core.getInput( 'with' );
         const options = common.actionOptionsParse( optionsStrings );
         _.map.sureHasOnly( options, config.inputs );
 
