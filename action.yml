@@ -33,7 +33,7 @@ runs:
   using: composite
   steps:
     - name: retry
-      uses: Wandalen/wretry.action@v1.0.36_js_action
+      uses: Wandalen/wretry.action@v1.0.37_js_action
       with:
         action: '${{ inputs.action }}'
         command: '${{ inputs.command }}'
