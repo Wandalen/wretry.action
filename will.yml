@@ -376,6 +376,7 @@ build:
       default: 1
       bump: patch
     steps:
+      - switch.master
       - sync
       - switch.js_action
       - clean.npm
@@ -402,6 +403,7 @@ build:
         - minor
         - patch
     steps:
+      - switch.master
       - sync
       - switch.js_action
       - clean.npm
