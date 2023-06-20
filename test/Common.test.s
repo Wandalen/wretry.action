@@ -236,6 +236,38 @@ function actionClone( test )
     return null;
   });
 
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'action with subdirectory';
+    var remotePath = common.remotePathFromActionName( 'dmvict/test.action/subaction' );
+    return common.actionClone( localPath, remotePath );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    test.identical( __.git.tagLocalRetrive({ localPath }), 'master' );
+    a.fileProvider.filesDelete( localPath );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'action with subdirectory and tag';
+    var remotePath = common.remotePathFromActionName( 'dmvict/test.action/subaction@v0.0.11' );
+    return common.actionClone( localPath, remotePath );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    test.identical( __.git.tagLocalRetrive({ localPath }), 'action_from_subdirectory' );
+    a.fileProvider.filesDelete( localPath );
+    return null;
+  });
+
   /* - */
 
   return a.ready;
