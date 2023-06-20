@@ -186,6 +186,7 @@ reflector:
           - !<tag:yaml.org,2002:js/regexp> /retry/
           - !<tag:yaml.org,2002:js/regexp> /signal-exit/
           - !<tag:yaml.org,2002:js/regexp> /tunnel/
+          - !<tag:yaml.org,2002:js/regexp> /uuid/
           - !<tag:yaml.org,2002:js/regexp> /yaml-ast-parser/
           - !<tag:yaml.org,2002:js/regexp> /Joined.s/
 step:
@@ -379,6 +380,7 @@ build:
       default: 1
       bump: patch
     steps:
+      - switch.master
       - sync
       - switch.js_action
       - clean.npm
@@ -406,6 +408,7 @@ build:
         - minor
         - patch
     steps:
+      - switch.master
       - sync
       - switch.js_action
       - clean.npm
