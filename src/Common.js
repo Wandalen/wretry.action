@@ -4,13 +4,20 @@ require( '../node_modules/Joined.s' );
 const _ = wTools;
 
 let GithubActionsParser = null;
-// let ChildProcess = null;
 
 //
 
 function remotePathFromActionName( name )
 {
-  return _.git.path.parse( `https://github.com/${ _.strReplace( name, '@', '!' ) }` );
+  if( _.str.begins( name, [ './', 'docker:' ] ) )
+  {
+    _.assert( 0, 'unimplemented' );
+  }
+  else
+  {
+    name = name.replace( /^(\S*\/\S*)\//, '$1.git/' );
+    return _.git.path.parse( `https://github.com/${ _.str.replace( name, '@', '!' ) }` );
+  }
 }
 
 //
