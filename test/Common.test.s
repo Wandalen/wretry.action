@@ -452,47 +452,49 @@ function envOptionsFrom( test )
 
   var inputs =
   {
-    'empty' : { description : 'string', default : '' },
     'str' : { description : 'string', default : 'str' },
     'number' : { description : 'number', default : 1 },
+    'empty' : { description : 'string', default : '' },
+    'null' : { description : 'undefined', default : null },
     'not-defined' : { description : 'undefined', default : undefined },
     'no-default' : { description : 'undefined' },
+    'false' : { description : 'undefined', default : false },
   };
 
   test.case = 'no options';
   var src = {};
   var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1 } );
+  test.identical( got, { INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1, INPUT_FALSE : false } );
   test.true( got !== src );
 
   test.case = 'simple option, lower case';
   var src = { 'a' : '1' };
   var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_A : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1 } );
+  test.identical( got, { INPUT_A : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1, INPUT_FALSE : false } );
   test.true( got !== src );
 
   test.case = 'option with spaces, lower case';
   var src = { 'a b c' : '1' };
   var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_A_B_C : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1 } );
+  test.identical( got, { INPUT_A_B_C : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1, INPUT_FALSE : false } );
   test.true( got !== src );
 
   test.case = 'simple option, upper case';
   var src = { 'A' : '1' };
   var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_A : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1 } );
+  test.identical( got, { INPUT_A : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1, INPUT_FALSE : false } );
   test.true( got !== src );
 
   test.case = 'option with spaces, upper case';
   var src = { 'A B C' : '1' };
   var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_A_B_C : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1 } );
+  test.identical( got, { INPUT_A_B_C : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1, INPUT_FALSE : false } );
   test.true( got !== src );
 
   test.case = 'option with spaces, mixed case';
   var src = { 'A b c' : '1' };
   var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_A_B_C : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1 } );
+  test.identical( got, { INPUT_A_B_C : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1, INPUT_FALSE : false } );
   test.true( got !== src );
 
   test.close( 'non empty inputs' );
