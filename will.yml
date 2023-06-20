@@ -383,6 +383,7 @@ build:
       - switch.master
       - sync
       - switch.js_action
+      - sync
       - clean.npm
       - 'build::build.compiled'
       - bump.*=1
@@ -411,6 +412,7 @@ build:
       - switch.master
       - sync
       - switch.js_action
+      - sync
       - clean.npm
       - 'build::build.compiled'
       - bump.*=1
