@@ -186,6 +186,7 @@ reflector:
           - !<tag:yaml.org,2002:js/regexp> /retry/
           - !<tag:yaml.org,2002:js/regexp> /signal-exit/
           - !<tag:yaml.org,2002:js/regexp> /tunnel/
+          - !<tag:yaml.org,2002:js/regexp> /uuid/
           - !<tag:yaml.org,2002:js/regexp> /yaml-ast-parser/
           - !<tag:yaml.org,2002:js/regexp> /Joined.s/
 step:
@@ -360,6 +361,9 @@ step:
   tag.js_action:
     inherit: git.tag
     tag: 'v{about::version}_js_action'
+  tag.major:
+    inherit: js.run
+    js: '{path::step}/TagMajorStep.s'
   push:
     inherit: git.push
     dirPath: .
@@ -376,8 +380,10 @@ build:
       default: 1
       bump: patch
     steps:
+      - switch.master
       - sync
       - switch.js_action
+      - sync
       - clean.npm
       - 'build::build.compiled'
       - bump.*=1
@@ -392,6 +398,7 @@ build:
       - add
       - commit
       - tag
+      - tag.major
       - push
       - release
   action.release:
@@ -402,8 +409,10 @@ build:
         - minor
         - patch
     steps:
+      - switch.master
       - sync
       - switch.js_action
+      - sync
       - clean.npm
       - 'build::build.compiled'
       - bump.*=1
@@ -418,6 +427,7 @@ build:
       - add
       - commit
       - tag
+      - tag.major
       - push
       - release
   doc.export:
