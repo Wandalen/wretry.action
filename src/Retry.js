@@ -45,12 +45,13 @@ function retry( scriptType )
 
       process.env.RETRY_ACTION = actionName;
       const remoteActionPath = common.remotePathFromActionName( actionName );
-      const localActionPath = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
+      const localActionDir = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
 
-      con.then( () => common.actionClone( localActionPath, remoteActionPath ) );
+      con.then( () => common.actionClone( localActionDir, remoteActionPath ) );
       con.then( () =>
       {
-        const config = common.actionConfigRead( localActionPath );
+        const actionFileDir = _.path.nativize( _.path.join( localActionDir, remoteActionPath.localVcsPath ) );
+        const config = common.actionConfigRead( actionFileDir );
         if( !config.runs[ scriptType ] )
         return null;
 
@@ -64,7 +65,7 @@ function retry( scriptType )
           common.envOptionsSetup( envOptions );
 
           const runnerPath = _.path.nativize( _.path.join( __dirname, 'Runner.js' ) );
-          const scriptPath = _.path.nativize( _.path.join( localActionPath, config.runs[ scriptType ] ) );
+          const scriptPath = _.path.nativize( _.path.join( actionFileDir, config.runs[ scriptType ] ) );
           routine = () =>
           {
             const o =
