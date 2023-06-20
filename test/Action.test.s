@@ -181,7 +181,7 @@ function retryFetchActionWithoutTagOrHash( test )
     if( !_.process.insideTestContainer() )
     test.ge( _.strCount( op.output, '::set-env' ), 1 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 0 );
-    test.identical( _.strCount( op.output, /::error::.*Attempts exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Hello test!' ), 1 );
     return null;
   });
@@ -237,7 +237,7 @@ function retryFetchActionWithTag( test )
     if( !_.process.insideTestContainer() )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
     return null;
   });
@@ -293,7 +293,7 @@ function retryFetchActionWithHash( test )
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
     return null;
   });
@@ -318,7 +318,7 @@ function retryFetchActionWithHash( test )
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
     return null;
   });
@@ -344,6 +344,85 @@ function retryFetchActionWithHash( test )
 }
 
 retryFetchActionWithHash.timeOut = 120000;
+
+//
+
+function retryFetchActionWithSubdirectory( test )
+{
+  const context = this;
+  const a = test.assetFor( false );
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const testAction = 'dmvict/test.action';
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+  const isTestContainer = _.process.insideTestContainer();
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'subdirectory, action with tag';
+    core.exportVariable( `INPUT_ACTION`, `${ testAction }/subaction@v0.0.11` );
+    core.exportVariable( `INPUT_WITH`, 'multiline: |\n  one\n  two,\nstring : |'  );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    if( !isTestContainer )
+    test.ge( _.strCount( op.output, '::set-env' ), 2 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'subdirectory, action with tag';
+    core.exportVariable( `INPUT_ACTION`, `${ testAction }/subaction@366f895` );
+    core.exportVariable( `INPUT_WITH`, 'multiline: |\n  one\n  two,\nstring : |'  );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    if( !isTestContainer )
+    test.ge( _.strCount( op.output, '::set-env' ), 2 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
+    return a.ready;
+  }
+}
+
+retryFetchActionWithSubdirectory.timeOut = 120000;
 
 //
 
@@ -376,7 +455,7 @@ function retryWithMultilineOptionInOptionWith( test )
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 2 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 0 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     return null;
   });
 
@@ -524,7 +603,7 @@ function retryWithOptionAttemptLimit( test )
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
     return null;
   });
@@ -590,7 +669,7 @@ function retryWithOptionAttemptDelay( test )
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
     return null;
   });
@@ -617,7 +696,7 @@ function retryWithOptionAttemptDelay( test )
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
     return null;
   });
@@ -836,7 +915,7 @@ function retryActionWithPreScript( test )
     if( !_.process.insideTestContainer() )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
     return null;
   });
@@ -900,7 +979,7 @@ function retryActionWithPostScript( test )
     if( !_.process.insideTestContainer() )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
 
 
@@ -979,7 +1058,7 @@ function retryActionWithPreAndPostScript( test )
     if( !_.process.insideTestContainer() )
     test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
-    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
 
 
@@ -1363,6 +1442,7 @@ const Proto =
     retryFetchActionWithoutTagOrHash,
     retryFetchActionWithTag,
     retryFetchActionWithHash,
+    retryFetchActionWithSubdirectory,
 
     retryWithMultilineOptionInOptionWith,
 
