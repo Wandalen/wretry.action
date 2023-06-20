@@ -169,17 +169,20 @@ function envOptionsFrom( options, inputs )
   if( inputs )
   {
     for( let key in inputs )
-    if( !( key in options ) && inputs[ key ].default !== undefined )
     {
-      let value = inputs[ key ].default;
-      if( _.str.is( value ) )
-      if( value.startsWith( '${{' ) && value.endsWith( '}}' ) )
+      const defaultValue = inputs[ key ].default;
+      if( !( key in options ) && defaultValue !== undefined && defaultValue !== null )
       {
-        if( GithubActionsParser === null )
-        GithubActionsParser = require( 'github-actions-parser' );
-        value = GithubActionsParser.evaluateExpression( value, { get : getContext } );
+        let value = defaultValue;
+        if( _.str.is( value ) )
+        if( value.startsWith( '${{' ) && value.endsWith( '}}' ) )
+        {
+          if( GithubActionsParser === null )
+          GithubActionsParser = require( 'github-actions-parser' );
+          value = GithubActionsParser.evaluateExpression( value, { get : getContext } );
+        }
+        result[ `INPUT_${key.replace(/ /g, '_').toUpperCase()}` ] = value;
       }
-      result[ `INPUT_${key.replace(/ /g, '_').toUpperCase()}` ] = value;
     }
   }
 
