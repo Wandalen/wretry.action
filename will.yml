@@ -36,6 +36,7 @@ path:
   tests: ./test
   export: '{path::proto}/**'
   doc: ./doc
+  step: ./step
   out.raw.debug:
     path: '{path::out}/debug'
     criterion:
@@ -159,6 +160,13 @@ reflector:
     filePath:
       '**.test*': 1
       'path::proto': '{path::out.*=1}/Tests.test.s'
+  clean.npm:
+    inherit: predefined.debug.v2
+    src:
+      filePath:
+        - ./node_modules
+        - ./package-lock.json
+    mandatory: 0
   clean.modules:
     inherit: predefined.debug.v2
     src:
@@ -178,6 +186,7 @@ reflector:
           - !<tag:yaml.org,2002:js/regexp> /retry/
           - !<tag:yaml.org,2002:js/regexp> /signal-exit/
           - !<tag:yaml.org,2002:js/regexp> /tunnel/
+          - !<tag:yaml.org,2002:js/regexp> /uuid/
           - !<tag:yaml.org,2002:js/regexp> /yaml-ast-parser/
           - !<tag:yaml.org,2002:js/regexp> /Joined.s/
 step:
@@ -272,6 +281,8 @@ step:
         - proto
   npm.install:
     shell: npm install --production
+  npm.install.dev:
+    shell: npm install wFiles
   clean.out:
     inherit: files.delete
     filePath: '{path::out.*=1}/source'
@@ -301,7 +312,7 @@ step:
     filePath: 'reflector::clean.modules'
   clean.npm:
     inherit: files.delete
-    filePath: ./node_modules
+    filePath: 'reflector::clean.npm'
   tst.proto:
     shell: 'tst {path::proto}'
     criterion:
@@ -326,6 +337,16 @@ step:
   sync:
     inherit: git.sync
     dirPath: .
+  switch.js_action:
+    inherit: git
+    command: switch js_action
+  switch.master:
+    inherit: git
+    command: switch master
+  add:
+    inherit: git
+    command:
+      - add .
   add.all:
     inherit: git
     command:
@@ -337,9 +358,18 @@ step:
   tag:
     inherit: git.tag
     tag: 'v{about::version}'
+  tag.js_action:
+    inherit: git.tag
+    tag: 'v{about::version}_js_action'
+  tag.major:
+    inherit: js.run
+    js: '{path::step}/TagMajorStep.s'
   push:
     inherit: git.push
     dirPath: .
+  action.write:
+    currentPath: 'path::in'
+    shell: 'node {path::step}/ActionWrite.s version:{about::version} logger:3'
   release:
     inherit: repo.release
     tag: 'v{about::version}'
@@ -350,14 +380,24 @@ build:
       default: 1
       bump: patch
     steps:
+      - switch.master
       - sync
+      - switch.js_action
       - clean.npm
       - 'build::build.compiled'
       - bump.*=1
       - npm.generate.proto
       - add.all
       - commit
+      - tag.js_action
+      - push
+      - switch.master
+      - npm.install.dev
+      - action.write
+      - add
+      - commit
       - tag
+      - tag.major
       - push
       - release
   action.release:
@@ -368,14 +408,24 @@ build:
         - minor
         - patch
     steps:
+      - switch.master
       - sync
+      - switch.js_action
       - clean.npm
       - 'build::build.compiled'
       - bump.*=1
       - npm.generate.proto
       - add.all
       - commit
+      - tag.js_action
+      - push
+      - switch.master
+      - npm.install.dev
+      - action.write
+      - add
+      - commit
       - tag
+      - tag.major
       - push
       - release
   doc.export:
