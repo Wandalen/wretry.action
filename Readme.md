@@ -123,3 +123,5 @@ npm i -g 'willbe@latest'
 ```
 
 `willbe` is not required to use the action in your project as submodule.
+
+<!-- will .publish action.release.minor -->
