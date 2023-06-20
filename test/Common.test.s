@@ -83,6 +83,72 @@ function remotePathFromActionName( test )
     repo : 'name'
   };
   test.identical( got, exp );
+
+  /* */
+
+  test.case = 'without hash or tag, subdirectory';
+  var got = common.remotePathFromActionName( 'action/name/subdir' );
+  var exp =
+  {
+    protocol : 'https',
+    longPath : 'github.com/action/name.git/',
+    tag : 'master',
+    localVcsPath : 'subdir',
+    protocols : [ 'https' ],
+    isFixated : false,
+    service : 'github.com',
+    user : 'action',
+    repo : 'name'
+  };
+  test.identical( got, exp );
+
+  test.case = 'with tag, subdirectory';
+  var got = common.remotePathFromActionName( 'action/name/subdir@v0.0.0' );
+  var exp =
+  {
+    protocol : 'https',
+    longPath : 'github.com/action/name.git/',
+    tag : 'v0.0.0',
+    localVcsPath : 'subdir',
+    protocols : [ 'https' ],
+    isFixated : false,
+    service : 'github.com',
+    user : 'action',
+    repo : 'name'
+  };
+  test.identical( got, exp );
+
+  test.case = 'with short hash, subdirectory';
+  var got = common.remotePathFromActionName( 'action/name/subdir@9b5d00b' );
+  var exp =
+  {
+    protocol : 'https',
+    longPath : 'github.com/action/name.git/',
+    tag : '9b5d00b',
+    localVcsPath : 'subdir',
+    protocols : [ 'https' ],
+    isFixated : false,
+    service : 'github.com',
+    user : 'action',
+    repo : 'name'
+  };
+  test.identical( got, exp );
+
+  test.case = 'with long hash';
+  var got = common.remotePathFromActionName( 'action/name/subdir@9b5d00b7245dae0586efca5052f41ae023cb7659' );
+  var exp =
+  {
+    protocol : 'https',
+    longPath : 'github.com/action/name.git/',
+    tag : '9b5d00b7245dae0586efca5052f41ae023cb7659',
+    localVcsPath : 'subdir',
+    protocols : [ 'https' ],
+    isFixated : false,
+    service : 'github.com',
+    user : 'action',
+    repo : 'name'
+  };
+  test.identical( got, exp );
 }
 
 //
