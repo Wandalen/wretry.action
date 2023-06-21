@@ -281,8 +281,6 @@ step:
         - proto
   npm.install:
     shell: npm install --production
-  npm.install.dev:
-    shell: npm install wFiles
   clean.out:
     inherit: files.delete
     filePath: '{path::out.*=1}/source'
@@ -368,8 +366,8 @@ step:
     inherit: git.push
     dirPath: .
   action.write:
-    currentPath: 'path::in'
-    shell: 'node {path::step}/ActionWrite.s version:{about::version} logger:3'
+    inherit: js.run
+    js: '{path::step}/ActionWrite.s'
   release:
     inherit: repo.release
     tag: 'v{about::version}'
@@ -393,7 +391,6 @@ build:
       - tag.js_action
       - push
       - switch.master
-      - npm.install.dev
       - action.write
       - add
       - commit
@@ -422,7 +419,6 @@ build:
       - tag.js_action
       - push
       - switch.master
-      - npm.install.dev
       - action.write
       - add
       - commit
