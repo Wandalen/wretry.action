@@ -16,11 +16,9 @@ function retry( scriptType )
 
     if( !actionName )
     {
-      if( !command.length )
-      throw _.error.brief( 'Please, specify Github action name or shell command.' );
+      const commands = common.commandsForm( command );
 
       let currentPath = core.getInput( 'current_path' ) || _.path.current();
-
       if( !_.path.isAbsolute( currentPath ) )
       currentPath = _.path.join( _.path.current(), currentPath );
 
@@ -29,7 +27,7 @@ function retry( scriptType )
         const o =
         {
           currentPath,
-          execPath : command,
+          execPath : commands,
           inputMirroring : 0,
           stdio : 'inherit',
           mode : 'shell',
