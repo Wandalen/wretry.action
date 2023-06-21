@@ -87,7 +87,39 @@ Set delay between attempts in ms. Default is 0.
 
 ## Outputs
 
-Depends on output of given Github action.
+The action exposes single output named `outputs`. It collects all the outputs from the action/command in the pretty print JSON map.
+
+### How to use outputs from the external action
+
+To access the value from an external action outputs parse the `wretry.action` output and select required key. To parse the outputs use builtin Github Actions function `fromJSON`.
+
+Let's look at an example:
+
+```yaml
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    outputs:
+      out: ${{ steps.my-action.outputs.outputs }}
+    steps:
+      - id: my-action
+        uses: Wandalen/wretry.action@1.2.0
+        with:
+          attempt_limit: 3
+          action: user/action@version
+          with: |
+            foo: bar
+  job2:
+    runs-on: ubuntu-latest
+    needs: job1
+    steps:
+      - env:
+          OUTPUT1: ${{ fromJSON( needs.job1.outputs.out ) }}
+          OUTPUT2: ${{ fromJSON( needs.job1.outputs.out ).foo }}
+        run: echo "$OUTPUT1 $OUTPUT2"
+```
+
+To setup job output we access output `outputs` of the step `my-action`. In the job `job2` we parse this output to JSON. The environment variable `OUPUT1` represents full JSON and the variable `OUPUT2` represents key `foo` of the parsed JSON.
 
 ## Example usage
 
