@@ -7,6 +7,34 @@ let GithubActionsParser = null;
 
 //
 
+function commandsForm( command )
+{
+  _.assert( command.length > 0, 'Please, specify Github action name or shell command.' );
+
+  const commands = [ command[ 0 ] ];
+  let i = 1;
+  if( command[ 0 ] === '|' )
+  {
+    _.assert( command.length > 1, 'Expected multiline command.' );
+    commands[ 0 ] = command[ 1 ];
+    i = 2;
+  }
+
+  for( i ; i < command.length ; i++ )
+  {
+    if( _.str.ends( commands[ commands.length - 1 ], /\s\\/ ) )
+    commands[ commands.length - 1 ] = `${ commands[ commands.length - 1 ] }\n${ command[ i ] }`;
+    else
+    commands.push( command[ i ] );
+  }
+
+  _.assert( !_.str.ends( commands[ commands.length - 1 ], /\s\\/ ), 'Last command should have no continuation.' );
+
+  return commands;
+}
+
+//
+
 function remotePathFromActionName( name )
 {
   if( _.str.begins( name, [ './', 'docker:' ] ) )
@@ -255,6 +283,7 @@ function envOptionsSetup( options )
 
 const Self =
 {
+  commandsForm,
   remotePathFromActionName,
   actionClone,
   actionConfigRead,

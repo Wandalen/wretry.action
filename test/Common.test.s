@@ -18,6 +18,57 @@ const common = require( '../src/Common.js' );
 // test
 // --
 
+function commandsForm( test )
+{
+  test.case = 'one line command';
+  var got = common.commandsForm( [ 'echo foo' ] );
+  test.identical( got, [ 'echo foo' ] );
+
+  test.case = 'multiple commands without backslash';
+  var got = common.commandsForm( [ 'echo foo', 'echo bar' ] );
+  test.identical( got, [ 'echo foo', 'echo bar' ] );
+
+  test.case = 'multiline command with bar';
+  var got = common.commandsForm( [ '|', 'echo foo' ] );
+  test.identical( got, [ 'echo foo' ] );
+
+  test.case = 'multiline command with bar, multiple commands without backslash';
+  var got = common.commandsForm( [ '|', 'echo foo', 'echo bar' ] );
+  test.identical( got, [ 'echo foo', 'echo bar' ] );
+
+  test.case = 'multiline command with backslash';
+  var got = common.commandsForm( [ 'echo \\', 'foo' ] );
+  test.identical( got, [ 'echo \\\nfoo' ] );
+
+  test.case = 'multiline command with bar and backslash';
+  var got = common.commandsForm( [ '|', 'echo \\', 'foo' ] );
+  test.identical( got, [ 'echo \\\nfoo' ] );
+
+  test.case = 'multiline command with bar and backslash, several commands';
+  var got = common.commandsForm( [ '|', 'echo \\', 'foo', 'echo bar' ] );
+  test.identical( got, [ 'echo \\\nfoo', 'echo bar' ] );
+
+  test.case = 'multiline commands with bar and backslash, several commands';
+  var got = common.commandsForm( [ '|', 'echo \\', 'foo', 'echo \\', 'bar' ] );
+  test.identical( got, [ 'echo \\\nfoo', 'echo \\\nbar' ] );
+
+  /* - */
+
+  if( !Config.debug )
+  return;
+
+  test.case = 'empty commands';
+  test.shouldThrowErrorSync( () => common.commandsForm( [] ) );
+
+  test.case = 'commands starts with bar but has no command';
+  test.shouldThrowErrorSync( () => common.commandsForm( [ '|' ] ) );
+
+  test.case = 'command ends with continuation';
+  test.shouldThrowErrorSync( () => common.commandsForm( [ 'echo \\' ] ) );
+}
+
+//
+
 function remotePathFromActionName( test )
 {
   test.case = 'without hash or tag';
@@ -988,6 +1039,7 @@ const Proto =
 
   tests :
   {
+    commandsForm,
     remotePathFromActionName,
     actionClone,
     actionConfigRead,
