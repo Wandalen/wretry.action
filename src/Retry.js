@@ -62,6 +62,7 @@ function retry( scriptType )
           const envOptions = common.envOptionsFrom( options, config.inputs );
           common.envOptionsSetup( envOptions );
 
+          const node = process.argv[ 0 ];
           const runnerPath = _.path.nativize( _.path.join( __dirname, 'Runner.js' ) );
           const scriptPath = _.path.nativize( _.path.join( actionFileDir, config.runs[ scriptType ] ) );
           routine = () =>
@@ -69,7 +70,7 @@ function retry( scriptType )
             const o =
             {
               currentPath : _.path.current(),
-              execPath : `node ${ runnerPath } ${ scriptPath }`,
+              execPath : `${ node } ${ runnerPath } ${ scriptPath }`,
               inputMirroring : 0,
               stdio : 'inherit',
               mode : 'spawn',
