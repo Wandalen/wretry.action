@@ -43,6 +43,10 @@ inputs:
     description: 'A delay between attempts in ms'
     required: false
     default: 0
+  disable_pre_and_post:
+    description: 'Disable Pre and Post hooks'
+    required: false
+    default: 'false'
 runs:
   using: 'node16'
   pre: 'src/Pre.js'

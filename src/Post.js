@@ -1,8 +1,10 @@
 const core = require( '@actions/core' );
 const actionName = core.getInput( 'action' );
-const disablePreAndPost = core.getInput('disablePreAndPost');
 
-if( actionName && !disablePreAndPost )
+if( core.getInput( 'disable_pre_and_post' ) == 'true' )
+return;
+
+if( actionName )
 {
   const { retry } = require( './Retry.js' );
   retry( 'post' );
