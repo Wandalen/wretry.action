@@ -125,7 +125,7 @@ function retryWithWrongComand( test )
     test.notIdentical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
     test.identical( _.strCount( op.output, '::error::Process returned exit code' ), 1 );
-    test.identical( _.strCount( op.output, 'Launched as "wrong command"' ), 1 );
+    test.identical( _.strCount( op.output, /Launched as \"bash .*\"/ ), 1 );
     test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 1 );
     return null;
   });
