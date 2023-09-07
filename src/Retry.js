@@ -17,6 +17,8 @@ function retry( scriptType )
     if( !actionName )
     {
       const commands = common.commandsForm( command );
+      const commandsScriptPath = _.path.join( __dirname, 'script' );
+      _.fileProvider.fileWrite( commandsScriptPath, commands.join( '\n' ) );
 
       let currentPath = core.getInput( 'current_path' ) || _.path.current();
       if( !_.path.isAbsolute( currentPath ) )
@@ -27,7 +29,7 @@ function retry( scriptType )
         const o =
         {
           currentPath,
-          execPath : commands,
+          execPath : `bash ${ commandsScriptPath }`,
           inputMirroring : 0,
           stdio : 'inherit',
           mode : 'shell',
