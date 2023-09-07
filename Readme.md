@@ -8,7 +8,7 @@ Works with either shell commands or other actions to retry.
 
 ## Why
 
-Github actions which use an Internet connection can fail when connection is lost :
+Github actions which use Internet connection can fail when connection is lost :
 
 ```bash
 Run actions/setup-node@v1
@@ -24,7 +24,7 @@ It is a cause of failed jobs. For this case, the action `wretry.action` can retr
 ## Features
 
 - Retries Github `JavaScript` actions. The action can be an action repository that is not published on `Marketplace`.
-- Retries shell commands.
+- Retries `bash` shell commands.
 - Can retry single action or single command ( multiline command ), but not both simultaneously.
 - Retries `main`, `pre` and `post` stages of external actions.
 - Always has `pre` and `post` stages. If external action has `pre` or/and `post` stage, then action run it also.
@@ -41,7 +41,7 @@ The name of the Github action.
 
 ### `command`
 
-The command to run.
+The command to run. The executor uses only the `bash` shell. To run alternative shells, wrap the script.
 
 **Attend**. Action requires defined `action` or `command`. If the fields `action` and `commands` are defined simultaneously, then action will throw error.
 

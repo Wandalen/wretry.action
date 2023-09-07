@@ -233,8 +233,7 @@ function retryWithOptionCurrentPath( test )
   a.ready.then( () =>
   {
     test.case = 'without action name';
-    const command = process.platform === 'win32' ? 'chdir' : 'echo $PWD'
-    core.exportVariable( `INPUT_COMMAND`, command );
+    core.exportVariable( `INPUT_COMMAND`, 'echo $PWD' );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
   });
@@ -247,7 +246,7 @@ function retryWithOptionCurrentPath( test )
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
     test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
-    test.identical( _.strCount( op.output, a.path.nativize( actionPath ) ), 1 );
+    test.identical( _.strCount( op.output.toLowerCase(), actionPath.toLowerCase() ), 1 );
     return null;
   });
 
@@ -256,8 +255,7 @@ function retryWithOptionCurrentPath( test )
   a.ready.then( () =>
   {
     test.case = 'without action name';
-    const command = process.platform === 'win32' ? 'chdir' : 'echo $PWD'
-    core.exportVariable( `INPUT_COMMAND`, command );
+    core.exportVariable( `INPUT_COMMAND`, 'echo $PWD' );
     core.exportVariable( `INPUT_CURRENT_PATH`, '..' );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
@@ -271,7 +269,7 @@ function retryWithOptionCurrentPath( test )
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
     test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
-    test.identical( _.strCount( op.output, a.path.nativize( a.abs( actionPath, '..' ) ) ), 1 );
+    test.identical( _.strCount( op.output.toLowerCase(), a.abs( actionPath, '..' ).toLowerCase() ), 1 );
     return null;
   });
 

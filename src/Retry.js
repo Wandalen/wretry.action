@@ -29,7 +29,7 @@ function retry( scriptType )
         const o =
         {
           currentPath,
-          execPath : `bash ${ commandsScriptPath }`,
+          execPath : `bash ${ _.path.nativize( commandsScriptPath ) }`,
           inputMirroring : 0,
           stdio : 'inherit',
           mode : 'shell',
