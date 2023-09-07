@@ -387,6 +387,66 @@ function retryWithMultilineComand( test )
   }
 }
 
+//
+
+function retryAndCheckRuntimeEnvironments( test )
+{
+  let context = this;
+  const a = test.assetFor( false );
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'multiline command';
+    core.exportVariable( `INPUT_COMMAND`, '|\n  export FOO=foo \n  export BAR=bar \n  echo $FOO$BAR' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
+    test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
+    test.identical( _.strCount( op.output, 'foobar' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.ready.then( () =>
+    {
+      return __.git.repositoryClone
+      ({
+        localPath : actionPath,
+        remotePath : __.git.path.normalize( context.actionDirPath ),
+        attemptLimit : 4,
+        attemptDelay : 250,
+        attemptDelayMultiplier : 4,
+      });
+    });
+    return a.ready;
+  }
+}
+
 // --
 // declare
 // --
@@ -413,6 +473,7 @@ const Proto =
     retryWithValidComand,
     retryWithOptionCurrentPath,
     retryWithMultilineComand,
+    retryAndCheckRuntimeEnvironments,
   },
 };
 
