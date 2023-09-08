@@ -162,6 +162,8 @@ function retryWithWrongCommand( test )
   }
 }
 
+retryWithWrongCommand.timeOut = 120000;
+
 //
 
 function retryWithValidCommand( test )
