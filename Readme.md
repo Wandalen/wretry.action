@@ -41,7 +41,7 @@ The name of the Github action.
 
 ### `command`
 
-The command to run. The executor uses only the `bash` shell. To run alternative shells, wrap the script.
+The command to run. The executor uses only the default Github shell. To run alternative shells, wrap the script.
 
 **Attend**. Action requires defined `action` or `command`. If the fields `action` and `commands` are defined simultaneously, then action will throw error.
 

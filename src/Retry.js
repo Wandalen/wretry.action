@@ -17,19 +17,28 @@ function retry( scriptType )
     if( !actionName )
     {
       const commands = common.commandsForm( command );
-      const commandsScriptPath = _.path.join( __dirname, 'script' );
+      if( process.platform === 'win32' )
+      {
+        commands.push( 'if ((Test-Path -LiteralPath variable:\LASTEXITCODE)) { exit $LASTEXITCODE }' );
+        commands.unshift( `$ErrorActionPreference = 'stop'` );
+      }
+      const commandsScriptPath = _.path.join( __dirname, process.platform === 'win32' ? 'script.ps1' : 'script.sh' );
       _.fileProvider.fileWrite( commandsScriptPath, commands.join( '\n' ) );
 
       let currentPath = core.getInput( 'current_path' ) || _.path.current();
       if( !_.path.isAbsolute( currentPath ) )
       currentPath = _.path.join( _.path.current(), currentPath );
+      let execPath =
+        process.platform === 'win32' ?
+        `pwsh -command ". '${ _.path.nativize( commandsScriptPath ) }'"` :
+        `bash --noprofile --norc -eo pipefail ${ _.path.nativize( commandsScriptPath ) }`;
 
       routine = () =>
       {
         const o =
         {
           currentPath,
-          execPath : `bash ${ _.path.nativize( commandsScriptPath ) }`,
+          execPath,
           inputMirroring : 0,
           stdio : 'inherit',
           mode : 'shell',
