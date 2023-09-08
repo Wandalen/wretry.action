@@ -7,12 +7,29 @@ const _ = wTools;
 
 function retry( scriptType )
 {
+  let shouldRetry = true;
+
   return _.Consequence.Try( () =>
   {
-    let routine;
+    let routine, startTime;
     const con = _.take( null );
     const actionName = core.getInput( 'action' );
     const command = core.getMultilineInput( 'command' );
+
+    const timeLimit = _.number.from( core.getInput( 'time_out' ) ) || null;
+    let timeoutGet = () => null;
+    if( timeLimit )
+    {
+      startTime = _.time.now();
+      timeoutGet = () =>
+      {
+        let now = _.time.now();
+        let spent = now - startTime;
+        if( spent >= timeLimit )
+        shouldRetry = false;
+        return timeLimit - spent;
+      };
+    }
 
     if( !actionName )
     {
@@ -28,7 +45,7 @@ function retry( scriptType )
       let currentPath = core.getInput( 'current_path' ) || _.path.current();
       if( !_.path.isAbsolute( currentPath ) )
       currentPath = _.path.join( _.path.current(), currentPath );
-      let execPath =
+      const execPath =
         process.platform === 'win32' ?
         `pwsh -command ". '${ _.path.nativize( commandsScriptPath ) }'"` :
         `bash --noprofile --norc -eo pipefail ${ _.path.nativize( commandsScriptPath ) }`;
@@ -43,6 +60,7 @@ function retry( scriptType )
           stdio : 'inherit',
           mode : 'shell',
         };
+        o.timeOut = timeoutGet();
         _.process.start( o );
         return o.ready;
       };
@@ -87,6 +105,7 @@ function retry( scriptType )
               mode : 'spawn',
               ipc : 1,
             };
+            o.timeOut = timeoutGet();
             _.process.start( o );
             o.pnd.on( 'message', ( data ) => _.map.extend( process.env, data ) );
             return o.ready;
@@ -114,6 +133,7 @@ function retry( scriptType )
         attemptLimit,
         attemptDelay,
         onSuccess,
+        onError,
       });
       return null;
     });
@@ -132,7 +152,13 @@ function retry( scriptType )
     if( arg.exitCode !== 0 )
     return false;
     return true
-  };
+  }
+
+  function onError( err )
+  {
+    _.error.attend( err );
+    return shouldRetry;
+  }
 }
 
 module.exports = { retry };
