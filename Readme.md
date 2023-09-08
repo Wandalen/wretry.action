@@ -101,6 +101,10 @@ Set number of attempts. Default is 2.
 
 Set delay between attempts in ms. Default is 0.
 
+### `time_out`
+
+Set time out in ms for entire step including all retries. By default actions sets no time out.
+
 ## Outputs
 
 Depends on output of given Github action.
