@@ -468,6 +468,7 @@ function retryCheckRetryTime( test )
   let context = this;
   const a = test.assetFor( false );
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const preExecPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }`;
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
 
   /* - */
@@ -483,6 +484,7 @@ function retryCheckRetryTime( test )
 
   actionSetup();
 
+  a.shellNonThrowing({ currentPath : actionPath, execPath : preExecPath });
   a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
   {
@@ -490,6 +492,9 @@ function retryCheckRetryTime( test )
     test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
     test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
     test.identical( _.strCount( op.output, 'str' ), 1 );
+    if( process.platform === 'win32' )
+    test.identical( _.strCount( op.output, '::error::Process returned exit code 1' ), 0 );
+    else
     test.identical( _.strCount( op.output, '::error::Process was killed by exit signal SIGTERM' ), 0 );
     return null;
   });
@@ -507,6 +512,7 @@ function retryCheckRetryTime( test )
 
   actionSetup();
 
+  a.shellNonThrowing({ currentPath : actionPath, execPath : preExecPath });
   a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
   {
@@ -514,6 +520,9 @@ function retryCheckRetryTime( test )
     test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
     test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
     test.identical( _.strCount( op.output, 'str' ), 0 );
+    if( process.platform === 'win32' )
+    test.identical( _.strCount( op.output, '::error::Process returned exit code 1' ), 1 );
+    else
     test.identical( _.strCount( op.output, '::error::Process was killed by exit signal SIGTERM' ), 1 );
     return null;
   });
@@ -524,13 +533,14 @@ function retryCheckRetryTime( test )
   {
     test.case = 'command is failed and does not overflow time limit';
     core.exportVariable( 'INPUT_COMMAND', '|\n  sleep 1 \n  echo str \n  exit 1' );
-    core.exportVariable( 'INPUT_TIME_OUT', '8000' );
+    core.exportVariable( 'INPUT_TIME_OUT', '12000' );
     core.exportVariable( 'INPUT_ATTEMPT_LIMIT', '4' );
     return null;
   });
 
   actionSetup();
 
+  a.shellNonThrowing({ currentPath : actionPath, execPath : preExecPath });
   a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
   {
@@ -538,6 +548,9 @@ function retryCheckRetryTime( test )
     test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
     test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 1 );
     test.identical( _.strCount( op.output, 'str' ), 4 );
+    if( process.platform === 'win32' )
+    test.identical( _.strCount( op.output, '::error::Process returned exit code 1' ), 1 );
+    else
     test.identical( _.strCount( op.output, '::error::Process was killed by exit signal SIGTERM' ), 0 );
     return null;
   });
@@ -555,6 +568,7 @@ function retryCheckRetryTime( test )
 
   actionSetup();
 
+  a.shellNonThrowing({ currentPath : actionPath, execPath : preExecPath });
   a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
   {
@@ -562,6 +576,9 @@ function retryCheckRetryTime( test )
     test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
     test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
     test.identical( _.strCount( op.output, 'str' ), 1 );
+    if( process.platform === 'win32' )
+    test.identical( _.strCount( op.output, '::error::Process returned exit code 1' ), 1 );
+    else
     test.identical( _.strCount( op.output, '::error::Process was killed by exit signal SIGTERM' ), 1 );
     return null;
   });
@@ -594,6 +611,7 @@ function retryCheckRetryTime( test )
     return a.ready;
   }
 }
+retryCheckRetryTime.timeOut = 240000;
 
 // --
 // declare
