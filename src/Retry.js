@@ -92,7 +92,7 @@ function retry( scriptType )
             + '\nPlease, open an issue with the request for the feature.'
           );
           const docker = require( './Docker.js' );
-          const imageName = docker.imageBuild( localActionPath, config.runs.image );
+          const imageName = docker.imageBuild( localActionDir, config.runs.image );
           const execPath = docker.runCommandForm( imageName, envOptions );
           const args = docker.commandArgsFrom( config.runs.args, options );
 

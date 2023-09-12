@@ -3,7 +3,12 @@ if( typeof wTools === 'undefined' )
 require( '../node_modules/Joined.s' );
 const _ = wTools;
 const ChildProcess = require( 'child_process' );
-const common = require( './Common.js' );
+let common = require( './Common.js' );
+if( _.map.keys( common ).length === 0 )
+{
+  const path = require.resolve( './Common.js' );
+  common = require.cache[ path ].exports;
+}
 let GithubActionsParser = null;
 
 //
@@ -92,11 +97,15 @@ function runCommandForm( imageName, inputs )
     'GITHUB_SHA',
     'GITHUB_REPOSITORY',
     'GITHUB_REPOSITORY_OWNER',
+    'GITHUB_REPOSITORY_OWNER_ID',
     'GITHUB_RUN_ID',
     'GITHUB_RUN_NUMBER',
     'GITHUB_RETENTION_DAYS',
     'GITHUB_RUN_ATTEMPT',
+    'GITHUB_REPOSITORY_ID',
+    'GITHUB_ACTOR_ID',
     'GITHUB_ACTOR',
+    'GITHUB_TRIGGERING_ACTOR',
     'GITHUB_WORKFLOW',
     'GITHUB_HEAD_REF',
     'GITHUB_BASE_REF',
@@ -107,6 +116,8 @@ function runCommandForm( imageName, inputs )
     'GITHUB_REF_NAME',
     'GITHUB_REF_PROTECTED',
     'GITHUB_REF_TYPE',
+    'GITHUB_WORKFLOW_REF',
+    'GITHUB_WORKFLOW_SHA',
     'GITHUB_WORKSPACE',
     'GITHUB_ACTION',
     'GITHUB_EVENT_PATH',
@@ -115,9 +126,12 @@ function runCommandForm( imageName, inputs )
     'GITHUB_PATH',
     'GITHUB_ENV',
     'GITHUB_STEP_SUMMARY',
+    'GITHUB_STATE',
+    'GITHUB_OUTPUT',
     'RUNNER_OS',
     'RUNNER_ARCH',
     'RUNNER_NAME',
+    'RUNNER_ENVIRONMENT',
     'RUNNER_TOOL_CACHE',
     'RUNNER_TEMP',
     'RUNNER_WORKSPACE',
@@ -125,7 +139,7 @@ function runCommandForm( imageName, inputs )
     'ACTIONS_RUNTIME_TOKEN',
     'ACTIONS_CACHE_URL',
     'GITHUB_ACTIONS=true',
-    'CI=true'
+    'CI=true',
   ];
   const postfix_command_paths =
   [
