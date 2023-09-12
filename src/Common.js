@@ -4,13 +4,48 @@ require( '../node_modules/Joined.s' );
 const _ = wTools;
 
 let GithubActionsParser = null;
-// let ChildProcess = null;
+
+//
+
+function commandsForm( command )
+{
+  _.assert( command.length > 0, 'Please, specify Github action name or shell command.' );
+
+  const commands = [ command[ 0 ] ];
+  let i = 1;
+  if( command[ 0 ] === '|' )
+  {
+    _.assert( command.length > 1, 'Expected multiline command.' );
+    commands[ 0 ] = command[ 1 ];
+    i = 2;
+  }
+
+  for( i ; i < command.length ; i++ )
+  {
+    if( _.str.ends( commands[ commands.length - 1 ], /\s\\/ ) )
+    commands[ commands.length - 1 ] = `${ commands[ commands.length - 1 ] }\n${ command[ i ] }`;
+    else
+    commands.push( command[ i ] );
+  }
+
+  _.assert( !_.str.ends( commands[ commands.length - 1 ], /\s\\/ ), 'Last command should have no continuation.' );
+
+  return commands;
+}
 
 //
 
 function remotePathFromActionName( name )
 {
-  return _.git.path.parse( `https://github.com/${ _.strReplace( name, '@', '!' ) }` );
+  if( _.str.begins( name, [ './', 'docker:' ] ) )
+  {
+    _.assert( 0, 'unimplemented' );
+  }
+  else
+  {
+    name = name.replace( /^(\S*\/\S*)\//, '$1.git/' );
+    return _.git.path.parse( `https://github.com/${ _.str.replace( name, '@', '!' ) }` );
+  }
 }
 
 //
@@ -69,11 +104,90 @@ function actionConfigRead( actionDir )
 
 function actionOptionsParse( src )
 {
+  src = src.split( '\n' );
+
   const result = Object.create( null );
   for( let i = 0 ; i < src.length ; i++ )
   {
     const splits = _.strStructureParse({ src : src[ i ], toNumberMaybe : 0 });
-    _.map.extend( result, splits );
+    for( let key in splits )
+    if( splits[ key ] === '|' && i + 1 < src.length )
+    {
+      let keySpacesNumber = src[ i ].search( /\S/ );
+      let spacesNumber = src[ i + 1 ].search( /\S/ );
+
+      let prefix = [];
+      if( spacesNumber == -1 )
+      {
+        i += 1;
+        while( i < src.length )
+        {
+          let entryPosition = src[ i ].search( /\S/ );
+          if( entryPosition === -1 )
+          {
+            prefix.push( '\n' );
+            i += 1;
+          }
+          else if( entryPosition > keySpacesNumber )
+          {
+            spacesNumber = entryPosition;
+            break;
+          }
+          else if ( entryPosition <= keySpacesNumber )
+          {
+            break;
+          }
+        }
+        i -= 1;
+      }
+
+      if( spacesNumber > keySpacesNumber )
+      {
+        i += 1;
+        splits[ key ] = '';
+        let multilineSplits = splits;
+        let multileneKey= key;
+        let multilineKeyIs = true;
+        while( multilineKeyIs && i < src.length )
+        {
+          let positionEntry = src[ i ].search( /\S/ );
+          if( positionEntry >= spacesNumber )
+          {
+            multilineSplits[ multileneKey ] += `\n${ src[ i ].substring( spacesNumber ) }`;
+            i += 1;
+          }
+          else if( positionEntry === -1 )
+          {
+            multilineSplits[ multileneKey ] += `\n${ src[ i ] }`;
+            i += 1;
+          }
+          else
+          {
+            let pref = prefix.join( '' );
+            multilineSplits[ multileneKey ] = multilineSplits[ multileneKey ].substring( 1 );
+            multilineSplits[ multileneKey ] = `${ pref }${ multilineSplits[ multileneKey ] }`;
+            _.map.extend( result, multilineSplits );
+            multilineKeyIs = false;
+            i -= 1;
+          }
+        }
+        if( i === src.length && multilineKeyIs )
+        {
+          let pref = prefix.join( '\n' );
+          multilineSplits[ multileneKey ] = multilineSplits[ multileneKey ].substring( 1 );
+          multilineSplits[ multileneKey ] = `${ pref }${ multilineSplits[ multileneKey ] }`;
+          _.map.extend( result, multilineSplits );
+        }
+      }
+      else
+      {
+        _.map.extend( result, splits );
+      }
+    }
+    else
+    {
+      _.map.extend( result, splits );
+    }
   }
   return result;
 }
@@ -90,18 +204,20 @@ function envOptionsFrom( options, inputs )
   if( inputs )
   {
     for( let key in inputs )
-    if( !( key in options ) && inputs[ key ].default !== undefined )
     {
-      let value = inputs[ key ].default;
-      if( _.str.is( value ) )
-      if( value.startsWith( '${{' ) && value.endsWith( '}}' ) )
+      const defaultValue = inputs[ key ].default;
+      if( !( key in options ) && defaultValue !== undefined && defaultValue !== null )
       {
-        if( GithubActionsParser === null )
-        GithubActionsParser = require( 'github-actions-parser' );
-        value = GithubActionsParser.evaluateExpression( value, { get : contextGet } );
+        let value = defaultValue;
+        if( _.str.is( value ) )
+        if( value.startsWith( '${{' ) && value.endsWith( '}}' ) )
+        {
+          if( GithubActionsParser === null )
+          GithubActionsParser = require( 'github-actions-parser' );
+          value = GithubActionsParser.evaluateExpression( value, { get : contextGet } );
+        }
+        result[ `INPUT_${key.replace(/ /g, '_').toUpperCase()}` ] = value;
       }
-      options[ key ] = value;
-      result[ `INPUT_${ key.replace( / /g, '_' ).toUpperCase() }` ] = value;
     }
   }
 
@@ -175,6 +291,7 @@ function envOptionsSetup( options )
 
 const Self =
 {
+  commandsForm,
   remotePathFromActionName,
   actionClone,
   actionConfigRead,

@@ -48,7 +48,7 @@ jobs :
     - name : Save npm version
       id : getnpmver
       run : |
-        echo "::set-output name=npmver::$(npm -v)"
+        echo "npmver=$(npm -v)" >> $GITHUB_OUTPUT
     - name : Update npm if current version is 6
       if : "startsWith( steps.getnpmver.outputs.npmver, '6.' )"
       run : npm install -g npm@latest-6

@@ -15,11 +15,9 @@ function retry( scriptType )
 
     if( !actionName )
     {
-      if( !command.length )
-      throw _.error.brief( 'Please, specify Github action name or shell command.' );
+      const commands = common.commandsForm( command );
 
       let currentPath = core.getInput( 'current_path' ) || _.path.current();
-
       if( !_.path.isAbsolute( currentPath ) )
       currentPath = _.path.join( _.path.current(), currentPath );
 
@@ -28,7 +26,7 @@ function retry( scriptType )
         const o =
         {
           currentPath,
-          execPath : command,
+          execPath : commands,
           inputMirroring : 0,
           stdio : 'inherit',
           mode : 'shell',
@@ -46,34 +44,36 @@ function retry( scriptType )
 
       process.env.RETRY_ACTION = actionName;
       const remoteActionPath = common.remotePathFromActionName( actionName );
-      const localActionPath = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
+      const localActionDir = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
 
-      con.then( () => common.actionClone( localActionPath, remoteActionPath ) );
+      con.then( () => common.actionClone( localActionDir, remoteActionPath ) );
       con.then( () =>
       {
-        const config = common.actionConfigRead( localActionPath );
+        const actionFileDir = _.path.nativize( _.path.join( localActionDir, remoteActionPath.localVcsPath ) );
+        const config = common.actionConfigRead( actionFileDir );
         if( shouldExit( config, scriptType ) )
         return null;
 
         const currentPath = process.env.GITHUB_WORKSPACE || _.path.current();
 
-        const optionsStrings = core.getMultilineInput( 'with' );
+        const optionsStrings = core.getInput( 'with' );
         const options = common.actionOptionsParse( optionsStrings );
         _.map.sureHasOnly( options, config.inputs );
 
-        const inputEnvOptions = common.envOptionsFrom( options, config.inputs );
-        common.envOptionsSetup( inputEnvOptions );
+        const envOptions = common.envOptionsFrom( options, config.inputs );
+        common.envOptionsSetup( envOptions );
 
         if( _.str.begins( config.runs.using, 'node' ) )
         {
+          const node = process.argv[ 0 ];
           const runnerPath = _.path.nativize( _.path.join( __dirname, 'Runner.js' ) );
-          const scriptPath = _.path.nativize( _.path.join( localActionPath, config.runs[ scriptType ] ) );
+          const scriptPath = _.path.nativize( _.path.join( actionFileDir, config.runs[ scriptType ] ) );
           routine = () =>
           {
             const o =
             {
               currentPath,
-              execPath : `node ${ runnerPath } ${ scriptPath }`,
+              execPath : `${ node } ${ runnerPath } ${ scriptPath }`,
               inputMirroring : 0,
               stdio : 'inherit',
               mode : 'spawn',
@@ -94,7 +94,7 @@ function retry( scriptType )
           );
           const docker = require( './Docker.js' );
           const imageName = docker.imageBuild( localActionPath, config.runs.image );
-          const execPath = docker.runCommandForm( imageName, inputEnvOptions );
+          const execPath = docker.runCommandForm( imageName, envOptions );
           const args = docker.commandArgsFrom( config.runs.args, options );
 
           routine = () =>

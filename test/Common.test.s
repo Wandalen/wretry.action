@@ -18,6 +18,57 @@ const common = require( '../src/Common.js' );
 // test
 // --
 
+function commandsForm( test )
+{
+  test.case = 'one line command';
+  var got = common.commandsForm( [ 'echo foo' ] );
+  test.identical( got, [ 'echo foo' ] );
+
+  test.case = 'multiple commands without backslash';
+  var got = common.commandsForm( [ 'echo foo', 'echo bar' ] );
+  test.identical( got, [ 'echo foo', 'echo bar' ] );
+
+  test.case = 'multiline command with bar';
+  var got = common.commandsForm( [ '|', 'echo foo' ] );
+  test.identical( got, [ 'echo foo' ] );
+
+  test.case = 'multiline command with bar, multiple commands without backslash';
+  var got = common.commandsForm( [ '|', 'echo foo', 'echo bar' ] );
+  test.identical( got, [ 'echo foo', 'echo bar' ] );
+
+  test.case = 'multiline command with backslash';
+  var got = common.commandsForm( [ 'echo \\', 'foo' ] );
+  test.identical( got, [ 'echo \\\nfoo' ] );
+
+  test.case = 'multiline command with bar and backslash';
+  var got = common.commandsForm( [ '|', 'echo \\', 'foo' ] );
+  test.identical( got, [ 'echo \\\nfoo' ] );
+
+  test.case = 'multiline command with bar and backslash, several commands';
+  var got = common.commandsForm( [ '|', 'echo \\', 'foo', 'echo bar' ] );
+  test.identical( got, [ 'echo \\\nfoo', 'echo bar' ] );
+
+  test.case = 'multiline commands with bar and backslash, several commands';
+  var got = common.commandsForm( [ '|', 'echo \\', 'foo', 'echo \\', 'bar' ] );
+  test.identical( got, [ 'echo \\\nfoo', 'echo \\\nbar' ] );
+
+  /* - */
+
+  if( !Config.debug )
+  return;
+
+  test.case = 'empty commands';
+  test.shouldThrowErrorSync( () => common.commandsForm( [] ) );
+
+  test.case = 'commands starts with bar but has no command';
+  test.shouldThrowErrorSync( () => common.commandsForm( [ '|' ] ) );
+
+  test.case = 'command ends with continuation';
+  test.shouldThrowErrorSync( () => common.commandsForm( [ 'echo \\' ] ) );
+}
+
+//
+
 function remotePathFromActionName( test )
 {
   test.case = 'without hash or tag';
@@ -76,6 +127,72 @@ function remotePathFromActionName( test )
     longPath : 'github.com/action/name',
     tag : '9b5d00b7245dae0586efca5052f41ae023cb7659',
     localVcsPath : './',
+    protocols : [ 'https' ],
+    isFixated : false,
+    service : 'github.com',
+    user : 'action',
+    repo : 'name'
+  };
+  test.identical( got, exp );
+
+  /* */
+
+  test.case = 'without hash or tag, subdirectory';
+  var got = common.remotePathFromActionName( 'action/name/subdir' );
+  var exp =
+  {
+    protocol : 'https',
+    longPath : 'github.com/action/name.git/',
+    tag : 'master',
+    localVcsPath : 'subdir',
+    protocols : [ 'https' ],
+    isFixated : false,
+    service : 'github.com',
+    user : 'action',
+    repo : 'name'
+  };
+  test.identical( got, exp );
+
+  test.case = 'with tag, subdirectory';
+  var got = common.remotePathFromActionName( 'action/name/subdir@v0.0.0' );
+  var exp =
+  {
+    protocol : 'https',
+    longPath : 'github.com/action/name.git/',
+    tag : 'v0.0.0',
+    localVcsPath : 'subdir',
+    protocols : [ 'https' ],
+    isFixated : false,
+    service : 'github.com',
+    user : 'action',
+    repo : 'name'
+  };
+  test.identical( got, exp );
+
+  test.case = 'with short hash, subdirectory';
+  var got = common.remotePathFromActionName( 'action/name/subdir@9b5d00b' );
+  var exp =
+  {
+    protocol : 'https',
+    longPath : 'github.com/action/name.git/',
+    tag : '9b5d00b',
+    localVcsPath : 'subdir',
+    protocols : [ 'https' ],
+    isFixated : false,
+    service : 'github.com',
+    user : 'action',
+    repo : 'name'
+  };
+  test.identical( got, exp );
+
+  test.case = 'with long hash';
+  var got = common.remotePathFromActionName( 'action/name/subdir@9b5d00b7245dae0586efca5052f41ae023cb7659' );
+  var exp =
+  {
+    protocol : 'https',
+    longPath : 'github.com/action/name.git/',
+    tag : '9b5d00b7245dae0586efca5052f41ae023cb7659',
+    localVcsPath : 'subdir',
     protocols : [ 'https' ],
     isFixated : false,
     service : 'github.com',
@@ -166,6 +283,38 @@ function actionClone( test )
   {
     test.identical( op, true );
     test.identical( __.git.tagLocalRetrive({ localPath }), 'v0.0.1' );
+    a.fileProvider.filesDelete( localPath );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'action with subdirectory';
+    var remotePath = common.remotePathFromActionName( 'dmvict/test.action/subaction' );
+    return common.actionClone( localPath, remotePath );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    test.identical( __.git.tagLocalRetrive({ localPath }), 'master' );
+    a.fileProvider.filesDelete( localPath );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'action with subdirectory and tag';
+    var remotePath = common.remotePathFromActionName( 'dmvict/test.action/subaction@v0.0.11' );
+    return common.actionClone( localPath, remotePath );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    test.identical( __.git.tagLocalRetrive({ localPath }), 'action_from_subdirectory' );
     a.fileProvider.filesDelete( localPath );
     return null;
   });
@@ -278,7 +427,7 @@ actionConfigRead.timeOut = 20000;
 function actionOptionsParse( test )
 {
   test.case = 'empty array';
-  var src = [];
+  var src = '';
   var got = common.actionOptionsParse( src );
   test.identical( got, {} );
 
@@ -287,32 +436,32 @@ function actionOptionsParse( test )
   test.open( 'without spaces' );
 
   test.case = 'string with delimeter, no value';
-  var src = [ 'str:' ];
+  var src = 'str:';
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : '' } );
 
   test.case = 'string with delimeter, no key';
-  var src = [ ':str' ];
+  var src = ':str';
   var got = common.actionOptionsParse( src );
   test.identical( got, { '' : 'str' } );
 
   test.case = 'string with delimeter, key-value';
-  var src = [ 'str:value' ];
+  var src = 'str:value';
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : 'value' } );
 
   test.case = 'string with delimeter, key-value, value is number';
-  var src = [ 'str:3' ];
+  var src = 'str:3';
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : '3' } );
 
   test.case = 'several strings';
-  var src = [ 'str:value', 'number:2' ];
+  var src = 'str:value\nnumber:2';
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : 'value', number : '2' } );
 
   test.case = 'string with uri';
-  var src = [ 'url:https://google.com' ];
+  var src = 'url:https://google.com';
   var got = common.actionOptionsParse( src );
   test.identical( got, { url : 'https://google.com' } );
 
@@ -323,32 +472,32 @@ function actionOptionsParse( test )
   test.open( 'with spaces' );
 
   test.case = 'string with delimeter, no value';
-  var src = [ ' str : ' ];
+  var src = ' str : ';
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : '' } );
 
   test.case = 'string with delimeter, no key';
-  var src = [ ' :  str  ' ];
+  var src = ' :  str  ';
   var got = common.actionOptionsParse( src );
   test.identical( got, { '' : 'str' } );
 
   test.case = 'string with delimeter, key-value';
-  var src = [ '  str    : value   ' ];
+  var src = '  str    : value   ';
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : 'value' } );
 
   test.case = 'string with delimeter, key-value, value is number';
-  var src = [ '  str : 3' ];
+  var src = '  str : 3';
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : '3' } );
 
   test.case = 'several strings';
-  var src = [ ' str  : value', 'number : 2   ' ];
+  var src = ' str  : value \nnumber : 2   ';
   var got = common.actionOptionsParse( src );
   test.identical( got, { str : 'value', number : '2' } );
 
   test.case = 'string with uri';
-  var src = [ ' url  : https://google.com    ' ];
+  var src = ' url  : https://google.com    ';
   var got = common.actionOptionsParse( src );
   test.identical( got, { url : 'https://google.com' } );
 
@@ -356,11 +505,47 @@ function actionOptionsParse( test )
 
   /* - */
 
+  test.open( 'multiline' );
+
+  test.case = 'value is multiline string';
+  var src = 'str: |\n  abc\n  def';
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { str : 'abc\ndef' } );
+
+  test.case = 'several pairs, one pair has value with multiline string';
+  var src = 'str: |\n  abc\n  def\nnum: 2';
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { str : 'abc\ndef', num : '2' } );
+
+  test.case = 'the last key with bare';
+  var src = 'str: |';
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { str : '|' } );
+
+  test.case = 'not last key with bare';
+  var src = 'str: |\nnum : 2';
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { str : '|', num : '2' } );
+
+  test.case = 'value is multiline string with different levels';
+  var src = 'str: |\n  abc\n    def\n      gih';
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { str : 'abc\n  def\n    gih' } );
+
+  test.case = 'value is multiline string with different levels and empty lines';
+  var src = '  str: |\n\n    abc\n      def\n\n        gih\n ';
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { str : '\nabc\n  def\n\n    gih\n ' } );
+
+  test.close( 'multiline' );
+
+  /* - */
+
   if( !Config.debug )
   return;
 
   test.case = 'without delimeter';
-  var src = [ 'str' ];
+  var src = 'str';
   test.shouldThrowErrorSync( () => common.actionOptionsParse( src ) );
 }
 
@@ -416,47 +601,49 @@ function envOptionsFrom( test )
 
   var inputs =
   {
-    'empty' : { description : 'string', default : '' },
     'str' : { description : 'string', default : 'str' },
     'number' : { description : 'number', default : 1 },
+    'empty' : { description : 'string', default : '' },
+    'null' : { description : 'undefined', default : null },
     'not-defined' : { description : 'undefined', default : undefined },
     'no-default' : { description : 'undefined' },
+    'false' : { description : 'undefined', default : false },
   };
 
   test.case = 'no options';
   var src = {};
   var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1 } );
+  test.identical( got, { INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1, INPUT_FALSE : false } );
   test.true( got !== src );
 
   test.case = 'simple option, lower case';
   var src = { 'a' : '1' };
   var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_A : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1 } );
+  test.identical( got, { INPUT_A : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1, INPUT_FALSE : false } );
   test.true( got !== src );
 
   test.case = 'option with spaces, lower case';
   var src = { 'a b c' : '1' };
   var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_A_B_C : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1 } );
+  test.identical( got, { INPUT_A_B_C : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1, INPUT_FALSE : false } );
   test.true( got !== src );
 
   test.case = 'simple option, upper case';
   var src = { 'A' : '1' };
   var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_A : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1 } );
+  test.identical( got, { INPUT_A : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1, INPUT_FALSE : false } );
   test.true( got !== src );
 
   test.case = 'option with spaces, upper case';
   var src = { 'A B C' : '1' };
   var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_A_B_C : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1 } );
+  test.identical( got, { INPUT_A_B_C : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1, INPUT_FALSE : false } );
   test.true( got !== src );
 
   test.case = 'option with spaces, mixed case';
   var src = { 'A b c' : '1' };
   var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_A_B_C : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1 } );
+  test.identical( got, { INPUT_A_B_C : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1, INPUT_FALSE : false } );
   test.true( got !== src );
 
   test.close( 'non empty inputs' );
@@ -909,6 +1096,15 @@ function envOptionsSetup( test )
   var src = { 'option1' : 'a', 'INPUT_V' : 'input' };
   common.envOptionsSetup( src );
   test.identical( _.mapBut_( null, process.env, beginEnvs ), { 'option1' : 'a', 'INPUT_V' : 'input' } );
+  delete process.env.option1;
+  delete process.env.INPUT_V;
+
+  test.case = 'option with multiline value';
+  var src = { 'INPUT_V' : 'abc\ndef' };
+  common.envOptionsSetup( src );
+  test.identical( _.mapBut_( null, process.env, beginEnvs ), { 'INPUT_V' : 'abc\ndef' } );
+  delete process.env.option1;
+  delete process.env.INPUT_V;
 }
 
 // --
@@ -922,6 +1118,7 @@ const Proto =
 
   tests :
   {
+    commandsForm,
     remotePathFromActionName,
     actionClone,
     actionConfigRead,
