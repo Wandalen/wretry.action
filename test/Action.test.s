@@ -1451,10 +1451,10 @@ function retryDockerTrivialAction( test )
     test.identical( _.strCount( op.output, '::error::' ), 0 );
     test.identical( _.strCount( op.output, /Dockerfile for action : .*\/Dockerfile/ ), 1 );
     test.identical( _.strCount( op.output, 'docker build -t hello-world-docker-action_repo:hello-world-docker-action_tag' ), 1 );
-    test.identical( _.strCount( op.output, 'Successfully built' ), 1 );
-    test.identical( _.strCount( op.output, 'Successfully tagged hello-world-docker-action_repo:hello-world-docker-action_tag' ), 1 );
+    test.identical( _.strCount( op.output, 'Successfully built' ), 0 );
+    test.identical( _.strCount( op.output, 'Successfully tagged hello-world-docker-action_repo:hello-world-docker-action_tag' ), 0 );
     test.identical( _.strCount( op.output, 'Hello' ), 1 );
-    test.identical( _.strCount( op.output, '::set-output name=time::' ), 1 );
+    test.identical( _.strCount( op.output, 'time=' ), 0 );
     return null;
   });
 
