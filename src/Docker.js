@@ -147,7 +147,8 @@ function runCommandForm( imageName, inputs )
     '"/home/runner/work/_temp/_github_home":"/github/home"',
     '"/home/runner/work/_temp/_github_workflow":"/github/workflow"',
     '"/home/runner/work/_temp/_runner_file_commands":"/github/file_commands"',
-    `"${ process.env.GITHUB_WORKSPACE }":"/github/workspace"`
+    `"${ process.env.GITHUB_WORKSPACE }":"/github/workspace"`,
+    `"${ process.env.GITHUB_OUTPUT }":"${ process.env.GITHUB_OUTPUT }"`,
   ];
 
   /* */
