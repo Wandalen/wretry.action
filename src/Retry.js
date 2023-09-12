@@ -1,4 +1,5 @@
 const core = require( '@actions/core' );
+const common = require( './Common.js' );
 require( '../node_modules/Joined.s' );
 const _ = wTools;
 
@@ -37,8 +38,6 @@ function retry( scriptType )
     }
     else
     {
-      const common = require( './Common.js' );
-
       if( command.length )
       throw _.error.brief( 'Expects Github action name or command, but not both.' );
 
