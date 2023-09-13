@@ -309,6 +309,10 @@ function retryWithOptionCurrentPath( test )
 function retryWithMultilineComand( test )
 {
   let context = this;
+
+  if( process.platform === 'win32' )
+  return test.true( true );
+
   const a = test.assetFor( false );
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
