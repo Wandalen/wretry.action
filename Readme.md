@@ -2,7 +2,7 @@
 
 # action::retry [![status](https://github.com/Wandalen/wretry.action/actions/workflows/JsActionPublish.yml/badge.svg)](https://github.com/Wandalen/wretry.action/actions/workflows/JsActionPublish.yml) [![stable](https://img.shields.io/badge/stability-stable-brightgreen.svg)](https://github.com/emersion/stability-badges#stable)
 
-Retries an Github Action step or command on failure.
+Retries an Github Action step or a command on failure.
 
 Works with either shell commands or other actions to retry.
 
@@ -24,6 +24,7 @@ It is a cause of failed jobs. For this case, the action `wretry.action` can retr
 ## Features
 
 - Retries Github `JavaScript` actions. The action can be an action repository that is not published on `Marketplace`.
+- Retries Github `Docker` actions which use `Dockerfile` as image.
 - Retries shell commands.
 - Can retry single action or single command ( multiline command ), but not both simultaneously.
 - Retries `main`, `pre` and `post` stages of external actions.
@@ -112,7 +113,7 @@ Depends on output of given Github action.
 ```yaml
 - uses: Wandalen/wretry.action@master
   with:
-    action: action/node-setup@2.3.0
+    action: action/setup-node@2.3.0
     with: |
       node-version: 14.x
       architecture: x64
