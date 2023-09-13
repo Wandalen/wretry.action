@@ -55,6 +55,7 @@ function exists( test )
   else
   test.identical( got, false );
 }
+exists.timeOut = 15000;
 
 //
 
