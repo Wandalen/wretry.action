@@ -200,6 +200,22 @@ function remotePathFromActionName( test )
     repo : 'name'
   };
   test.identical( got, exp );
+
+  test.case = 'with org/.github repo under subdirectory path';
+  var got = common.remotePathFromActionName( 'org/.github/actions/foo/bar/action@v1.2.3' );
+  var exp =
+  {
+    protocol : 'https',
+    longPath : 'github.com/org/.github.git/',
+    tag : 'v1.2.3',
+    localVcsPath : 'actions/foo/bar/action',
+    protocols : [ 'https' ],
+    isFixated : false,
+    service : 'github.com',
+    user : 'org',
+    repo : '.github'
+  };
+  test.identical( got, exp );
 }
 
 //
