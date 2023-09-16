@@ -43,17 +43,8 @@ function remotePathFromActionName( name )
   }
   else
   {
-    const regex = /^([^\/]+\/[^\/]+)\/?(\S*)(@\S*)/;
-    const actionRepo = name.replace( regex, '$1.git/$3' );
-    const actionDir = name.replace( regex, '$2' );
-    const parseResult = _.git.path.parse( `https://github.com/${_.str.replace( actionRepo, '@', '!' ) }` );
-
-    const remotePath = Object.assign(parseResult, {localVcsPath: parseResult.localVcsPath + actionDir});
-
-    console.log('remotePath: ', remotePath, 'from Action name:', name );
-
-    return remotePath;
-
+    name = name.replace( /^([^\/]+\/[^\/]+)\//, '$1.git/' );
+    return _.git.path.parse( `https://github.com/${ _.str.replace( name, '@', '!' ) }` );
   }
 }
 
