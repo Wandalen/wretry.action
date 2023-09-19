@@ -50,18 +50,20 @@ function retry( scriptType )
       {
         const actionFileDir = _.path.nativize( _.path.join( localActionDir, remoteActionPath.localVcsPath ) );
         const config = common.actionConfigRead( actionFileDir );
-        if( !config.runs[ scriptType ] )
+        if( shouldExit( config, scriptType ) )
         return null;
+
+        const currentPath = process.env.GITHUB_WORKSPACE || _.path.current();
 
         const optionsStrings = core.getInput( 'with' );
         const options = common.actionOptionsParse( optionsStrings );
         _.map.sureHasOnly( options, config.inputs );
 
-        if( _.strBegins( config.runs.using, 'node' ) )
-        {
-          const envOptions = common.envOptionsFrom( options, config.inputs );
-          common.envOptionsSetup( envOptions );
+        const envOptions = common.envOptionsFrom( options, config.inputs );
+        common.envOptionsSetup( envOptions );
 
+        if( _.str.begins( config.runs.using, 'node' ) )
+        {
           const node = process.argv[ 0 ];
           const runnerPath = _.path.nativize( _.path.join( __dirname, 'Runner.js' ) );
           const scriptPath = _.path.nativize( _.path.join( actionFileDir, config.runs[ scriptType ] ) );
@@ -69,7 +71,7 @@ function retry( scriptType )
           {
             const o =
             {
-              currentPath : _.path.current(),
+              currentPath,
               execPath : `${ node } ${ runnerPath } ${ scriptPath }`,
               inputMirroring : 0,
               stdio : 'inherit',
@@ -81,9 +83,40 @@ function retry( scriptType )
             return o.ready;
           };
         }
+        else if( config.runs.using === 'docker' )
+        {
+          if( scriptType === 'pre' || scriptType === 'post' )
+          throw _.error.brief
+          (
+            `The required feature "${ scriptType }-entrypoint" does not implemented.`
+            + '\nPlease, open an issue with the request for the feature.'
+          );
+          const docker = require( './Docker.js' );
+          const imageName = docker.imageBuild( localActionDir, config.runs.image );
+          const execPath = docker.runCommandForm( imageName, envOptions );
+          const args = docker.commandArgsFrom( config.runs.args, options );
+
+          routine = () =>
+          {
+            const o =
+            {
+              currentPath,
+              execPath,
+              args,
+              inputMirroring : 0,
+              stdio : 'inherit',
+              mode : 'shell',
+            };
+            _.process.start( o );
+            return o.ready;
+          };
+        }
         else
         {
-          throw _.error.brief( 'implemented only for NodeJS interpreter' );
+          throw _.error.brief
+          (
+            `Runner "${ config.runs.using }" does not implemented yet.\nPlease, open an issue with the request for the feature.`
+          );
         }
         return null;
       });
@@ -122,6 +155,19 @@ function retry( scriptType )
     return false;
     return true
   };
+}
+
+//
+
+function shouldExit( config, scriptType )
+{
+  if( _.strBegins( config.runs.using, 'node' ) && !config.runs[ scriptType ] )
+  return true;
+
+  if( config.runs.using === 'docker' && !scriptType === 'main' && !config.runs[ `${ scriptType }-entrypoint` ] )
+  return true;
+
+  return false;
 }
 
 module.exports = { retry };
