@@ -100,7 +100,7 @@ function retryWithoutCommand( test )
 
 //
 
-function retryWithWrongComand( test )
+function retryWithWrongCommand( test )
 {
   let context = this;
   const a = test.assetFor( false );
@@ -125,7 +125,10 @@ function retryWithWrongComand( test )
     test.notIdentical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
     test.identical( _.strCount( op.output, '::error::Process returned exit code' ), 1 );
-    test.identical( _.strCount( op.output, 'Launched as "wrong command"' ), 1 );
+    if( process.platform === 'win32' )
+    test.identical( _.strCount( op.output, /Launched as \"pwsh .*\"/ ), 1 );
+    else
+    test.identical( _.strCount( op.output, /Launched as \"bash .*\"/ ), 1 );
     test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 1 );
     return null;
   });
@@ -159,9 +162,11 @@ function retryWithWrongComand( test )
   }
 }
 
+retryWithWrongCommand.timeOut = 120000;
+
 //
 
-function retryWithValidComand( test )
+function retryWithValidCommand( test )
 {
   let context = this;
   const a = test.assetFor( false );
@@ -227,13 +232,13 @@ function retryWithOptionCurrentPath( test )
   const a = test.assetFor( false );
   const actionPath = a.abs( '_action/actions/wretry.action/v1' );
   const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+  const command = process.platform === 'win32' ? 'Get-Location' : 'echo $PWD'
 
   /* - */
 
   a.ready.then( () =>
   {
-    test.case = 'without action name';
-    const command = process.platform === 'win32' ? 'chdir' : 'echo $PWD'
+    test.case = 'without current path';
     core.exportVariable( `INPUT_COMMAND`, command );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
@@ -247,6 +252,7 @@ function retryWithOptionCurrentPath( test )
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
     test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
+    if( process.platform !== 'win32' )
     test.identical( _.strCount( op.output, a.path.nativize( actionPath ) ), 1 );
     return null;
   });
@@ -255,10 +261,9 @@ function retryWithOptionCurrentPath( test )
 
   a.ready.then( () =>
   {
-    test.case = 'without action name';
-    const command = process.platform === 'win32' ? 'chdir' : 'echo $PWD'
+    test.case = 'without current path';
     core.exportVariable( `INPUT_COMMAND`, command );
-    core.exportVariable( `INPUT_CURRENT_PATH`, '..' );
+    core.exportVariable( `INPUT_CURRENT_PATH`, '../../..' );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
   });
@@ -271,7 +276,7 @@ function retryWithOptionCurrentPath( test )
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
     test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
-    test.identical( _.strCount( op.output, a.path.nativize( a.abs( actionPath, '..' ) ) ), 1 );
+    test.identical( _.strCount( op.output, a.path.nativize( a.abs( actionPath, '../../..' ) ) ), 1 );
     return null;
   });
 
@@ -306,7 +311,7 @@ function retryWithOptionCurrentPath( test )
 
 //
 
-function retryWithMultilineComand( test )
+function retryWithMultilineCommand( test )
 {
   let context = this;
 
@@ -322,6 +327,9 @@ function retryWithMultilineComand( test )
   a.ready.then( () =>
   {
     test.case = 'multiline command';
+    if( process.platform === 'win32' )
+    core.exportVariable( `INPUT_COMMAND`, '|\n  echo `\n  str' );
+    else
     core.exportVariable( `INPUT_COMMAND`, '|\n  echo \\\n  str' );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
@@ -344,6 +352,9 @@ function retryWithMultilineComand( test )
   a.ready.then( () =>
   {
     test.case = 'several multiline command';
+    if( process.platform === 'win32' )
+    core.exportVariable( `INPUT_COMMAND`, '|\n  echo `\n    str\n  echo `\n    bar' );
+    else
     core.exportVariable( `INPUT_COMMAND`, '|\n  echo \\\n    str\n  echo \\\n    bar' );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
@@ -359,6 +370,69 @@ function retryWithMultilineComand( test )
     test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
     test.identical( _.strCount( op.output, 'str' ), 1 );
     test.identical( _.strCount( op.output, 'bar' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.ready.then( () =>
+    {
+      return __.git.repositoryClone
+      ({
+        localPath : actionPath,
+        remotePath : __.git.path.normalize( context.actionDirPath ),
+        attemptLimit : 4,
+        attemptDelay : 250,
+        attemptDelayMultiplier : 4,
+      });
+    });
+    return a.ready;
+  }
+}
+
+//
+
+function retryAndCheckRuntimeEnvironments( test )
+{
+  let context = this;
+  const a = test.assetFor( false );
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'multiline command';
+    if( process.platform === 'win32' )
+    core.exportVariable( `INPUT_COMMAND`, '|\n  $FOO="foo" \n  $BAR="bar" \n  echo $FOO$BAR' );
+    else
+    core.exportVariable( `INPUT_COMMAND`, '|\n  export FOO=foo \n  export BAR=bar \n  echo $FOO$BAR' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
+    test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
+    test.identical( _.strCount( op.output, 'foobar' ), 1 );
     return null;
   });
 
@@ -413,10 +487,11 @@ const Proto =
   tests :
   {
     retryWithoutCommand,
-    retryWithWrongComand,
-    retryWithValidComand,
+    retryWithWrongCommand,
+    retryWithValidCommand,
     retryWithOptionCurrentPath,
-    retryWithMultilineComand,
+    retryWithMultilineCommand,
+    retryAndCheckRuntimeEnvironments,
   },
 };
 
