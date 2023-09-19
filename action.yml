@@ -35,6 +35,10 @@ inputs:
     description: 'Pass context `matrix` into an external action. Default is context `matrix` of a job.'
     required: false
     default: ${{ toJSON( matrix ) }}
+  inputs_context:
+    description: 'Pass context `inputs` into an external action. The action cannot resolve context `inputs` and resolve all inputs. If you need valid context `inputs`, then add option `inputs_context : ${{ toJSON( inputs ) }}`.'
+    required: false
+    default: '{}'
   attempt_limit:
     description: 'Number of attempts'
     required: false
