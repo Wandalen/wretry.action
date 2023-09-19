@@ -47,6 +47,10 @@ inputs:
     description: 'A delay between attempts in ms'
     required: false
     default: 0
+  time_out:
+    description: 'Set time out in ms for entire step including all retries. By default actions sets no time out.'
+    required: false
+    default: false
 runs:
   using: 'node16'
   pre: 'src/Pre.js'

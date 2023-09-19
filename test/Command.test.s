@@ -465,6 +465,158 @@ function retryAndCheckRuntimeEnvironments( test )
   }
 }
 
+//
+
+function retryCheckRetryTime( test )
+{
+  let context = this;
+  const a = test.assetFor( false );
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const preExecPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }`;
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'command is succeful and does not overflow time limit';
+    core.exportVariable( 'INPUT_COMMAND', '|\n  sleep 1 \n  echo str' );
+    core.exportVariable( 'INPUT_TIME_OUT', '5000' );
+    core.exportVariable( 'INPUT_ATTEMPT_LIMIT', '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath : preExecPath });
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
+    test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
+    test.identical( _.strCount( op.output, 'str' ), 1 );
+    if( process.platform === 'win32' )
+    test.identical( _.strCount( op.output, '::error::Process returned exit code 1' ), 0 );
+    else
+    test.identical( _.strCount( op.output, '::error::Process was killed by exit signal SIGTERM' ), 0 );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'command is succeful and overflows time limit';
+    core.exportVariable( 'INPUT_COMMAND', '|\n  sleep 10 \n  echo str' );
+    core.exportVariable( 'INPUT_TIME_OUT', '5000' );
+    core.exportVariable( 'INPUT_ATTEMPT_LIMIT', '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath : preExecPath });
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 1 );
+    test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
+    test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
+    test.identical( _.strCount( op.output, 'str' ), 0 );
+    if( process.platform === 'win32' )
+    test.identical( _.strCount( op.output, '::error::Process returned exit code 1' ), 1 );
+    else
+    test.identical( _.strCount( op.output, '::error::Process was killed by exit signal SIGTERM' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'command is failed and does not overflow time limit';
+    core.exportVariable( 'INPUT_COMMAND', '|\n  sleep 1 \n  echo str \n  exit 1' );
+    core.exportVariable( 'INPUT_TIME_OUT', '12000' );
+    core.exportVariable( 'INPUT_ATTEMPT_LIMIT', '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath : preExecPath });
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 1 );
+    test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
+    test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 1 );
+    test.identical( _.strCount( op.output, 'str' ), 4 );
+    if( process.platform === 'win32' )
+    test.identical( _.strCount( op.output, '::error::Process returned exit code 1' ), 1 );
+    else
+    test.identical( _.strCount( op.output, '::error::Process was killed by exit signal SIGTERM' ), 0 );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'command is failed and overflows time limit';
+    core.exportVariable( 'INPUT_COMMAND', '|\n  sleep 4 \n  echo str \n  exit 1' );
+    core.exportVariable( 'INPUT_TIME_OUT', '6000' );
+    core.exportVariable( 'INPUT_ATTEMPT_LIMIT', '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath : preExecPath });
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 1 );
+    test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
+    test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
+    test.identical( _.strCount( op.output, 'str' ), 1 );
+    if( process.platform === 'win32' )
+    test.identical( _.strCount( op.output, '::error::Process returned exit code 1' ), 1 );
+    else
+    test.identical( _.strCount( op.output, '::error::Process was killed by exit signal SIGTERM' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.ready.then( () =>
+    {
+      return __.git.repositoryClone
+      ({
+        localPath : actionPath,
+        remotePath : __.git.path.normalize( context.actionDirPath ),
+        attemptLimit : 4,
+        attemptDelay : 250,
+        attemptDelayMultiplier : 4,
+      });
+    });
+    return a.ready;
+  }
+}
+retryCheckRetryTime.timeOut = 240000;
+
 // --
 // declare
 // --
@@ -492,6 +644,7 @@ const Proto =
     retryWithOptionCurrentPath,
     retryWithMultilineCommand,
     retryAndCheckRuntimeEnvironments,
+    retryCheckRetryTime,
   },
 };
 
