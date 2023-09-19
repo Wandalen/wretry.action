@@ -43,7 +43,7 @@ function remotePathFromActionName( name )
   }
   else
   {
-    name = name.replace( /^(\S*\/\S*)\//, '$1.git/' );
+    name = name.replace( /^([^\/]+\/[^\/]+)\//, '$1.git/' );
     return _.git.path.parse( `https://github.com/${ _.str.replace( name, '@', '!' ) }` );
   }
 }
@@ -91,7 +91,7 @@ function actionConfigRead( actionDir )
   if( !_.fileProvider.fileExists( configPath ) )
   configPath = _.path.join( actionDir, 'action.yaml' )
 
-  _.sure( _.fileProvider.fileExists( configPath ), 'Expects action path `action.yml` or `action.yaml`' );
+  _.assert( _.fileProvider.fileExists( configPath ), 'Expects action path `action.yml` or `action.yaml` in the action dir: ' + actionDir );
 
   return _.fileProvider.fileRead
   ({
