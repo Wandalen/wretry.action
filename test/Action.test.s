@@ -1104,7 +1104,6 @@ function retryActionWithPreAndPostScript( test )
 }
 
 retryActionWithPreAndPostScript.timeOut = 120000;
-
 //
 
 function retryActionWithDefaultInputs( test )
@@ -1415,6 +1414,71 @@ function retryActionWithDefaultInputsFromMatrixContext( test )
 
 retryActionWithDefaultInputsFromMatrixContext.timeOut = 120000;
 
+
+//
+
+function retryDockerTrivialAction( test )
+{
+  const ubuntuIs = process.env.ImageOS && _.str.begins( process.env.ImageOS, 'ubuntu' );
+
+  if( !_.process.insideTestContainer() || !ubuntuIs )
+  return test.true( true );
+
+  const context = this;
+  const a = test.assetFor( false );
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+  const testAction = 'actions/hello-world-docker-action@main';
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'run docker action';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_ENV_CONTEXT`, '{}' );
+    core.exportVariable( `INPUT_INPUTS_CONTEXT`, '{}' );
+    core.exportVariable( `GITHUB_WORKSPACE`, actionPath );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::' ), 0 );
+    test.identical( _.strCount( op.output, /Dockerfile for action : .*\/Dockerfile/ ), 1 );
+    test.identical( _.strCount( op.output, 'docker build -t hello-world-docker-action_repo:hello-world-docker-action_tag' ), 1 );
+    test.identical( _.strCount( op.output, 'Successfully built' ), 0 );
+    test.identical( _.strCount( op.output, 'Successfully tagged hello-world-docker-action_repo:hello-world-docker-action_tag' ), 0 );
+    test.identical( _.strCount( op.output, 'Hello' ), 1 );
+    test.identical( _.strCount( op.output, 'time=' ), 0 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    return a.ready;
+  }
+}
+
+retryDockerTrivialAction.timeOut = 120000;
+
 // --
 // declare
 // --
@@ -1462,6 +1526,7 @@ const Proto =
     retryActionWithDefaultInputsAsExpressions,
     retryActionWithDefaultInputsFromJobContext,
     retryActionWithDefaultInputsFromMatrixContext,
+    retryDockerTrivialAction,
   },
 };
 

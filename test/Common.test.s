@@ -200,6 +200,22 @@ function remotePathFromActionName( test )
     repo : 'name'
   };
   test.identical( got, exp );
+
+  test.case = 'with org/.github repo under subdirectory path';
+  var got = common.remotePathFromActionName( 'org/.github/actions/foo/bar/action@v1.2.3' );
+  var exp =
+  {
+    protocol : 'https',
+    longPath : 'github.com/org/.github.git/',
+    tag : 'v1.2.3',
+    localVcsPath : 'actions/foo/bar/action',
+    protocols : [ 'https' ],
+    isFixated : false,
+    service : 'github.com',
+    user : 'org',
+    repo : '.github'
+  };
+  test.identical( got, exp );
 }
 
 //
@@ -965,7 +981,7 @@ function envOptionsFromMatrixContextExpressionInputs( test )
 {
   process.env.INPUT_MATRIX_CONTEXT =
 `{
-  "os": "ubunty-latest",
+  "os": "ubuntu-latest",
   "version" : 16
 }`;
 
@@ -982,7 +998,7 @@ function envOptionsFromMatrixContextExpressionInputs( test )
   };
   var src = {};
   var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_MATRIX : '{"os":"ubunty-latest","version":16}' } );
+  test.identical( got, { INPUT_MATRIX : '{"os":"ubuntu-latest","version":16}' } );
   test.true( got !== src );
 
   test.case = 'resolve field';
@@ -996,8 +1012,87 @@ function envOptionsFromMatrixContextExpressionInputs( test )
   };
   var src = {};
   var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_MATRIX : 'ubunty-latest' } );
+  test.identical( got, { INPUT_MATRIX : 'ubuntu-latest' } );
   test.true( got !== src );
+}
+
+//
+
+function contextGet( test )
+{
+  const a = test.assetFor( false );
+
+  process.env.INPUT_ENV_CONTEXT = '{}';
+  process.env.INPUT_GITHUB_CONTEXT = '{}';;
+  process.env.INPUT_JOB_CONTEXT = '{}';;
+  process.env.INPUT_MATRIX_CONTEXT = '{}';;
+  process.env.RETRY_ACTION = 'user/action-repo@master';
+
+  /* - */
+
+  test.case = 'env context';
+  process.env.INPUT_ENV_CONTEXT = `{\n  "OS": "ubuntu-latest"\n}`;
+  var got = common.contextGet( 'env' );
+  test.identical( got, { OS : 'ubuntu-latest' } );
+  var got = common.contextGet( 'github' );
+  test.identical( got, { action_path : a.path.nativize( a.abs( __dirname, '../../../action-repo' ) ), action_ref : 'master' } );
+  var got = common.contextGet( 'job' );
+  test.identical( got, {} );
+  var got = common.contextGet( 'matrix' );
+  test.identical( got, {} );
+  process.env.INPUT_ENV_CONTEXT = '{\n  "default": "default"\n}';
+
+  test.case = 'github context';
+  process.env.INPUT_GITHUB_CONTEXT = `{\n  "repository": "user/repo"\n}`;
+  var got = common.contextGet( 'env' );
+  test.identical( got, { default : 'default' } );
+  var got = common.contextGet( 'github' );
+  test.identical( got, { repository : 'user/repo', action_path : a.path.nativize( a.abs( __dirname, '../../../action-repo' ) ), action_ref : 'master' } );
+  var got = common.contextGet( 'job' );
+  test.identical( got, {} );
+  var got = common.contextGet( 'matrix' );
+  test.identical( got, {} );
+  process.env.INPUT_GITHUB_CONTEXT = '{}';
+
+  test.case = 'job context';
+  process.env.INPUT_JOB_CONTEXT = `{\n  "status": "success"\n}`;
+  var got = common.contextGet( 'env' );
+  test.identical( got, { default : 'default' } );
+  var got = common.contextGet( 'github' );
+  test.identical( got, { action_path : a.path.nativize( a.abs( __dirname, '../../../action-repo' ) ), action_ref : 'master' } );
+  var got = common.contextGet( 'job' );
+  test.identical( got, { status : 'success' } );
+  var got = common.contextGet( 'matrix' );
+  test.identical( got, {} );
+  process.env.INPUT_JOB_CONTEXT = '{}';
+
+  test.case = 'matrix context';
+  process.env.INPUT_MATRIX_CONTEXT = `{\n  "version": "10"\n}`;
+  var got = common.contextGet( 'env' );
+  test.identical( got, { default : 'default' } );
+  var got = common.contextGet( 'github' );
+  test.identical( got, { action_path : a.path.nativize( a.abs( __dirname, '../../../action-repo' ) ), action_ref : 'master' } );
+  var got = common.contextGet( 'job' );
+  test.identical( got, {} );
+  var got = common.contextGet( 'matrix' );
+  test.identical( got, { version : '10' } );
+  process.env.INPUT_MATRIX_CONTEXT = '{}';
+
+  delete process.env.RETRY_ACTION;
+
+  /* - */
+
+  if( !Config.debug )
+  return;
+
+  test.case = 'pass no context name';
+  test.shouldThrowErrorSync( () => common.contextGet() );
+
+  test.case = 'get unknown context';
+  test.shouldThrowErrorSync( () => common.contextGet( 'unknown' ) );
+
+  test.case = 'invalid context name value';
+  test.shouldThrowErrorSync( () => common.contextGet( null ) );
 }
 
 //
@@ -1048,6 +1143,7 @@ const Proto =
     envOptionsFromEnvAndGithubContextExpressionInputs,
     envOptionsFromJobContextExpressionInputs,
     envOptionsFromMatrixContextExpressionInputs,
+    contextGet,
     envOptionsSetup,
   },
 };

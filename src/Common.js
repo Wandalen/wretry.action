@@ -43,7 +43,7 @@ function remotePathFromActionName( name )
   }
   else
   {
-    name = name.replace( /^(\S*\/\S*)\//, '$1.git/' );
+    name = name.replace( /^([^\/]+\/[^\/]+)\//, '$1.git/' );
     return _.git.path.parse( `https://github.com/${ _.str.replace( name, '@', '!' ) }` );
   }
 }
@@ -91,7 +91,7 @@ function actionConfigRead( actionDir )
   if( !_.fileProvider.fileExists( configPath ) )
   configPath = _.path.join( actionDir, 'action.yaml' )
 
-  _.assert( _.fileProvider.fileExists( configPath ), 'Expects action path `action.yml` or `action.yaml`' );
+  _.assert( _.fileProvider.fileExists( configPath ), 'Expects action path `action.yml` or `action.yaml` in the action dir: ' + actionDir );
 
   return _.fileProvider.fileRead
   ({
@@ -199,7 +199,7 @@ function envOptionsFrom( options, inputs )
   const result = Object.create( null );
 
   for( let key in options )
-  result[ `INPUT_${key.replace(/ /g, '_').toUpperCase()}` ] = options[ key ];
+  result[ `INPUT_${ key.replace( / /g, '_' ).toUpperCase() }` ] = options[ key ];
 
   if( inputs )
   {
@@ -214,7 +214,7 @@ function envOptionsFrom( options, inputs )
         {
           if( GithubActionsParser === null )
           GithubActionsParser = require( 'github-actions-parser' );
-          value = GithubActionsParser.evaluateExpression( value, { get : getContext } );
+          value = GithubActionsParser.evaluateExpression( value, { get : contextGet } );
         }
         result[ `INPUT_${key.replace(/ /g, '_').toUpperCase()}` ] = value;
       }
@@ -222,42 +222,53 @@ function envOptionsFrom( options, inputs )
   }
 
   return result;
+}
 
-  /* */
+//
 
-  function getContext( contextName )
+function contextGet( contextName )
+{
+  if( contextName === 'env' )
   {
-    if( contextName === 'env' )
-    {
-      let envContext = JSON.parse( core.getInput( 'env_context' ) );
-      if( _.map.keys( envContext ).length === 0 )
-      return process.env;
-      return envContext;
-    }
-    else if( contextName === 'github' )
-    {
-      let githubContext = JSON.parse( core.getInput( 'github_context' ) );
-      githubContext = githubContextUpdate( githubContext );
-      return githubContext;
-    }
-    else if( contextName === 'job' )
-    {
-      const jobContext = JSON.parse( core.getInput( 'job_context' ) );
-      return jobContext;
-    }
-    else if( contextName === 'matrix' )
-    {
-      const matrixContext = JSON.parse( core.getInput( 'matrix_context' ) );
-      return matrixContext;
-    }
-
-    _.assert( false, `The requested context "${ contextName }" does not supported by action. Please, open an issue with the request for the feature.` );
+    let envContext = JSON.parse( core.getInput( 'env_context' ) );
+    if( _.map.keys( envContext ).length === 0 )
+    return process.env;
+    return envContext;
   }
+  else if( contextName === 'github' )
+  {
+    let githubContext = JSON.parse( core.getInput( 'github_context' ) );
+    githubContext = githubContextUpdate( githubContext );
+    return githubContext;
+  }
+  else if( contextName === 'job' )
+  {
+    const jobContext = JSON.parse( core.getInput( 'job_context' ) );
+    return jobContext;
+  }
+  else if( contextName === 'matrix' )
+  {
+    const matrixContext = JSON.parse( core.getInput( 'matrix_context' ) );
+    return matrixContext;
+  }
+  else if( contextName === 'inputs' )
+  {
+    const inputsContext = JSON.parse( core.getInput( 'inputs_context' ) );
+    return inputsContext;
+  }
+
+  _.sure
+  (
+    false,
+    `The requested context "${ contextName }" does not supported by action.`
+    + '\nPlease, open an issue with the request for the feature.'
+  );
 
   /* */
 
   function githubContextUpdate( githubContext )
   {
+    console.log( process.env.RETRY_ACTION );
     const remoteActionPath = remotePathFromActionName( process.env.RETRY_ACTION );
     const localActionPath = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
     githubContext.action_path = localActionPath;
@@ -271,10 +282,7 @@ function envOptionsFrom( options, inputs )
 function envOptionsSetup( options )
 {
   for( let key in options )
-  {
-    core.exportVariable( key, options[ key ] );
-    process.env[ key ] = options[ key ];
-  }
+  core.exportVariable( key, options[ key ] );
 }
 
 // --
@@ -289,6 +297,7 @@ const Self =
   actionConfigRead,
   actionOptionsParse,
   envOptionsFrom,
+  contextGet,
   envOptionsSetup,
 };
 
