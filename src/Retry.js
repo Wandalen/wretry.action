@@ -145,7 +145,7 @@ function retry( scriptType )
         {
           throw _.error.brief
           (
-            `Runner "${ config.runs.using }" does not implemented yet.\nPlease, open an issue with the request for the feature.`
+            `Runner "${ config.runs.using }" does not implemented.\nPlease, search/open a related issue.`
           );
         }
         return null;

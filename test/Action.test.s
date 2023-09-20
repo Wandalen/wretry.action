@@ -92,6 +92,57 @@ function retryWithoutAction( test )
 
 //
 
+function retryWithUnsupportedAction( test )
+{
+  const context = this;
+  const a = test.assetFor( false );
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+  const testAction = 'dmvict/test.action@composite';
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'with composite action';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.notIdentical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::Runner "composite" does not implemented.' ), 1 );
+    test.identical( _.strCount( op.output, 'Please, search/open a related issue.' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.shellNonThrowing( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
+    return a.ready;
+  }
+}
+
+//
+
 function retryWithActionAndCommand( test )
 {
   const context = this;
@@ -1501,6 +1552,7 @@ const Proto =
   tests :
   {
     retryWithoutAction,
+    retryWithUnsupportedAction,
     retryWithActionAndCommand,
 
     retryFetchActionWithoutTagOrHash,
