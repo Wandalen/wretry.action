@@ -52,7 +52,7 @@ inputs:
     required: false
     default: false
 runs:
-  using: 'node16'
+  using: 'node20'
   pre: 'src/Pre.js'
   main: 'src/Main.js'
   post: 'src/Post.js'
