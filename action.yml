@@ -29,6 +29,10 @@ inputs:
     description: A delay between attempts in ms
     required: false
     default: 0
+  time_out:
+    description: 'Set time out in ms for entire step including all retries. By default actions sets no time out.'
+    required: false
+    default: false
 outputs:
   outputs:
     description: A pretty print JSON map with outputs from the wrapped action.
@@ -50,3 +54,4 @@ runs:
         github_context: '${{ toJSON( github ) }}'
         job_context: '${{ toJSON( job ) }}'
         matrix_context: '${{ toJSON( matrix ) }}'
+        time_out: '${{ inputs.time_out }}'
