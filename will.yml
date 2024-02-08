@@ -174,7 +174,7 @@ reflector:
       maskAll:
         excludeAny:
           - !<tag:yaml.org,2002:js/regexp> /@actions/
-          - !<tag:yaml.org,2002:js/regexp> /@fastify\/busboy/
+          - !<tag:yaml.org,2002:js/regexp> /@fastify/
           - !<tag:yaml.org,2002:js/regexp> /argparse/
           - !<tag:yaml.org,2002:js/regexp> /bindings/
           - !<tag:yaml.org,2002:js/regexp> /chevrotain/
