@@ -1,6 +1,6 @@
 {
   "name": "wretry.action",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Retries an Github Action step on failure",
   "enabled": 0,
   "author": "Kostiantyn Wandalen <wandalen@obox.systems>",
@@ -32,7 +32,7 @@
   ],
   "dependencies": {
     "wgittools": "alpha",
-    "github-actions-parser": "dmvict/github-actions-parser#inputs_context_dist",
+    "github-actions-parser": "0.26.0",
     "@actions/core": "1.10.0"
   },
   "devDependencies": {
@@ -40,6 +40,7 @@
   },
   "files": [
     "src/Common.js",
+    "src/Docker.js",
     "src/Main.js",
     "src/Post.js",
     "src/Pre.js",
