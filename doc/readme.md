@@ -1,6 +1,6 @@
 ### To publish
 
-```will .call publish tag:alpha```
+```will .publish action.release.minor```
 
 ### List of actions
 
