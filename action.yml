@@ -30,7 +30,9 @@ inputs:
     required: false
     default: 0
   time_out:
-    description: 'Set time out in ms for entire step including all retries. By default actions sets no time out.'
+    description: >-
+      Set time out in ms for entire step including all retries. By default
+      actions sets no time out.
     required: false
     default: false
 outputs:
@@ -42,7 +44,7 @@ runs:
   steps:
     - name: retry
       id: retry
-      uses: Wandalen/wretry.action@v1.3.0_js_action
+      uses: Wandalen/wretry.action@v1.4.0_js_action
       with:
         action: '${{ inputs.action }}'
         command: '${{ inputs.command }}'
