@@ -38,19 +38,19 @@ function commandsForm( test )
 
   test.case = 'multiline command with backslash';
   var got = common.commandsForm( [ 'echo \\', 'foo' ] );
-  test.identical( got, [ 'echo \\\nfoo' ] );
+  test.identical( got, [ 'echo \\', 'foo' ] );
 
   test.case = 'multiline command with bar and backslash';
   var got = common.commandsForm( [ '|', 'echo \\', 'foo' ] );
-  test.identical( got, [ 'echo \\\nfoo' ] );
+  test.identical( got, [ 'echo \\', 'foo' ] );
 
   test.case = 'multiline command with bar and backslash, several commands';
   var got = common.commandsForm( [ '|', 'echo \\', 'foo', 'echo bar' ] );
-  test.identical( got, [ 'echo \\\nfoo', 'echo bar' ] );
+  test.identical( got, [ 'echo \\', 'foo', 'echo bar' ] );
 
   test.case = 'multiline commands with bar and backslash, several commands';
   var got = common.commandsForm( [ '|', 'echo \\', 'foo', 'echo \\', 'bar' ] );
-  test.identical( got, [ 'echo \\\nfoo', 'echo \\\nbar' ] );
+  test.identical( got, [ 'echo \\', 'foo', 'echo \\', 'bar' ] );
 
   /* - */
 
