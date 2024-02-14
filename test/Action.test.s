@@ -233,7 +233,7 @@ function retryFetchActionWithoutTagOrHash( test )
     test.ge( _.strCount( op.output, '::set-env' ), 1 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 0 );
     test.identical( _.strCount( op.output, /::error::.*Attempts exhausted, made 4 attempts/ ), 0 );
-    test.identical( _.strCount( op.output, 'Hello test!' ), 1 );
+    test.identical( _.strCount( op.output, 'Hello, test!' ), 1 );
     return null;
   });
 
