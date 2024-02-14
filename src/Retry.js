@@ -34,11 +34,6 @@ function retry( scriptType )
     if( !actionName )
     {
       const commands = common.commandsForm( command );
-      if( process.platform === 'win32' )
-      {
-        commands.push( 'if ((Test-Path -LiteralPath variable:\LASTEXITCODE)) { exit $LASTEXITCODE }' );
-        commands.unshift( `$ErrorActionPreference = 'stop'` );
-      }
       const commandsScriptPath = _.path.join( __dirname, process.platform === 'win32' ? 'script.ps1' : 'script.sh' );
       _.fileProvider.fileWrite( commandsScriptPath, commands.join( '\n' ) );
 
