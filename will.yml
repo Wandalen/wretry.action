@@ -93,7 +93,7 @@ submodule:
     path: 'npm:///@actions/core!1.10.0'
     enabled: 0
   github-actions-parser:
-    path: 'npm:///github-actions-parser!0.26.0'
+    path: 'npm:///github-actions-parser!dmvict/github-actions-parser'
     enabled: 0
   wgittools:
     path: 'npm:///wgittools!alpha'
