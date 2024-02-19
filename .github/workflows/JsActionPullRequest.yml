@@ -31,9 +31,7 @@ jobs :
     - name : Setup git for windows
       if : ${{ matrix.os == 'windows-latest' }}
       run : git config --system core.longpaths true
-    - uses : actions/checkout@v2
-      with :
-        fetch-depth: 2
+    - uses : actions/checkout@v4
     - name : ${{ matrix.node-version }}
       uses : Wandalen/wretry.action@master
       with :
