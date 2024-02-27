@@ -11,26 +11,21 @@ function commandsForm( command )
 {
   _.assert( command.length > 0, 'Please, specify Github action name or shell command.' );
 
-  const commands = [ command[ 0 ] ];
-  let i = 1;
   if( command[ 0 ] === '|' )
   {
     _.assert( command.length > 1, 'Expected multiline command.' );
-    commands[ 0 ] = command[ 1 ];
-    i = 2;
+    command.shift();
   }
 
-  for( i ; i < command.length ; i++ )
+  _.assert( !_.str.ends( command[ command.length - 1 ], /\s\\/ ), 'Last command should have no continuation.' );
+
+  if( process.platform === 'win32' )
   {
-    if( _.str.ends( commands[ commands.length - 1 ], /\s\\/ ) )
-    commands[ commands.length - 1 ] = `${ commands[ commands.length - 1 ] }\n${ command[ i ] }`;
-    else
-    commands.push( command[ i ] );
+    command.push( 'if ((Test-Path -LiteralPath variable:\LASTEXITCODE)) { exit $LASTEXITCODE }' );
+    command.unshift( `$ErrorActionPreference = 'stop'` );
   }
 
-  _.assert( !_.str.ends( commands[ commands.length - 1 ], /\s\\/ ), 'Last command should have no continuation.' );
-
-  return commands;
+  return command;
 }
 
 //
