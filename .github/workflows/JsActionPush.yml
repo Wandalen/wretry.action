@@ -17,7 +17,7 @@ jobs :
       fail-fast : false
       matrix :
         os : [ ubuntu-latest, windows-latest, macos-latest ]
-        node-version : [ 14.x ]
+        node-version : [ 20.x ]
     if : |
       !startsWith( github.event.head_commit.message, 'version' )
       && !startsWith( github.event.head_commit.message, '.' )
@@ -34,9 +34,7 @@ jobs :
     - name : Setup git for windows
       if : ${{ matrix.os == 'windows-latest' }}
       run : git config --system core.longpaths true
-    - uses : actions/checkout@v3
-      with :
-        fetch-depth: 2
+    - uses : actions/checkout@v4
     - name : ${{ matrix.node-version }}
       uses : Wandalen/wretry.action@master
       with :
