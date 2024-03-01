@@ -100,7 +100,7 @@ function actionConfigRead( actionDir )
 function actionOptionsParse( src )
 {
   const jsYaml = require( 'js-yaml' );
-  return jsYaml.load( src );
+  return jsYaml.load( src ) || {};
 }
 
 //
