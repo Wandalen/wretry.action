@@ -492,7 +492,7 @@ function retryWithMultilineOptionInOptionWith( test )
   {
     test.case = 'all inputs are valid - multiline string has two or more lines, string is |';
     core.exportVariable( `INPUT_ACTION`, testAction );
-    core.exportVariable( `INPUT_WITH`, 'multiline: |\n  one\n  two,\nstring : |'  );
+    core.exportVariable( `INPUT_WITH`, 'multiline: |\n  one\n  two,\nstring : "|"'  );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
   });
@@ -516,7 +516,7 @@ function retryWithMultilineOptionInOptionWith( test )
   {
     test.case = 'multiline string has single line';
     core.exportVariable( `INPUT_ACTION`, testAction );
-    core.exportVariable( `INPUT_WITH`, 'multiline: |\n  one,\nstring : |'  );
+    core.exportVariable( `INPUT_WITH`, 'multiline: |\n  one,\nstring : "|"'  );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
   });
