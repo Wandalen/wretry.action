@@ -413,7 +413,7 @@ function retryFetchActionWithSubdirectory( test )
   {
     test.case = 'subdirectory, action with tag';
     core.exportVariable( `INPUT_ACTION`, `${ testAction }/subaction@v0.0.11` );
-    core.exportVariable( `INPUT_WITH`, 'multiline: |\n  one\n  two,\nstring : |'  );
+    core.exportVariable( `INPUT_WITH`, 'multiline: |\n  one\n  two,\nstring : "|"'  );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
   });
@@ -436,7 +436,7 @@ function retryFetchActionWithSubdirectory( test )
   {
     test.case = 'subdirectory, action with tag';
     core.exportVariable( `INPUT_ACTION`, `${ testAction }/subaction@366f895` );
-    core.exportVariable( `INPUT_WITH`, 'multiline: |\n  one\n  two,\nstring : |'  );
+    core.exportVariable( `INPUT_WITH`, 'multiline: |\n  one\n  two,\nstring : "|"'  );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
   });
