@@ -1214,7 +1214,7 @@ function retryActionWithDefaultInputs( test )
   {
     test.case = 'rewrite default bool value';
     core.exportVariable( `INPUT_ACTION`, testAction );
-    core.exportVariable( `INPUT_WITH`, 'value: some\nbool: false\nbool_default:false' );
+    core.exportVariable( `INPUT_WITH`, 'value: some\nbool: false\nbool_default: false' );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
   });
