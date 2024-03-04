@@ -21,8 +21,8 @@ function commandsForm( command )
 
   if( process.platform === 'win32' )
   {
-    command.push( 'if ((Test-Path -LiteralPath variable:\LASTEXITCODE)) { exit $LASTEXITCODE }' );
     command.unshift( `$ErrorActionPreference = 'stop'` );
+    command.push( 'if ((Test-Path -LiteralPath variable:\LASTEXITCODE)) { exit $LASTEXITCODE }' );
   }
 
   return command;

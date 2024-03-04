@@ -20,36 +20,47 @@ const common = require( '../src/Common.js' );
 
 function commandsForm( test )
 {
+  let commandsForm = common.commandsForm;
+  if( process.platform === 'win32' )
+  commandsForm = ( arg ) => {
+    let res = common.commandsForm( arg );
+    test.identical( res[ 0 ], '$ErrorActionPreference = \'stop\'' );
+    test.identical( res[ res.length - 1 ], 'if ((Test-Path -LiteralPath variable:\LASTEXITCODE)) { exit $LASTEXITCODE }' );
+    res.pop();
+    res.shift();
+    return res;
+  };
+
   test.case = 'one line command';
-  var got = common.commandsForm( [ 'echo foo' ] );
+  var got = commandsForm( [ 'echo foo' ] );
   test.identical( got, [ 'echo foo' ] );
 
   test.case = 'multiple commands without backslash';
-  var got = common.commandsForm( [ 'echo foo', 'echo bar' ] );
+  var got = commandsForm( [ 'echo foo', 'echo bar' ] );
   test.identical( got, [ 'echo foo', 'echo bar' ] );
 
   test.case = 'multiline command with bar';
-  var got = common.commandsForm( [ '|', 'echo foo' ] );
+  var got = commandsForm( [ '|', 'echo foo' ] );
   test.identical( got, [ 'echo foo' ] );
 
   test.case = 'multiline command with bar, multiple commands without backslash';
-  var got = common.commandsForm( [ '|', 'echo foo', 'echo bar' ] );
+  var got = commandsForm( [ '|', 'echo foo', 'echo bar' ] );
   test.identical( got, [ 'echo foo', 'echo bar' ] );
 
   test.case = 'multiline command with backslash';
-  var got = common.commandsForm( [ 'echo \\', 'foo' ] );
+  var got = commandsForm( [ 'echo \\', 'foo' ] );
   test.identical( got, [ 'echo \\', 'foo' ] );
 
   test.case = 'multiline command with bar and backslash';
-  var got = common.commandsForm( [ '|', 'echo \\', 'foo' ] );
+  var got = commandsForm( [ '|', 'echo \\', 'foo' ] );
   test.identical( got, [ 'echo \\', 'foo' ] );
 
   test.case = 'multiline command with bar and backslash, several commands';
-  var got = common.commandsForm( [ '|', 'echo \\', 'foo', 'echo bar' ] );
+  var got = commandsForm( [ '|', 'echo \\', 'foo', 'echo bar' ] );
   test.identical( got, [ 'echo \\', 'foo', 'echo bar' ] );
 
   test.case = 'multiline commands with bar and backslash, several commands';
-  var got = common.commandsForm( [ '|', 'echo \\', 'foo', 'echo \\', 'bar' ] );
+  var got = commandsForm( [ '|', 'echo \\', 'foo', 'echo \\', 'bar' ] );
   test.identical( got, [ 'echo \\', 'foo', 'echo \\', 'bar' ] );
 
   /* - */
