@@ -38,23 +38,11 @@ jobs :
     - name : ${{ matrix.node-version }}
       uses : Wandalen/wretry.action@master
       with :
-        action : actions/setup-node@v2
+        action : actions/setup-node@v4
         with : |
           node-version : ${{ matrix.node-version }}
         attempt_limit : 3
         attempt_delay: 1000
-    - name : Save npm version
-      id : getnpmver
-      run : |
-        echo "npmver=$(npm -v)" >> $GITHUB_OUTPUT
-    - name : Update npm if current version is 6
-      if : "startsWith( steps.getnpmver.outputs.npmver, '6.' )"
-      run : npm install -g npm@latest-6
-    - name : Update node-gyp
-      if: ${{ matrix.os == 'windows-latest' && matrix.node-version != '18.x' }}
-      run : |
-        npm install --global node-gyp@9.0.0
-        npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
     - name : Install willbe
       uses : Wandalen/wretry.action@master
       with :
