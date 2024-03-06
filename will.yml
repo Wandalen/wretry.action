@@ -174,7 +174,7 @@ reflector:
       maskAll:
         excludeAny:
           - !<tag:yaml.org,2002:js/regexp> /@actions/
-          - !<tag:yaml.org,2002:js/regexp> /@fastify\/busboy/
+          - !<tag:yaml.org,2002:js/regexp> /@fastify/
           - !<tag:yaml.org,2002:js/regexp> /argparse/
           - !<tag:yaml.org,2002:js/regexp> /bindings/
           - !<tag:yaml.org,2002:js/regexp> /chevrotain/
@@ -182,6 +182,7 @@ reflector:
           - !<tag:yaml.org,2002:js/regexp> /github-actions-parser/
           - !<tag:yaml.org,2002:js/regexp> /graceful-fs/
           - !<tag:yaml.org,2002:js/regexp> /js-yaml/
+          - !<tag:yaml.org,2002:js/regexp> /lodash/
           - !<tag:yaml.org,2002:js/regexp> /proper-lockfile/
           - !<tag:yaml.org,2002:js/regexp> /regexp-to-ast/
           - !<tag:yaml.org,2002:js/regexp> /retry/
