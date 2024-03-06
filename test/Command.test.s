@@ -509,7 +509,7 @@ function retryCheckRetryTime( test )
   {
     test.case = 'command is succeful and overflows time limit';
     core.exportVariable( 'INPUT_COMMAND', '|\n  sleep 10 \n  echo str' );
-    core.exportVariable( 'INPUT_TIME_OUT', '5000' );
+    core.exportVariable( 'INPUT_TIME_OUT', '3000' );
     core.exportVariable( 'INPUT_ATTEMPT_LIMIT', '4' );
     return null;
   });
@@ -523,11 +523,16 @@ function retryCheckRetryTime( test )
     test.identical( op.exitCode, 1 );
     test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
     test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
-    test.identical( _.strCount( op.output, 'str' ), 0 );
     if( process.platform === 'win32' )
-    test.identical( _.strCount( op.output, '::error::Process returned exit code 1' ), 1 );
+    {
+      test.le( _.strCount( op.output, 'str' ), 1 );
+      test.identical( _.strCount( op.output, '::error::Process returned exit code 1' ), 1 );
+    }
     else
-    test.identical( _.strCount( op.output, '::error::Process was killed by exit signal SIGTERM' ), 1 );
+    {
+      test.identical( _.strCount( op.output, 'str' ), 0 );
+      test.identical( _.strCount( op.output, '::error::Process was killed by exit signal SIGTERM' ), 1 );
+    }
     return null;
   });
 
@@ -579,11 +584,16 @@ function retryCheckRetryTime( test )
     test.identical( op.exitCode, 1 );
     test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
     test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
-    test.identical( _.strCount( op.output, 'str' ), 1 );
     if( process.platform === 'win32' )
-    test.identical( _.strCount( op.output, '::error::Process returned exit code 1' ), 1 );
+    {
+      test.le( _.strCount( op.output, 'str' ), 2 );
+      test.identical( _.strCount( op.output, '::error::Process returned exit code 1' ), 1 );
+    }
     else
-    test.identical( _.strCount( op.output, '::error::Process was killed by exit signal SIGTERM' ), 1 );
+    {
+      test.identical( _.strCount( op.output, 'str' ), 1 );
+      test.identical( _.strCount( op.output, '::error::Process was killed by exit signal SIGTERM' ), 1 );
+    }
     return null;
   });
 

@@ -413,7 +413,7 @@ function retryFetchActionWithSubdirectory( test )
   {
     test.case = 'subdirectory, action with tag';
     core.exportVariable( `INPUT_ACTION`, `${ testAction }/subaction@v0.0.11` );
-    core.exportVariable( `INPUT_WITH`, 'multiline: |\n  one\n  two,\nstring : |'  );
+    core.exportVariable( `INPUT_WITH`, 'multiline: |\n  one\n  two,\nstring : "|"'  );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
   });
@@ -436,7 +436,7 @@ function retryFetchActionWithSubdirectory( test )
   {
     test.case = 'subdirectory, action with tag';
     core.exportVariable( `INPUT_ACTION`, `${ testAction }/subaction@366f895` );
-    core.exportVariable( `INPUT_WITH`, 'multiline: |\n  one\n  two,\nstring : |'  );
+    core.exportVariable( `INPUT_WITH`, 'multiline: |\n  one\n  two,\nstring : "|"'  );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
   });
@@ -492,7 +492,7 @@ function retryWithMultilineOptionInOptionWith( test )
   {
     test.case = 'all inputs are valid - multiline string has two or more lines, string is |';
     core.exportVariable( `INPUT_ACTION`, testAction );
-    core.exportVariable( `INPUT_WITH`, 'multiline: |\n  one\n  two,\nstring : |'  );
+    core.exportVariable( `INPUT_WITH`, 'multiline: |\n  one\n  two,\nstring : "|"'  );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
   });
@@ -516,7 +516,7 @@ function retryWithMultilineOptionInOptionWith( test )
   {
     test.case = 'multiline string has single line';
     core.exportVariable( `INPUT_ACTION`, testAction );
-    core.exportVariable( `INPUT_WITH`, 'multiline: |\n  one,\nstring : |'  );
+    core.exportVariable( `INPUT_WITH`, 'multiline: |\n  one,\nstring : "|"'  );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
   });
@@ -1214,7 +1214,7 @@ function retryActionWithDefaultInputs( test )
   {
     test.case = 'rewrite default bool value';
     core.exportVariable( `INPUT_ACTION`, testAction );
-    core.exportVariable( `INPUT_WITH`, 'value: some\nbool: false\nbool_default:false' );
+    core.exportVariable( `INPUT_WITH`, 'value: some\nbool: false\nbool_default: false' );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
   });
