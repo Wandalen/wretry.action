@@ -196,7 +196,7 @@ function shouldExit( config, scriptType )
   if( _.strBegins( config.runs.using, 'node' ) && !config.runs[ scriptType ] )
   return true;
 
-  if( config.runs.using === 'docker' && !scriptType === 'main' && !config.runs[ `${ scriptType }-entrypoint` ] )
+  if( config.runs.using === 'docker' && scriptType !== 'main' && !config.runs[ `${ scriptType }-entrypoint` ] )
   return true;
 
   return false;
