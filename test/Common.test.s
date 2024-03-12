@@ -566,6 +566,13 @@ function actionOptionsParse( test )
 
   test.close( 'multiline' );
 
+  /* */
+
+  test.case = 'value contains dashes';
+  var src = 'str-with-dashes: value';
+  var got = common.actionOptionsParse( src );
+  test.identical( got, { 'str-with-dashes' : 'value' } );
+
   /* - */
 
   if( !Config.debug )

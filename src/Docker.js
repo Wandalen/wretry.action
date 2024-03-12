@@ -168,9 +168,9 @@ function runCommandForm( imageName, inputs )
 
 function commandArgsFrom( args, inputs )
 {
-  const result = [];
+  const commandArgs = [];
   if( args === undefined )
-  return result;
+  return commandArgs;
 
   for( let i = 0 ; i < args.length ; i++ )
   {
@@ -191,10 +191,10 @@ function commandArgsFrom( args, inputs )
         }
       });
     }
-    result.push( value );
+    commandArgs.push( String( value ) );
   }
 
-  return result;
+  return commandArgs;
 }
 
 // --
