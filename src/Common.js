@@ -145,33 +145,11 @@ function optionsExtendByInputDefaults( options, inputs )
 
 //
 
-function envOptionsFrom( options, inputs )
+function envOptionsFrom( options )
 {
   const result = Object.create( null );
-
   for( let key in options )
   result[ `INPUT_${ key.replace( / /g, '_' ).toUpperCase() }` ] = options[ key ];
-
-  if( inputs )
-  {
-    for( let key in inputs )
-    {
-      const defaultValue = inputs[ key ].default;
-      if( !( key in options ) && defaultValue !== undefined && defaultValue !== null )
-      {
-        let value = defaultValue;
-        if( _.str.is( value ) )
-        if( value.startsWith( '${{' ) && value.endsWith( '}}' ) )
-        {
-          if( GithubActionsParser === null )
-          GithubActionsParser = require( 'github-actions-parser' );
-          value = GithubActionsParser.evaluateExpression( value, { get : contextGet } );
-        }
-        result[ `INPUT_${key.replace(/ /g, '_').toUpperCase()}` ] = value;
-      }
-    }
-  }
-
   return result;
 }
 
