@@ -105,6 +105,46 @@ function actionOptionsParse( src )
 
 //
 
+function optionsExtendByInputDefaults( options, inputs )
+{
+  const result = Object.create( null );
+
+  for( let key in options )
+  result[ key ] = options[ key ];
+
+  if( inputs )
+  {
+    for( let key in inputs )
+    {
+      if( key in options )
+      {
+        if( inputs[ key ].required )
+        _.sure( options[ key ] !== undefined, `Please, provide value for option ${ key }` )
+      }
+      else
+      {
+        const defaultValue = inputs[ key ].default;
+        if( inputs[ key ].required )
+        _.sure( defaultValue !== undefined, `Please, provide value for option ${ key }` )
+
+        let value = defaultValue;
+        if( _.str.is( value ) )
+        if( value.startsWith( '${{' ) && value.endsWith( '}}' ) )
+        {
+          if( GithubActionsParser === null )
+          GithubActionsParser = require( 'github-actions-parser' );
+          value = GithubActionsParser.evaluateExpression( value, { get : contextGet } );
+        }
+        result[ key ] = value;
+      }
+    }
+  }
+
+  return result;
+}
+
+//
+
 function envOptionsFrom( options, inputs )
 {
   const result = Object.create( null );
@@ -207,6 +247,7 @@ const Self =
   actionClone,
   actionConfigRead,
   actionOptionsParse,
+  optionsExtendByInputDefaults,
   envOptionsFrom,
   contextGet,
   envOptionsSetup,
