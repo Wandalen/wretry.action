@@ -1074,497 +1074,46 @@ function optionsExtendByInputDefaultsMatrixContextExpressionInputs( test )
 
 function envOptionsFrom( test )
 {
-  test.open( 'empty inputs' );
-
-  var inputs = {};
-
   test.case = 'no options';
   var src = {};
-  var got = common.envOptionsFrom( src, inputs );
+  var got = common.envOptionsFrom( src );
   test.identical( got, {} );
   test.true( got !== src );
 
   test.case = 'simple option, lower case';
   var src = { 'a' : '1' };
-  var got = common.envOptionsFrom( src, inputs );
+  var got = common.envOptionsFrom( src );
   test.identical( got, { INPUT_A : '1' } );
   test.true( got !== src );
 
   test.case = 'option with spaces, lower case';
   var src = { 'a b c' : '1' };
-  var got = common.envOptionsFrom( src, inputs );
+  var got = common.envOptionsFrom( src );
   test.identical( got, { INPUT_A_B_C : '1' } );
   test.true( got !== src );
 
   test.case = 'simple option, upper case';
   var src = { 'A' : '1' };
-  var got = common.envOptionsFrom( src, inputs );
+  var got = common.envOptionsFrom( src );
   test.identical( got, { INPUT_A : '1' } );
   test.true( got !== src );
 
   test.case = 'option with spaces, upper case';
   var src = { 'A B C' : '1' };
-  var got = common.envOptionsFrom( src, inputs );
+  var got = common.envOptionsFrom( src );
   test.identical( got, { INPUT_A_B_C : '1' } );
   test.true( got !== src );
 
   test.case = 'option with spaces, mixed case';
   var src = { 'A b c' : '1' };
-  var got = common.envOptionsFrom( src, inputs );
+  var got = common.envOptionsFrom( src );
   test.identical( got, { INPUT_A_B_C : '1' } );
   test.true( got !== src );
 
-  test.close( 'empty inputs' );
-
-  /* - */
-
-  test.open( 'non empty inputs' );
-
-  var inputs =
-  {
-    'str' : { description : 'string', default : 'str' },
-    'number' : { description : 'number', default : 1 },
-    'empty' : { description : 'string', default : '' },
-    'null' : { description : 'undefined', default : null },
-    'not-defined' : { description : 'undefined', default : undefined },
-    'no-default' : { description : 'undefined' },
-    'false' : { description : 'undefined', default : false },
-  };
-
-  test.case = 'no options';
-  var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  var exp =
-  {
-    'INPUT_STR' : 'str',
-    'INPUT_NUMBER' : 1,
-    'INPUT_EMPTY' : '',
-    'INPUT_FALSE' : false,
-  };
-  test.identical( got, exp );
-  test.true( got !== src );
-
-  test.case = 'simple option, lower case';
-  var src = { 'a' : '1' };
-  var got = common.envOptionsFrom( src, inputs );
-  var exp =
-  {
-    'INPUT_A' : '1',
-    'INPUT_STR' : 'str',
-    'INPUT_NUMBER' : 1,
-    'INPUT_EMPTY' : '',
-    'INPUT_FALSE' : false,
-  };
-  test.identical( got, exp );
-  test.true( got !== src );
-
-  test.case = 'option with spaces, lower case';
-  var src = { 'a b c' : '1' };
-  var got = common.envOptionsFrom( src, inputs );
-  var exp =
-  {
-    'INPUT_A_B_C' : '1',
-    'INPUT_STR' : 'str',
-    'INPUT_NUMBER' : 1,
-    'INPUT_EMPTY' : '',
-    'INPUT_FALSE' : false,
-  };
-  test.identical( got, exp );
-  test.true( got !== src );
-
-  test.case = 'simple option, upper case';
-  var src = { 'A' : '1' };
-  var got = common.envOptionsFrom( src, inputs );
-    var exp =
-  {
-    'INPUT_A' : '1',
-    'INPUT_STR' : 'str',
-    'INPUT_NUMBER' : 1,
-    'INPUT_EMPTY' : '',
-    'INPUT_FALSE' : false,
-  };
-  test.identical( got, exp );
-  test.true( got !== src );
-
-  test.case = 'option with spaces, upper case';
-  var src = { 'A B C' : '1' };
-  var got = common.envOptionsFrom( src, inputs );
-  var exp =
-  {
-    'INPUT_A_B_C' : '1',
-    'INPUT_STR' : 'str',
-    'INPUT_NUMBER' : 1,
-    'INPUT_EMPTY' : '',
-    'INPUT_FALSE' : false,
-  };
-  test.identical( got, exp );
-  test.true( got !== src );
-
-  test.case = 'option with spaces, mixed case';
-  var src = { 'A b c' : '1' };
-  var got = common.envOptionsFrom( src, inputs );
-  var exp =
-  {
-    'INPUT_A_B_C' : '1',
-    'INPUT_STR' : 'str',
-    'INPUT_NUMBER' : 1,
-    'INPUT_EMPTY' : '',
-    'INPUT_FALSE' : false,
-  };
-  test.identical( got, exp );
-  test.true( got !== src );
-
-  test.close( 'non empty inputs' );
-}
-
-//
-
-function envOptionsFromEnvAndGithubContextExpressionInputs( test )
-{
-  const a = test.assetFor( false );
-  process.env.GITHUB_EVENT_PATH = a.path.nativize( a.abs( __dirname, '_asset/context/event.json' ) );
-  process.env.TEST = 'test';
-  process.env.RETRY_ACTION = 'dmvict/test.action@v0.0.2';
-  process.env.INPUT_ENV_CONTEXT = '{}';
-  process.env.INPUT_GITHUB_CONTEXT =
-`{
-  "token": "private_token",
-  "job": "fast",
-  "ref": "refs/heads/master",
-  "sha": "df6a916d",
-  "repository": "user/repo",
-  "repository_owner": "user",
-  "repository_owner_id": "47529590",
-  "repositoryUrl": "git://github.com/user/repo.git",
-  "run_id": "2567345311",
-  "run_number": "114",
-  "retention_days": "90",
-  "run_attempt": "1",
-  "artifact_cache_size_limit": "10",
-  "repository_id": "438224811",
-  "actor_id": "47529590",
-  "actor": "user",
-  "workflow": "push",
-  "head_ref": "",
-  "base_ref": "",
-  "event_name": "push",
-  "event": {
-    "after": "df6a916d93",
-    "base_ref": null,
-    "before": "9e72f69b4382",
-    "commits": [
-      {
-        "author": {
-        },
-        "committer": {
-        },
-        "distinct": true,
-        "id": "df6a916d93",
-        "message": "test",
-        "timestamp": "2022-06-27T09:54:49+03:00",
-        "tree_id": "a1579bd0a5ae",
-        "url": "https://github.com/user/repo/commit/df6a916d93f"
-      }
-    ],
-    "head_commit": {
-      "author": {
-      },
-      "committer": {
-      },
-      "distinct": true,
-      "id": "df6a916d93",
-      "message": "test",
-      "timestamp": "2022-06-27T09:54:49+03:00",
-      "tree_id": "a1579bd0a5ae",
-      "url": "https://github.com/user/repo/commit/df6a916d93f"
-    },
-    "pusher": {
-    },
-    "ref": "refs/heads/exp2",
-    "repository": {
-      "default_branch": "master",
-      "master_branch": "master"
-    },
-    "sender": {
-    }
-  },
-  "server_url": "https://github.com",
-  "api_url": "https://api.github.com",
-  "graphql_url": "https://api.github.com/graphql",
-  "ref_name": "master",
-  "ref_protected": false,
-  "ref_type": "branch",
-  "secret_source": "Actions",
-  "workspace": "/home/runner/work/repo/repo",
-  "action": "__user_test_action",
-  "event_path": "/home/runner/work/_temp/_github_workflow/event.json",
-  "action_repository": "",
-  "action_ref": "",
-  "path": "/home/runner/work/_temp/_runner_file_commands/add_path_e2aba804-be04-4f71-963f-a8c64be62d19",
-  "env": "/home/runner/work/_temp/_runner_file_commands/set_env_e2aba804-be04-4f71-963f-a8c64be62d19",
-  "step_summary": "/home/runner/work/_temp/_runner_file_commands/step_summary_e2aba804-be04-4f71-963f-a8c64be62d19"
-}`;
-
-  /* - */
-
-  test.case = 'resolve environment';
-  var inputs =
-  {
-    environment :
-    {
-      description : 'environment',
-      default : '${{ env.TEST }}'
-    }
-  };
-  var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_ENVIRONMENT : 'test' } );
-  test.true( got !== src );
-
-  test.case = 'resolve string from github context';
-  var inputs =
-  {
-    github_string :
-    {
-      description : 'string in github context',
-      default : '${{ github.action_path }}'
-    }
-  };
-  var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_GITHUB_STRING : a.path.nativize( a.abs( __dirname, '../../../test.action' ) ) } );
-  test.true( got !== src );
-
-  test.case = 'resolve string from object in github context';
-  var inputs =
-  {
-    github_object :
-    {
-      description : 'object in github context',
-      default : '${{ github.event.repository.default_branch }}'
-    },
-  };
-  var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_GITHUB_OBJECT : 'master' } );
-  test.true( got !== src );
-
-  test.case = 'resolve expression with environment and defined value';
-  var inputs =
-  {
-    expression_with_strings :
-    {
-      description : 'compare resolved with value',
-      default : '${{ env.TEST == \'test\' }}'
-    },
-  };
-  var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_EXPRESSION_WITH_STRINGS : true } );
-  test.true( got !== src );
-
-  test.case = 'resolve expression with two resolved values';
-  var inputs =
-  {
-    expression_with_resolved_strings :
-    {
-      description : 'compare two resolved values',
-      default : '${{ env.TEST == github.ref_name }}'
-    },
-  };
-  var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_EXPRESSION_WITH_RESOLVED_STRINGS : false } );
-  test.true( got !== src );
-
-  test.case = 'resolve expression with two resolved values from objects';
-  var inputs =
-  {
-    expression_with_objects_false :
-    {
-      description : 'compare two resolved values',
-      default : '${{ github.event.repository.master_branch != github.event.repository.default_branch }}'
-    },
-    expression_with_objects_true :
-    {
-      description : 'compare two resolved values',
-      default : '${{ github.event.repository.master_branch == github.event.repository.default_branch }}'
-    },
-  };
-  var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_EXPRESSION_WITH_OBJECTS_FALSE : false, INPUT_EXPRESSION_WITH_OBJECTS_TRUE : true } );
-  test.true( got !== src );
-
-  test.case = 'resolve expression with two resolved values and boolean AND';
-  var inputs =
-  {
-    expression_with_objects_false :
-    {
-      description : 'compare two resolved values',
-      default : '${{ github.event.repository.master_branch != github.event.repository.default_branch && false }}'
-    },
-    expression_with_objects_true :
-    {
-      description : 'compare two resolved values',
-      default : '${{ github.event.repository.master_branch == github.event.repository.default_branch && true }}'
-    },
-  };
-  var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_EXPRESSION_WITH_OBJECTS_FALSE : false, INPUT_EXPRESSION_WITH_OBJECTS_TRUE : true } );
-  test.true( got !== src );
-
-  test.case = 'resolve expression with two resolved values and boolean OR';
-  var inputs =
-  {
-    expression_with_objects_false :
-    {
-      description : 'compare two resolved values',
-      default : '${{ github.event.repository.master_branch != github.event.repository.default_branch || true }}'
-    },
-    expression_with_objects_true :
-    {
-      description : 'compare two resolved values',
-      default : '${{ github.event.repository.master_branch == github.event.repository.default_branch || true }}'
-    },
-  };
-  var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_EXPRESSION_WITH_OBJECTS_FALSE : true, INPUT_EXPRESSION_WITH_OBJECTS_TRUE : true } );
-  test.true( got !== src );
-}
-
-//
-
-function envOptionsFromJobContextExpressionInputs( test )
-{
-  process.env.INPUT_JOB_CONTEXT =
-`{
-  "status": "success",
-  "container": {
-    "network": "github_network"
-  },
-  "services": {
-    "postgres": {
-      "id": "80ce7090f",
-      "ports": {
-        "5432": "5432"
-      },
-      "network": "github_network"
-    }
-  }
-}`;
-
-  /* - */
-
-  test.case = 'resolve full job context';
-  var inputs =
-  {
-    job_status :
-    {
-      description : 'job.status',
-      default : '${{ toJSON( job ) }}'
-    }
-  };
-  var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( _.map.keys( got ), [ 'INPUT_JOB_STATUS' ] );
-  var parsed = JSON.parse( got.INPUT_JOB_STATUS );
-  test.identical( _.map.keys( parsed ), [ 'status', 'container', 'services' ] );
-  test.identical( parsed.status, 'success' );
-  test.identical( _.map.keys( parsed.container ), [ 'network' ] );
-  test.identical( _.map.keys( parsed.services ), [ 'postgres' ] );
-  test.identical( _.map.keys( parsed.services.postgres ), [ 'id', 'ports', 'network' ] );
-  test.identical( parsed.container.network, parsed.services.postgres.network );
-  test.identical( parsed.container.network, 'github_network' );
-  test.identical( parsed.services.postgres.id, '80ce7090f' );
-  test.identical( parsed.services.postgres.ports, { '5432' : '5432' } );
-  test.true( got !== src );
-
-  test.case = 'resolve job status, field always exists';
-  var inputs =
-  {
-    job_status :
-    {
-      description : 'job.status',
-      default : '${{ job.status }}'
-    }
-  };
-  var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_JOB_STATUS : 'success' } );
-  test.true( got !== src );
-
-  test.case = 'resolve not existed field';
-  var inputs =
-  {
-    job_network :
-    {
-      description : 'unknown',
-      default : '${{ job.network }}'
-    }
-  };
-  var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_JOB_NETWORK : '' } );
-  test.true( got !== src );
-
-  test.case = 'resolve nested field';
-  var inputs =
-  {
-    job_network :
-    {
-      description : 'network',
-      default : '${{ job.container.network }}'
-    }
-  };
-  var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_JOB_NETWORK : 'github_network' } );
-  test.true( got !== src );
-}
-
-envOptionsFromJobContextExpressionInputs.timeOut = 30000;
-
-//
-
-function envOptionsFromMatrixContextExpressionInputs( test )
-{
-  process.env.INPUT_MATRIX_CONTEXT =
-`{
-  "os": "ubuntu-latest",
-  "version" : 16
-}`;
-
-  /* - */
-
-  test.case = 'resolve full context';
-  var inputs =
-  {
-    matrix :
-    {
-      description : 'matrix',
-      default : '${{ toJSON( matrix ) }}'
-    }
-  };
-  var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_MATRIX : '{"os":"ubuntu-latest","version":16}' } );
-  test.true( got !== src );
-
-  test.case = 'resolve field';
-  var inputs =
-  {
-    matrix :
-    {
-      description : 'matrix field',
-      default : '${{ matrix.os }}'
-    }
-  };
-  var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_MATRIX : 'ubuntu-latest' } );
+  test.case = 'option with spaces and dash, mixed case';
+  var src = { 'A-b c' : '1' };
+  var got = common.envOptionsFrom( src );
+  test.identical( got, { 'INPUT_A-B_C' : '1' } );
   test.true( got !== src );
 }
 
@@ -1696,9 +1245,6 @@ const Proto =
     optionsExtendByInputDefaultsJobContextExpressionInputs,
     optionsExtendByInputDefaultsMatrixContextExpressionInputs,
     envOptionsFrom,
-    envOptionsFromEnvAndGithubContextExpressionInputs,
-    envOptionsFromJobContextExpressionInputs,
-    envOptionsFromMatrixContextExpressionInputs,
     contextGet,
     envOptionsSetup,
   },
