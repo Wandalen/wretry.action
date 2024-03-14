@@ -119,13 +119,13 @@ function optionsExtendByInputDefaults( options, inputs )
       if( key in options )
       {
         if( inputs[ key ].required )
-        _.sure( options[ key ] !== undefined, `Please, provide value for option ${ key }` )
+        _.sure( options[ key ] !== undefined, `Please, provide value for option "${ key }"` )
       }
       else
       {
         const defaultValue = inputs[ key ].default;
         if( inputs[ key ].required )
-        _.sure( defaultValue !== undefined, `Please, provide value for option ${ key }` )
+        _.sure( defaultValue !== undefined, `Please, provide value for option "${ key }"` )
 
         let value = defaultValue;
         if( _.str.is( value ) )
