@@ -141,14 +141,15 @@ function runCommandForm( imageName, inputs )
     'GITHUB_ACTIONS=true',
     'CI=true',
   ];
+  const githubOutputMountDir = _.path.dir( process.env.GITHUB_OUTPUT );
   const postfix_command_paths =
   [
     '"/var/run/docker.sock":"/var/run/docker.sock"',
     '"/home/runner/work/_temp/_github_home":"/github/home"',
     '"/home/runner/work/_temp/_github_workflow":"/github/workflow"',
     '"/home/runner/work/_temp/_runner_file_commands":"/github/file_commands"',
-    `"${ process.env.GITHUB_WORKSPACE }":"/github/workspace"`,
-    `"${ process.env.GITHUB_OUTPUT }":"${ process.env.GITHUB_OUTPUT }"`,
+    `"${ process.env.GITHUB_WORKSPACE }":"${ process.env.GITHUB_WORKSPACE }"`,
+    `"${ githubOutputMountDir }":"${ githubOutputMountDir }"`,
   ];
 
   /* */
@@ -161,12 +162,14 @@ function runCommandForm( imageName, inputs )
   command.push( '-v', postfix_command_paths.join( ' -v ' ) );
   command.push( imageName );
 
-  return command.join( ' ' );
+  const strCommand = command.join( ' ' );
+  core.debug( strCommand );
+  return strCommand;
 }
 
 //
 
-function commandArgsFrom( args, inputs )
+function commandArgsFrom( args, options )
 {
   const commandArgs = [];
   if( args === undefined )
@@ -184,13 +187,15 @@ function commandArgsFrom( args, inputs )
       {
         get : ( name ) =>
         {
+          if( name === 'inputs' )
+          return options;
           let context = common.contextGet( name );
-          if( _.map.keys( context ).length === 0 && name === 'inputs' )
-          return inputs;
           return context;
         }
       });
     }
+    if( value === "" )
+    core.warning( `Arg "${ args[ i ] }" in position ${ i } is not defined. Please, read doc of action and setup it properly` );
     commandArgs.push( String( value ) );
   }
 
