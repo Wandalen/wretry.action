@@ -1183,7 +1183,7 @@ function retryActionWithDefaultInputs( test )
   a.ready.then( ( op ) =>
   {
     test.notIdentical( op.exitCode, 0 );
-    test.identical( _.strCount( op.output, '::error::Expected option {-value-}' ), 4 );
+    test.identical( _.strCount( op.output, '::error::Please, provide value for option "value"' ), 1 );
     return null;
   });
 
@@ -1465,7 +1465,6 @@ function retryActionWithDefaultInputsFromMatrixContext( test )
 
 retryActionWithDefaultInputsFromMatrixContext.timeOut = 120000;
 
-
 //
 
 function retryDockerTrivialAction( test )
@@ -1578,6 +1577,7 @@ const Proto =
     retryActionWithDefaultInputsAsExpressions,
     retryActionWithDefaultInputsFromJobContext,
     retryActionWithDefaultInputsFromMatrixContext,
+
     retryDockerTrivialAction,
   },
 };
