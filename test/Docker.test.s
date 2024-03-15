@@ -174,6 +174,15 @@ function runCommandForm( test )
   test.identical( _.strCount( got, exp ), 1 );
   var exp = /-v \".*\"\:\"\/github\/workspace\" -v \".*\"\:\".*\" repo\:tag/;
   test.identical( _.strCount( got, exp ), 1 );
+  process.env.INPUT_ENV_CONTEXT = '{}';
+
+  test.case = 'empty inputs options, non empty args';
+  var got = docker.runCommandForm( 'repo:tag', {}, [ '""', 'foo' ] );
+  var exp =
+`docker run --name tag --label repo --workdir /github/workspace --rm -e HOME -e GITHUB_JOB -e GITHUB_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_REPOSITORY_OWNER -e GITHUB_REPOSITORY_OWNER_ID -e GITHUB_RUN_ID -e GITHUB_RUN_NUMBER -e GITHUB_RETENTION_DAYS -e GITHUB_RUN_ATTEMPT -e GITHUB_REPOSITORY_ID -e GITHUB_ACTOR_ID -e GITHUB_ACTOR -e GITHUB_TRIGGERING_ACTOR -e GITHUB_WORKFLOW -e GITHUB_HEAD_REF -e GITHUB_BASE_REF -e GITHUB_EVENT_NAME -e GITHUB_SERVER_URL -e GITHUB_API_URL -e GITHUB_GRAPHQL_URL -e GITHUB_REF_NAME -e GITHUB_REF_PROTECTED -e GITHUB_REF_TYPE -e GITHUB_WORKFLOW_REF -e GITHUB_WORKFLOW_SHA -e GITHUB_WORKSPACE -e GITHUB_ACTION -e GITHUB_EVENT_PATH -e GITHUB_ACTION_REPOSITORY -e GITHUB_ACTION_REF -e GITHUB_PATH -e GITHUB_ENV -e GITHUB_STEP_SUMMARY -e GITHUB_STATE -e GITHUB_OUTPUT -e RUNNER_OS -e RUNNER_ARCH -e RUNNER_NAME -e RUNNER_ENVIRONMENT -e RUNNER_TOOL_CACHE -e RUNNER_TEMP -e RUNNER_WORKSPACE -e ACTIONS_RUNTIME_URL -e ACTIONS_RUNTIME_TOKEN -e ACTIONS_CACHE_URL -e GITHUB_ACTIONS=true -e CI=true -v "/var/run/docker.sock":"/var/run/docker.sock" -v "/home/runner/work/_temp/_github_home":"/github/home" -v "/home/runner/work/_temp/_github_workflow":"/github/workflow" -v "/home/runner/work/_temp/_runner_file_commands":"/github/file_commands"`;
+  test.identical( _.strCount( got, exp ), 1 );
+  var exp = /-v \".*\"\:\"\/github\/workspace\" -v \".*\"\:\".*\" repo\:tag \"\" foo/;
+  test.identical( _.strCount( got, exp ), 1 );
 
   /* - */
 
