@@ -197,7 +197,6 @@ function contextGet( contextName )
 
   function githubContextUpdate( githubContext )
   {
-    console.log( process.env.RETRY_ACTION );
     const remoteActionPath = remotePathFromActionName( process.env.RETRY_ACTION );
     const localActionPath = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
     githubContext.action_path = localActionPath;

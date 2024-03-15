@@ -705,7 +705,7 @@ function optionsExtendByInputDefaults( test )
   test.identical( got, exp );
   test.true( got !== src );
 
-  /* */
+  /* - */
 
   if( !Config.debug )
   return;
