@@ -119,8 +119,8 @@ function retry( scriptType )
           );
           const docker = require( './Docker.js' );
           const imageName = docker.imageBuild( actionFileDir, config.runs.image );
-          const execPath = docker.runCommandForm( imageName, envOptions );
           const args = docker.commandArgsFrom( config.runs.args, fullOptions );
+          const execPath = docker.runCommandForm( imageName, envOptions, args );
 
           routine = () =>
           {
@@ -128,8 +128,7 @@ function retry( scriptType )
             {
               currentPath,
               execPath,
-              args,
-              inputMirroring : 0,
+              inputMirroring : 1,
               stdio : 'inherit',
               mode : 'shell',
             };
