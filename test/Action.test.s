@@ -867,7 +867,6 @@ function retryWithExternalActionOnRemote( test )
   a.shellNonThrowing({ currentPath : actionPath, execPath, outputPiping : 0 });
   a.ready.then( ( op ) =>
   {
-    console.log( op.output );
     test.identical( op.exitCode, 0 );
     test.ge( _.strCount( op.output, '::debug::isExplicit:' ), 0 );
     test.ge( _.strCount( op.output, '::debug::explicit? false' ), 0 );
@@ -895,7 +894,6 @@ function retryWithExternalActionOnRemote( test )
   a.shellNonThrowing({ currentPath : actionPath, execPath, outputPiping : 0 });
   a.ready.then( ( op ) =>
   {
-    console.log( op.output );
     test.notIdentical( op.exitCode, 0 );
     test.ge( _.strCount( op.output, '::debug::isExplicit:' ), 0 );
     test.ge( _.strCount( op.output, '::debug::explicit? false' ), 0 );
@@ -1529,6 +1527,132 @@ function retryDockerTrivialAction( test )
 
 retryDockerTrivialAction.timeOut = 120000;
 
+//
+
+function retryDockerActionWithInputs( test )
+{
+  const ubuntuIs = process.env.ImageOS && _.str.begins( process.env.ImageOS, 'ubuntu' );
+
+  if( !_.process.insideTestContainer() || !ubuntuIs )
+  return test.true( true );
+
+  const context = this;
+  const a = test.assetFor( false );
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+  const testAction = 'dmvict/test.action@docker';
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'use default';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_WITH`, 'string: foo' );
+    core.exportVariable( `INPUT_ENV_CONTEXT`, '{}' );
+    core.exportVariable( `INPUT_INPUTS_CONTEXT`, '{}' );
+    core.exportVariable( `GITHUB_WORKSPACE`, actionPath );
+    core.exportVariable( `GITHUB_OUTPUT`, `${ actionPath }/github_output` );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::' ), 0 );
+    test.identical( _.strCount( op.output, /Dockerfile for action : .*\/Dockerfile/ ), 1 );
+    test.identical( _.strCount( op.output, 'docker build -t test_repo:test_tag' ), 1 );
+    test.identical( _.strCount( op.output, 'Successfully built' ), 1 );
+    test.identical( _.strCount( op.output, 'Successfully tagged test_repo:test_tag' ), 1 );
+    test.identical( _.strCount( op.output, 'string=foo' ), 1 );
+    test.identical( _.strCount( op.output, 'bool-like=true' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'setup not default value, false';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_WITH`, 'string: foo\nbool-like: false' );
+    core.exportVariable( `INPUT_ENV_CONTEXT`, '{}' );
+    core.exportVariable( `INPUT_INPUTS_CONTEXT`, '{}' );
+    core.exportVariable( `GITHUB_WORKSPACE`, actionPath );
+    core.exportVariable( `GITHUB_OUTPUT`, `${ actionPath }/github_output` );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::' ), 0 );
+    test.identical( _.strCount( op.output, /Dockerfile for action : .*\/Dockerfile/ ), 1 );
+    test.identical( _.strCount( op.output, 'docker build -t test_repo:test_tag' ), 1 );
+    test.identical( _.strCount( op.output, 'Successfully built' ), 1 );
+    test.identical( _.strCount( op.output, 'Successfully tagged test_repo:test_tag' ), 1 );
+    test.identical( _.strCount( op.output, 'string=foo' ), 1 );
+    test.identical( _.strCount( op.output, 'bool-like=false' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'setup not default value, not false';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_WITH`, 'string: foo\nbool-like: 0' );
+    core.exportVariable( `INPUT_ENV_CONTEXT`, '{}' );
+    core.exportVariable( `INPUT_INPUTS_CONTEXT`, '{}' );
+    core.exportVariable( `GITHUB_WORKSPACE`, actionPath );
+    core.exportVariable( `GITHUB_OUTPUT`, `${ actionPath }/github_output` );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::' ), 0 );
+    test.identical( _.strCount( op.output, /Dockerfile for action : .*\/Dockerfile/ ), 1 );
+    test.identical( _.strCount( op.output, 'docker build -t test_repo:test_tag' ), 1 );
+    test.identical( _.strCount( op.output, 'Successfully built' ), 1 );
+    test.identical( _.strCount( op.output, 'Successfully tagged test_repo:test_tag' ), 1 );
+    test.identical( _.strCount( op.output, 'string=foo' ), 1 );
+    test.identical( _.strCount( op.output, 'bool-like=0' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    return a.ready;
+  }
+}
+
+retryDockerActionWithInputs.timeOut = 120000;
+
 // --
 // declare
 // --
@@ -1579,6 +1703,7 @@ const Proto =
     retryActionWithDefaultInputsFromMatrixContext,
 
     retryDockerTrivialAction,
+    retryDockerActionWithInputs,
   },
 };
 
