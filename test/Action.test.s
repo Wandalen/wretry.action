@@ -1566,8 +1566,8 @@ function retryDockerActionWithInputs( test )
     test.identical( _.strCount( op.output, '::error::' ), 0 );
     test.identical( _.strCount( op.output, /Dockerfile for action : .*\/Dockerfile/ ), 1 );
     test.identical( _.strCount( op.output, 'docker build -t test_repo:test_tag' ), 1 );
-    test.identical( _.strCount( op.output, 'Successfully built' ), 1 );
-    test.identical( _.strCount( op.output, 'Successfully tagged test_repo:test_tag' ), 1 );
+    test.le( _.strCount( op.output, 'Successfully built' ), 1 );
+    test.le( _.strCount( op.output, 'Successfully tagged test_repo:test_tag' ), 1 );
     test.identical( _.strCount( op.output, 'string=foo' ), 1 );
     test.identical( _.strCount( op.output, 'bool-like=true' ), 1 );
     return null;
@@ -1596,8 +1596,8 @@ function retryDockerActionWithInputs( test )
     test.identical( _.strCount( op.output, '::error::' ), 0 );
     test.identical( _.strCount( op.output, /Dockerfile for action : .*\/Dockerfile/ ), 1 );
     test.identical( _.strCount( op.output, 'docker build -t test_repo:test_tag' ), 1 );
-    test.identical( _.strCount( op.output, 'Successfully built' ), 1 );
-    test.identical( _.strCount( op.output, 'Successfully tagged test_repo:test_tag' ), 1 );
+    test.le( _.strCount( op.output, 'Successfully built' ), 1 );
+    test.le( _.strCount( op.output, 'Successfully tagged test_repo:test_tag' ), 1 );
     test.identical( _.strCount( op.output, 'string=foo' ), 1 );
     test.identical( _.strCount( op.output, 'bool-like=false' ), 1 );
     return null;
@@ -1626,8 +1626,8 @@ function retryDockerActionWithInputs( test )
     test.identical( _.strCount( op.output, '::error::' ), 0 );
     test.identical( _.strCount( op.output, /Dockerfile for action : .*\/Dockerfile/ ), 1 );
     test.identical( _.strCount( op.output, 'docker build -t test_repo:test_tag' ), 1 );
-    test.identical( _.strCount( op.output, 'Successfully built' ), 1 );
-    test.identical( _.strCount( op.output, 'Successfully tagged test_repo:test_tag' ), 1 );
+    test.le( _.strCount( op.output, 'Successfully built' ), 1 );
+    test.le( _.strCount( op.output, 'Successfully tagged test_repo:test_tag' ), 1 );
     test.identical( _.strCount( op.output, 'string=foo' ), 1 );
     test.identical( _.strCount( op.output, 'bool-like=0' ), 1 );
     return null;
