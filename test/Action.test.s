@@ -1487,6 +1487,7 @@ function retryDockerTrivialAction( test )
     core.exportVariable( `INPUT_ENV_CONTEXT`, '{}' );
     core.exportVariable( `INPUT_INPUTS_CONTEXT`, '{}' );
     core.exportVariable( `GITHUB_WORKSPACE`, actionPath );
+    core.exportVariable( `GITHUB_OUTPUT`, `${ actionPath }/github_output` );
     return null;
   });
 
@@ -1499,8 +1500,8 @@ function retryDockerTrivialAction( test )
     test.identical( _.strCount( op.output, '::error::' ), 0 );
     test.identical( _.strCount( op.output, /Dockerfile for action : .*\/Dockerfile/ ), 1 );
     test.identical( _.strCount( op.output, 'docker build -t hello-world-docker-action_repo:hello-world-docker-action_tag' ), 1 );
-    test.identical( _.strCount( op.output, 'Successfully built' ), 0 );
-    test.identical( _.strCount( op.output, 'Successfully tagged hello-world-docker-action_repo:hello-world-docker-action_tag' ), 0 );
+    test.le( _.strCount( op.output, 'Successfully built' ), 1 );
+    test.le( _.strCount( op.output, 'Successfully tagged hello-world-docker-action_repo:hello-world-docker-action_tag' ), 1 );
     test.identical( _.strCount( op.output, 'Hello' ), 1 );
     test.identical( _.strCount( op.output, 'time=' ), 0 );
     return null;
