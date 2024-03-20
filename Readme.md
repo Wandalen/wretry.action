@@ -2,13 +2,13 @@
 
 # action::retry [![status](https://github.com/Wandalen/wretry.action/actions/workflows/wRetryActionPublish.yml/badge.svg)](https://github.com/Wandalen/wretry.action/actions/workflows/wRetryActionPublish.yml) [![stable](https://img.shields.io/badge/stability-stable-brightgreen.svg)](https://github.com/emersion/stability-badges#stable)
 
-Retries an Github Action step or command on failure.
+Retries a Github Action step or command on failure.
 
 Works with either shell commands or other actions to retry.
 
 ## Why
 
-Github actions which use an Internet connection can fail when connection is lost :
+Github actions which use the Internet connection can fail when connection is lost :
 
 ```bash
 Run actions/setup-node@v1
@@ -38,13 +38,15 @@ It is a cause of failed jobs. For this case, the action `wretry.action` can retr
 
 ### `action`
 
-The name of the Github action.
+The name of a Github action. Format is `{owner}/{repo_name}@{ref}`.
+
+**Attention**. Action requires defined `action` or `command`. If the fields `action` and `commands` are defined simultaneously, then action will throw error.
 
 ### `command`
 
-The command to run.
+The command to run. The action runs the command in the default shell.
 
-**Attend**. Action requires defined `action` or `command`. If the fields `action` and `commands` are defined simultaneously, then action will throw error.
+**Attention**. Action requires defined `action` or `command`. If the fields `action` and `commands` are defined simultaneously, then action will throw error.
 
 ### `with`
 
@@ -62,7 +64,6 @@ An example of declaration of option with single line value :
 ```
 An example of declaration of option with multiline string :
 ```yaml
-
 - uses: Wandalen/wretry.action@master
   with:
     action: owner/action-repo@version
@@ -92,7 +93,7 @@ Set time out in ms for entire step including all retries. By default actions set
 
 ## Outputs
 
-The action exposes single output named `outputs`. It collects all the outputs from the action/command in the pretty print JSON map.
+The action exposes single output named `outputs`. It collects all the outputs from the action/command in JSON map.
 
 ### How to use outputs from the external action
 
@@ -105,6 +106,7 @@ jobs:
   job1:
     runs-on: ubuntu-latest
     outputs:
+      # extract `outputs` from a step
       out: ${{ steps.my-action.outputs.outputs }}
     steps:
       - id: my-action
@@ -119,7 +121,9 @@ jobs:
     needs: job1
     steps:
       - env:
+          # parse full map and store it to OUPUT1
           OUTPUT1: ${{ fromJSON( needs.job1.outputs.out ) }}
+          # parse full map and extract field `foo`
           OUTPUT2: ${{ fromJSON( needs.job1.outputs.out ).foo }}
         run: echo "$OUTPUT1 $OUTPUT2"
 ```
