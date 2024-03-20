@@ -585,7 +585,7 @@ function actionOptionsParse( test )
 
 //
 
-function envOptionsFrom( test )
+function optionsExtendByInputDefaults( test )
 {
   test.open( 'empty inputs' );
 
@@ -593,38 +593,14 @@ function envOptionsFrom( test )
 
   test.case = 'no options';
   var src = {};
-  var got = common.envOptionsFrom( src, inputs );
+  var got = common.optionsExtendByInputDefaults( src, inputs );
   test.identical( got, {} );
   test.true( got !== src );
 
-  test.case = 'simple option, lower case';
-  var src = { 'a' : '1' };
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_A : '1' } );
-  test.true( got !== src );
-
-  test.case = 'option with spaces, lower case';
-  var src = { 'a b c' : '1' };
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_A_B_C : '1' } );
-  test.true( got !== src );
-
-  test.case = 'simple option, upper case';
-  var src = { 'A' : '1' };
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_A : '1' } );
-  test.true( got !== src );
-
-  test.case = 'option with spaces, upper case';
-  var src = { 'A B C' : '1' };
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_A_B_C : '1' } );
-  test.true( got !== src );
-
-  test.case = 'option with spaces, mixed case';
+  test.case = 'option with spaces';
   var src = { 'A b c' : '1' };
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_A_B_C : '1' } );
+  var got = common.optionsExtendByInputDefaults( src, inputs );
+  test.identical( got, { 'A b c' : '1' } );
   test.true( got !== src );
 
   test.close( 'empty inputs' );
@@ -646,46 +622,106 @@ function envOptionsFrom( test )
 
   test.case = 'no options';
   var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1, INPUT_FALSE : false } );
+  var got = common.optionsExtendByInputDefaults( src, inputs );
+  var exp =
+  {
+    'str' : 'str',
+    'number' : 1,
+    'empty' : '',
+    'null' : null,
+    'not-defined' : undefined,
+    'no-default' : undefined,
+    'false' : false,
+  };
+  test.identical( got, exp );
   test.true( got !== src );
 
-  test.case = 'simple option, lower case';
-  var src = { 'a' : '1' };
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_A : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1, INPUT_FALSE : false } );
-  test.true( got !== src );
-
-  test.case = 'option with spaces, lower case';
-  var src = { 'a b c' : '1' };
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_A_B_C : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1, INPUT_FALSE : false } );
-  test.true( got !== src );
-
-  test.case = 'simple option, upper case';
-  var src = { 'A' : '1' };
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_A : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1, INPUT_FALSE : false } );
-  test.true( got !== src );
-
-  test.case = 'option with spaces, upper case';
-  var src = { 'A B C' : '1' };
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_A_B_C : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1, INPUT_FALSE : false } );
-  test.true( got !== src );
-
-  test.case = 'option with spaces, mixed case';
+  test.case = 'option with spaces';
   var src = { 'A b c' : '1' };
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_A_B_C : '1', INPUT_EMPTY : '', INPUT_STR : 'str', INPUT_NUMBER : 1, INPUT_FALSE : false } );
+  var got = common.optionsExtendByInputDefaults( src, inputs );
+  var exp =
+  {
+    'A b c' : '1',
+    'str' : 'str',
+    'number' : 1,
+    'empty' : '',
+    'null' : null,
+    'not-defined' : undefined,
+    'no-default' : undefined,
+    'false' : false,
+  };
+  test.identical( got, exp );
+  test.true( got !== src );
+
+  test.case = 'rewrite options';
+  var src =
+  {
+    'str' : 'foo',
+    'number' : 2,
+    'empty' : 'empty',
+    'null' : 'null',
+    'not-defined' : true,
+    'no-default' : true,
+    'false' : true
+  };
+  var got = common.optionsExtendByInputDefaults( src, inputs );
+  var exp =
+  {
+    'str' : 'foo',
+    'number' : 2,
+    'empty' : 'empty',
+    'null' : 'null',
+    'not-defined' : true,
+    'no-default' : true,
+    'false' : true,
+  };
+  test.identical( got, exp );
   test.true( got !== src );
 
   test.close( 'non empty inputs' );
+
+  /* */
+
+  var inputs = { 'foo' : { description : 'string', required : true, default : undefined } };
+
+  test.case = 'rewrite options with null';
+  var src = { 'foo' : null };
+  var got = common.optionsExtendByInputDefaults( src, inputs );
+  var exp = { 'foo' : null };
+  test.identical( got, exp );
+  test.true( got !== src );
+
+  test.case = 'rewrite options with empty';
+  var src = { 'foo' : '' };
+  var got = common.optionsExtendByInputDefaults( src, inputs );
+  var exp = { 'foo' : '' };
+  test.identical( got, exp );
+  test.true( got !== src );
+
+  test.case = 'rewrite options with false';
+  var src = { 'foo' : false };
+  var got = common.optionsExtendByInputDefaults( src, inputs );
+  var exp = { 'foo' : false };
+  test.identical( got, exp );
+  test.true( got !== src );
+
+  /* - */
+
+  if( !Config.debug )
+  return;
+
+  var inputs = { 'foo' : { description : 'string', required : true, default : undefined } };
+
+  test.case = 'required option, no options, default is undefined';
+  test.shouldThrowErrorSync( () => common.optionsExtendByInputDefaults( {}, inputs ) );
+
+  test.case = 'required option, option is undefined';
+  test.shouldThrowErrorSync( () => common.optionsExtendByInputDefaults( { foo : undefined }, inputs ) );
 }
 
 //
 
-function envOptionsFromEnvAndGithubContextExpressionInputs( test )
+function optionsExtendByInputDefaultsEnvAndGithubContextExpressionInputs( test )
 {
   const a = test.assetFor( false );
   process.env.GITHUB_EVENT_PATH = a.path.nativize( a.abs( __dirname, '_asset/context/event.json' ) );
@@ -783,8 +819,8 @@ function envOptionsFromEnvAndGithubContextExpressionInputs( test )
     }
   };
   var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_ENVIRONMENT : 'test' } );
+  var got = common.optionsExtendByInputDefaults( src, inputs );
+  test.identical( got, { environment : 'test' } );
   test.true( got !== src );
 
   test.case = 'resolve string from github context';
@@ -797,8 +833,8 @@ function envOptionsFromEnvAndGithubContextExpressionInputs( test )
     }
   };
   var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_GITHUB_STRING : a.path.nativize( a.abs( __dirname, '../../../test.action' ) ) } );
+  var got = common.optionsExtendByInputDefaults( src, inputs );
+  test.identical( got, { github_string : a.path.nativize( a.abs( __dirname, '../../../test.action' ) ) } );
   test.true( got !== src );
 
   test.case = 'resolve string from object in github context';
@@ -811,8 +847,8 @@ function envOptionsFromEnvAndGithubContextExpressionInputs( test )
     },
   };
   var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_GITHUB_OBJECT : 'master' } );
+  var got = common.optionsExtendByInputDefaults( src, inputs );
+  test.identical( got, { github_object : 'master' } );
   test.true( got !== src );
 
   test.case = 'resolve expression with environment and defined value';
@@ -825,8 +861,8 @@ function envOptionsFromEnvAndGithubContextExpressionInputs( test )
     },
   };
   var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_EXPRESSION_WITH_STRINGS : true } );
+  var got = common.optionsExtendByInputDefaults( src, inputs );
+  test.identical( got, { expression_with_strings : true } );
   test.true( got !== src );
 
   test.case = 'resolve expression with two resolved values';
@@ -839,8 +875,8 @@ function envOptionsFromEnvAndGithubContextExpressionInputs( test )
     },
   };
   var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_EXPRESSION_WITH_RESOLVED_STRINGS : false } );
+  var got = common.optionsExtendByInputDefaults( src, inputs );
+  test.identical( got, { expression_with_resolved_strings : false } );
   test.true( got !== src );
 
   test.case = 'resolve expression with two resolved values from objects';
@@ -858,8 +894,8 @@ function envOptionsFromEnvAndGithubContextExpressionInputs( test )
     },
   };
   var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_EXPRESSION_WITH_OBJECTS_FALSE : false, INPUT_EXPRESSION_WITH_OBJECTS_TRUE : true } );
+  var got = common.optionsExtendByInputDefaults( src, inputs );
+  test.identical( got, { expression_with_objects_false : false, expression_with_objects_true : true } );
   test.true( got !== src );
 
   test.case = 'resolve expression with two resolved values and boolean AND';
@@ -877,8 +913,8 @@ function envOptionsFromEnvAndGithubContextExpressionInputs( test )
     },
   };
   var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_EXPRESSION_WITH_OBJECTS_FALSE : false, INPUT_EXPRESSION_WITH_OBJECTS_TRUE : true } );
+  var got = common.optionsExtendByInputDefaults( src, inputs );
+  test.identical( got, { expression_with_objects_false : false, expression_with_objects_true : true } );
   test.true( got !== src );
 
   test.case = 'resolve expression with two resolved values and boolean OR';
@@ -896,14 +932,14 @@ function envOptionsFromEnvAndGithubContextExpressionInputs( test )
     },
   };
   var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_EXPRESSION_WITH_OBJECTS_FALSE : true, INPUT_EXPRESSION_WITH_OBJECTS_TRUE : true } );
+  var got = common.optionsExtendByInputDefaults( src, inputs );
+  test.identical( got, { expression_with_objects_false : true, expression_with_objects_true : true } );
   test.true( got !== src );
 }
 
 //
 
-function envOptionsFromJobContextExpressionInputs( test )
+function optionsExtendByInputDefaultsJobContextExpressionInputs( test )
 {
   process.env.INPUT_JOB_CONTEXT =
 `{
@@ -934,9 +970,9 @@ function envOptionsFromJobContextExpressionInputs( test )
     }
   };
   var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( _.map.keys( got ), [ 'INPUT_JOB_STATUS' ] );
-  var parsed = JSON.parse( got.INPUT_JOB_STATUS );
+  var got = common.optionsExtendByInputDefaults( src, inputs );
+  test.identical( _.map.keys( got ), [ 'job_status' ] );
+  var parsed = JSON.parse( got.job_status );
   test.identical( _.map.keys( parsed ), [ 'status', 'container', 'services' ] );
   test.identical( parsed.status, 'success' );
   test.identical( _.map.keys( parsed.container ), [ 'network' ] );
@@ -958,8 +994,8 @@ function envOptionsFromJobContextExpressionInputs( test )
     }
   };
   var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_JOB_STATUS : 'success' } );
+  var got = common.optionsExtendByInputDefaults( src, inputs );
+  test.identical( got, { job_status : 'success' } );
   test.true( got !== src );
 
   test.case = 'resolve not existed field';
@@ -972,8 +1008,8 @@ function envOptionsFromJobContextExpressionInputs( test )
     }
   };
   var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_JOB_NETWORK : '' } );
+  var got = common.optionsExtendByInputDefaults( src, inputs );
+  test.identical( got, { job_network : '' } );
   test.true( got !== src );
 
   test.case = 'resolve nested field';
@@ -986,16 +1022,16 @@ function envOptionsFromJobContextExpressionInputs( test )
     }
   };
   var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_JOB_NETWORK : 'github_network' } );
+  var got = common.optionsExtendByInputDefaults( src, inputs );
+  test.identical( got, { job_network : 'github_network' } );
   test.true( got !== src );
 }
 
-envOptionsFromJobContextExpressionInputs.timeOut = 30000;
+optionsExtendByInputDefaultsJobContextExpressionInputs.timeOut = 30000;
 
 //
 
-function envOptionsFromMatrixContextExpressionInputs( test )
+function optionsExtendByInputDefaultsMatrixContextExpressionInputs( test )
 {
   process.env.INPUT_MATRIX_CONTEXT =
 `{
@@ -1015,8 +1051,8 @@ function envOptionsFromMatrixContextExpressionInputs( test )
     }
   };
   var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_MATRIX : '{"os":"ubuntu-latest","version":16}' } );
+  var got = common.optionsExtendByInputDefaults( src, inputs );
+  test.identical( got, { matrix : '{"os":"ubuntu-latest","version":16}' } );
   test.true( got !== src );
 
   test.case = 'resolve field';
@@ -1029,8 +1065,55 @@ function envOptionsFromMatrixContextExpressionInputs( test )
     }
   };
   var src = {};
-  var got = common.envOptionsFrom( src, inputs );
-  test.identical( got, { INPUT_MATRIX : 'ubuntu-latest' } );
+  var got = common.optionsExtendByInputDefaults( src, inputs );
+  test.identical( got, { matrix : 'ubuntu-latest' } );
+  test.true( got !== src );
+}
+
+//
+
+function envOptionsFrom( test )
+{
+  test.case = 'no options';
+  var src = {};
+  var got = common.envOptionsFrom( src );
+  test.identical( got, {} );
+  test.true( got !== src );
+
+  test.case = 'simple option, lower case';
+  var src = { 'a' : '1' };
+  var got = common.envOptionsFrom( src );
+  test.identical( got, { INPUT_A : '1' } );
+  test.true( got !== src );
+
+  test.case = 'option with spaces, lower case';
+  var src = { 'a b c' : '1' };
+  var got = common.envOptionsFrom( src );
+  test.identical( got, { INPUT_A_B_C : '1' } );
+  test.true( got !== src );
+
+  test.case = 'simple option, upper case';
+  var src = { 'A' : '1' };
+  var got = common.envOptionsFrom( src );
+  test.identical( got, { INPUT_A : '1' } );
+  test.true( got !== src );
+
+  test.case = 'option with spaces, upper case';
+  var src = { 'A B C' : '1' };
+  var got = common.envOptionsFrom( src );
+  test.identical( got, { INPUT_A_B_C : '1' } );
+  test.true( got !== src );
+
+  test.case = 'option with spaces, mixed case';
+  var src = { 'A b c' : '1' };
+  var got = common.envOptionsFrom( src );
+  test.identical( got, { INPUT_A_B_C : '1' } );
+  test.true( got !== src );
+
+  test.case = 'option with spaces and dash, mixed case';
+  var src = { 'A-b c' : '1' };
+  var got = common.envOptionsFrom( src );
+  test.identical( got, { 'INPUT_A-B_C' : '1' } );
   test.true( got !== src );
 }
 
@@ -1157,10 +1240,11 @@ const Proto =
     actionClone,
     actionConfigRead,
     actionOptionsParse,
+    optionsExtendByInputDefaults,
+    optionsExtendByInputDefaultsEnvAndGithubContextExpressionInputs,
+    optionsExtendByInputDefaultsJobContextExpressionInputs,
+    optionsExtendByInputDefaultsMatrixContextExpressionInputs,
     envOptionsFrom,
-    envOptionsFromEnvAndGithubContextExpressionInputs,
-    envOptionsFromJobContextExpressionInputs,
-    envOptionsFromMatrixContextExpressionInputs,
     contextGet,
     envOptionsSetup,
   },

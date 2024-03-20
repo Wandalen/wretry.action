@@ -83,7 +83,8 @@ function retry( scriptType )
         const options = common.actionOptionsParse( optionsStrings );
         _.map.sureHasOnly( options, config.inputs );
 
-        const envOptions = common.envOptionsFrom( options, config.inputs );
+        const fullOptions = common.optionsExtendByInputDefaults( options, config.inputs );
+        const envOptions = common.envOptionsFrom( fullOptions );
         common.envOptionsSetup( envOptions );
 
         if( _.str.begins( config.runs.using, 'node' ) )
@@ -118,8 +119,8 @@ function retry( scriptType )
           );
           const docker = require( './Docker.js' );
           const imageName = docker.imageBuild( actionFileDir, config.runs.image );
-          const execPath = docker.runCommandForm( imageName, envOptions );
-          const args = docker.commandArgsFrom( config.runs.args, options );
+          const args = docker.commandArgsFrom( config.runs.args, fullOptions );
+          const execPath = docker.runCommandForm( imageName, envOptions, args );
 
           routine = () =>
           {
@@ -127,8 +128,7 @@ function retry( scriptType )
             {
               currentPath,
               execPath,
-              args,
-              inputMirroring : 0,
+              inputMirroring : 1,
               stdio : 'inherit',
               mode : 'shell',
             };

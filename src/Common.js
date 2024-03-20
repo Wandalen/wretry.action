@@ -105,20 +105,28 @@ function actionOptionsParse( src )
 
 //
 
-function envOptionsFrom( options, inputs )
+function optionsExtendByInputDefaults( options, inputs )
 {
   const result = Object.create( null );
 
   for( let key in options )
-  result[ `INPUT_${ key.replace( / /g, '_' ).toUpperCase() }` ] = options[ key ];
+  result[ key ] = options[ key ];
 
   if( inputs )
   {
     for( let key in inputs )
     {
-      const defaultValue = inputs[ key ].default;
-      if( !( key in options ) && defaultValue !== undefined && defaultValue !== null )
+      if( key in options )
       {
+        if( inputs[ key ].required )
+        _.sure( options[ key ] !== undefined, `Please, provide value for option "${ key }"` )
+      }
+      else
+      {
+        const defaultValue = inputs[ key ].default;
+        if( inputs[ key ].required )
+        _.sure( defaultValue !== undefined, `Please, provide value for option "${ key }"` )
+
         let value = defaultValue;
         if( _.str.is( value ) )
         if( value.startsWith( '${{' ) && value.endsWith( '}}' ) )
@@ -127,11 +135,21 @@ function envOptionsFrom( options, inputs )
           GithubActionsParser = require( 'github-actions-parser' );
           value = GithubActionsParser.evaluateExpression( value, { get : contextGet } );
         }
-        result[ `INPUT_${key.replace(/ /g, '_').toUpperCase()}` ] = value;
+        result[ key ] = value;
       }
     }
   }
 
+  return result;
+}
+
+//
+
+function envOptionsFrom( options )
+{
+  const result = Object.create( null );
+  for( let key in options )
+  result[ `INPUT_${ key.replace( / /g, '_' ).toUpperCase() }` ] = options[ key ];
   return result;
 }
 
@@ -179,7 +197,6 @@ function contextGet( contextName )
 
   function githubContextUpdate( githubContext )
   {
-    console.log( process.env.RETRY_ACTION );
     const remoteActionPath = remotePathFromActionName( process.env.RETRY_ACTION );
     const localActionPath = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
     githubContext.action_path = localActionPath;
@@ -207,6 +224,7 @@ const Self =
   actionClone,
   actionConfigRead,
   actionOptionsParse,
+  optionsExtendByInputDefaults,
   envOptionsFrom,
   contextGet,
   envOptionsSetup,

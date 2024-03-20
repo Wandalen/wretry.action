@@ -82,7 +82,50 @@ function imageBuild( actionPath, image )
 
 //
 
-function runCommandForm( imageName, inputs )
+function commandArgsFrom( args, options )
+{
+  const commandArgs = [];
+  if( args === undefined )
+  return commandArgs;
+
+  for( let i = 0 ; i < args.length ; i++ )
+  {
+    let value = args[ i ];
+    if( _.str.is( value ) )
+    if( value.startsWith( '${{' ) && value.endsWith( '}}' ) )
+    {
+      if( GithubActionsParser === null )
+      GithubActionsParser = require( 'github-actions-parser' );
+      value = GithubActionsParser.evaluateExpression( value,
+      {
+        get : ( name ) =>
+        {
+          if( name === 'inputs' )
+          return options;
+          let context = common.contextGet( name );
+          return context;
+        }
+      });
+    }
+    if( value === '' )
+    {
+      core.info
+      (
+        `Arg "${ args[ i ] }" in position ${ i } is not defined. It can corrupt execution.`
+        + `\nPlease, read doc of action and setup it properly`
+      );
+      value = '""';
+    }
+    commandArgs.push( String( value ) );
+  }
+
+  return commandArgs;
+}
+
+
+//
+
+function runCommandForm( imageName, inputs, args )
 {
   const [ repo, tag ] = imageName.split( ':' );
   _.sure( _.str.defined( repo ) && _.str.defined( tag ), 'Expects image name in format "[repo]:[tag]".' );
@@ -141,6 +184,7 @@ function runCommandForm( imageName, inputs )
     'GITHUB_ACTIONS=true',
     'CI=true',
   ];
+  const githubOutputDir = _.path.dir( process.env.GITHUB_OUTPUT );
   const postfix_command_paths =
   [
     '"/var/run/docker.sock":"/var/run/docker.sock"',
@@ -148,7 +192,7 @@ function runCommandForm( imageName, inputs )
     '"/home/runner/work/_temp/_github_workflow":"/github/workflow"',
     '"/home/runner/work/_temp/_runner_file_commands":"/github/file_commands"',
     `"${ process.env.GITHUB_WORKSPACE }":"/github/workspace"`,
-    `"${ process.env.GITHUB_OUTPUT }":"${ process.env.GITHUB_OUTPUT }"`,
+    `"${ githubOutputDir }":"${ githubOutputDir }"`,
   ];
 
   /* */
@@ -160,41 +204,11 @@ function runCommandForm( imageName, inputs )
   command.push( '-e', postfix_command_envs.join( ' -e ' ) );
   command.push( '-v', postfix_command_paths.join( ' -v ' ) );
   command.push( imageName );
+  command.push( args.join( ' ' ) );
 
-  return command.join( ' ' );
-}
-
-//
-
-function commandArgsFrom( args, inputs )
-{
-  const commandArgs = [];
-  if( args === undefined )
-  return commandArgs;
-
-  for( let i = 0 ; i < args.length ; i++ )
-  {
-    let value = args[ i ];
-    if( _.str.is( value ) )
-    if( value.startsWith( '${{' ) && value.endsWith( '}}' ) )
-    {
-      if( GithubActionsParser === null )
-      GithubActionsParser = require( 'github-actions-parser' );
-      value = GithubActionsParser.evaluateExpression( value,
-      {
-        get : ( name ) =>
-        {
-          let context = common.contextGet( name );
-          if( _.map.keys( context ).length === 0 && name === 'inputs' )
-          return inputs;
-          return context;
-        }
-      });
-    }
-    commandArgs.push( String( value ) );
-  }
-
-  return commandArgs;
+  const strCommand = command.join( ' ' );
+  core.debug( strCommand );
+  return strCommand;
 }
 
 // --
@@ -205,8 +219,8 @@ const Self =
 {
   exists,
   imageBuild,
-  runCommandForm,
   commandArgsFrom,
+  runCommandForm,
 };
 
 module.exports = Self;
