@@ -82,11 +82,21 @@ function retry( scriptType )
 
         const optionsStrings = core.getInput( 'with' );
         const options = common.actionOptionsParse( optionsStrings );
-        _.map.sureHasOnly( options, config.inputs );
 
-        const fullOptions = common.optionsExtendByInputDefaults( options, config.inputs );
-        const envOptions = common.envOptionsFrom( fullOptions );
-        common.envOptionsSetup( envOptions );
+        let fullOptions = Object.create( null );
+        let envOptions = Object.create( null );
+        if( config.inputs && _.map.keys( config.inputs ).length > 0 )
+        {
+          _.map.sureHasOnly( options, config.inputs );
+          fullOptions = common.optionsExtendByInputDefaults( options, config.inputs );
+          envOptions = common.envOptionsFrom( fullOptions );
+          common.envOptionsSetup( envOptions );
+        }
+        else
+        {
+          if( config.inputs )
+          _.sure( _.map.keys( config.inputs ).length === 0, 'Expects no options' );
+        }
 
         if( _.str.begins( config.runs.using, 'node' ) )
         {
