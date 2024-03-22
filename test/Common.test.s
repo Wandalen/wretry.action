@@ -80,10 +80,12 @@ function commandsForm( test )
 
 //
 
-function remotePathFromActionName( test )
+function remotePathForm( test )
 {
+  test.open( 'without token' );
+
   test.case = 'without hash or tag';
-  var got = common.remotePathFromActionName( 'action/name' );
+  var got = common.remotePathForm( 'action/name' );
   var exp =
   {
     protocol : 'https',
@@ -99,7 +101,7 @@ function remotePathFromActionName( test )
   test.identical( got, exp );
 
   test.case = 'with tag';
-  var got = common.remotePathFromActionName( 'action/name@v0.0.0' );
+  var got = common.remotePathForm( 'action/name@v0.0.0' );
   var exp =
   {
     protocol : 'https',
@@ -115,7 +117,7 @@ function remotePathFromActionName( test )
   test.identical( got, exp );
 
   test.case = 'with short hash';
-  var got = common.remotePathFromActionName( 'action/name@9b5d00b' );
+  var got = common.remotePathForm( 'action/name@9b5d00b' );
   var exp =
   {
     protocol : 'https',
@@ -131,7 +133,7 @@ function remotePathFromActionName( test )
   test.identical( got, exp );
 
   test.case = 'with long hash';
-  var got = common.remotePathFromActionName( 'action/name@9b5d00b7245dae0586efca5052f41ae023cb7659' );
+  var got = common.remotePathForm( 'action/name@9b5d00b7245dae0586efca5052f41ae023cb7659' );
   var exp =
   {
     protocol : 'https',
@@ -149,7 +151,7 @@ function remotePathFromActionName( test )
   /* */
 
   test.case = 'without hash or tag, subdirectory';
-  var got = common.remotePathFromActionName( 'action/name/subdir' );
+  var got = common.remotePathForm( 'action/name/subdir' );
   var exp =
   {
     protocol : 'https',
@@ -165,7 +167,7 @@ function remotePathFromActionName( test )
   test.identical( got, exp );
 
   test.case = 'with tag, subdirectory';
-  var got = common.remotePathFromActionName( 'action/name/subdir@v0.0.0' );
+  var got = common.remotePathForm( 'action/name/subdir@v0.0.0' );
   var exp =
   {
     protocol : 'https',
@@ -181,7 +183,7 @@ function remotePathFromActionName( test )
   test.identical( got, exp );
 
   test.case = 'with short hash, subdirectory';
-  var got = common.remotePathFromActionName( 'action/name/subdir@9b5d00b' );
+  var got = common.remotePathForm( 'action/name/subdir@9b5d00b' );
   var exp =
   {
     protocol : 'https',
@@ -197,7 +199,7 @@ function remotePathFromActionName( test )
   test.identical( got, exp );
 
   test.case = 'with long hash';
-  var got = common.remotePathFromActionName( 'action/name/subdir@9b5d00b7245dae0586efca5052f41ae023cb7659' );
+  var got = common.remotePathForm( 'action/name/subdir@9b5d00b7245dae0586efca5052f41ae023cb7659' );
   var exp =
   {
     protocol : 'https',
@@ -213,7 +215,7 @@ function remotePathFromActionName( test )
   test.identical( got, exp );
 
   test.case = 'with org/.github repo under subdirectory path';
-  var got = common.remotePathFromActionName( 'org/.github/actions/foo/bar/action@v1.2.3' );
+  var got = common.remotePathForm( 'org/.github/actions/foo/bar/action@v1.2.3' );
   var exp =
   {
     protocol : 'https',
@@ -225,6 +227,26 @@ function remotePathFromActionName( test )
     service : 'github.com',
     user : 'org',
     repo : '.github'
+  };
+  test.identical( got, exp );
+
+  test.close( 'without token' );
+
+  /* - */
+
+  test.case = 'with short hash, subdirectory and token';
+  var got = common.remotePathForm( 'action/name/subdir@9b5d00b', 'token' );
+  var exp =
+  {
+    protocol : 'https',
+    longPath : 'oauth2:token@github.com/action/name.git/',
+    tag : '9b5d00b',
+    localVcsPath : 'subdir',
+    protocols : [ 'https' ],
+    isFixated : false,
+    service : 'github.com',
+    user : 'action',
+    repo : 'name'
   };
   test.identical( got, exp );
 }
@@ -241,7 +263,7 @@ function actionClone( test )
   a.ready.then( () =>
   {
     test.case = 'action without hash or tag, default branch is main';
-    var remotePath = common.remotePathFromActionName( 'actions/hello-world-javascript-action' );
+    var remotePath = common.remotePathForm( 'actions/hello-world-javascript-action' );
     return common.actionClone( localPath, remotePath );
   });
   a.ready.then( ( op ) =>
@@ -255,7 +277,7 @@ function actionClone( test )
   a.ready.then( () =>
   {
     test.case = 'action without hash or tag';
-    var remotePath = common.remotePathFromActionName( 'dmvict/test.action' );
+    var remotePath = common.remotePathForm( 'dmvict/test.action' );
     return common.actionClone( localPath, remotePath );
   });
   a.ready.then( ( op ) =>
@@ -271,7 +293,7 @@ function actionClone( test )
   a.ready.then( () =>
   {
     test.case = 'action with tag';
-    var remotePath = common.remotePathFromActionName( 'dmvict/test.action@v0.0.2' );
+    var remotePath = common.remotePathForm( 'dmvict/test.action@v0.0.2' );
     return common.actionClone( localPath, remotePath );
   });
   a.ready.then( ( op ) =>
@@ -287,7 +309,7 @@ function actionClone( test )
   a.ready.then( () =>
   {
     test.case = 'action with short hash';
-    var remotePath = common.remotePathFromActionName( 'dmvict/test.action@3d21630' );
+    var remotePath = common.remotePathForm( 'dmvict/test.action@3d21630' );
     return common.actionClone( localPath, remotePath );
   });
   a.ready.then( ( op ) =>
@@ -303,7 +325,7 @@ function actionClone( test )
   a.ready.then( () =>
   {
     test.case = 'action with long hash';
-    var remotePath = common.remotePathFromActionName( 'dmvict/test.action@3d2163092fd3c83e02895189bf8fb845c5dc9e3f' );
+    var remotePath = common.remotePathForm( 'dmvict/test.action@3d2163092fd3c83e02895189bf8fb845c5dc9e3f' );
     return common.actionClone( localPath, remotePath );
   });
   a.ready.then( ( op ) =>
@@ -319,7 +341,7 @@ function actionClone( test )
   a.ready.then( () =>
   {
     test.case = 'action with subdirectory';
-    var remotePath = common.remotePathFromActionName( 'dmvict/test.action/subaction' );
+    var remotePath = common.remotePathForm( 'dmvict/test.action/subaction' );
     return common.actionClone( localPath, remotePath );
   });
   a.ready.then( ( op ) =>
@@ -335,7 +357,7 @@ function actionClone( test )
   a.ready.then( () =>
   {
     test.case = 'action with subdirectory and tag';
-    var remotePath = common.remotePathFromActionName( 'dmvict/test.action/subaction@v0.0.11' );
+    var remotePath = common.remotePathForm( 'dmvict/test.action/subaction@v0.0.11' );
     return common.actionClone( localPath, remotePath );
   });
   a.ready.then( ( op ) =>
@@ -359,7 +381,7 @@ function actionConfigRead( test )
 {
   const a = test.assetFor( false );
   const actionPath = a.abs( '.' );
-  const remoteActionPath = common.remotePathFromActionName( 'dmvict/test.action@v0.0.2' );
+  const remoteActionPath = common.remotePathForm( 'dmvict/test.action@v0.0.2' );
 
   /* - */
 
@@ -442,7 +464,7 @@ function actionConfigRead( test )
     return a.ready.then( () =>
     {
       a.fileProvider.filesDelete( actionPath );
-      return common.actionClone( actionPath, common.remotePathFromActionName( 'dmvict/test.action@v0.0.2' ) );
+      return common.actionClone( actionPath, common.remotePathForm( 'dmvict/test.action@v0.0.2' ) );
     });
   }
 }
@@ -1236,7 +1258,7 @@ const Proto =
   tests :
   {
     commandsForm,
-    remotePathFromActionName,
+    remotePathForm,
     actionClone,
     actionConfigRead,
     actionOptionsParse,
