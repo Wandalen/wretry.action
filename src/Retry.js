@@ -66,7 +66,8 @@ function retry( scriptType )
       throw _.error.brief( 'Expects Github action name or command, but not both.' );
 
       process.env.RETRY_ACTION = actionName;
-      const remoteActionPath = common.remotePathFromActionName( actionName );
+      const token = core.getInput( 'github_token' );
+      const remoteActionPath = common.remotePathForm( actionName, token );
       const localActionDir = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
 
       con.then( () => common.actionClone( localActionDir, remoteActionPath ) );
