@@ -66,7 +66,8 @@ function retry( scriptType )
       throw _.error.brief( 'Expects Github action name or command, but not both.' );
 
       process.env.RETRY_ACTION = actionName;
-      const remoteActionPath = common.remotePathFromActionName( actionName );
+      const token = core.getInput( 'github_token' );
+      const remoteActionPath = common.remotePathForm( actionName, token );
       const localActionDir = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
 
       con.then( () => common.actionClone( localActionDir, remoteActionPath ) );
@@ -81,11 +82,21 @@ function retry( scriptType )
 
         const optionsStrings = core.getInput( 'with' );
         const options = common.actionOptionsParse( optionsStrings );
-        _.map.sureHasOnly( options, config.inputs );
 
-        const fullOptions = common.optionsExtendByInputDefaults( options, config.inputs );
-        const envOptions = common.envOptionsFrom( fullOptions );
-        common.envOptionsSetup( envOptions );
+        let fullOptions = Object.create( null );
+        let envOptions = Object.create( null );
+        if( config.inputs && _.map.keys( config.inputs ).length > 0 )
+        {
+          _.map.sureHasOnly( options, config.inputs );
+          fullOptions = common.optionsExtendByInputDefaults( options, config.inputs );
+          envOptions = common.envOptionsFrom( fullOptions );
+          common.envOptionsSetup( envOptions );
+        }
+        else
+        {
+          if( config.inputs )
+          _.sure( _.map.keys( config.inputs ).length === 0, 'Expects no options' );
+        }
 
         if( _.str.begins( config.runs.using, 'node' ) )
         {

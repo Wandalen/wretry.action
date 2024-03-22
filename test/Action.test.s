@@ -1153,6 +1153,7 @@ function retryActionWithPreAndPostScript( test )
 }
 
 retryActionWithPreAndPostScript.timeOut = 120000;
+
 //
 
 function retryActionWithDefaultInputs( test )
@@ -1465,6 +1466,63 @@ retryActionWithDefaultInputsFromMatrixContext.timeOut = 120000;
 
 //
 
+function retryPrivateActionWithoutInputsMap( test )
+{
+  const context = this;
+  const a = test.assetFor( false );
+
+  if( !process.env.PRIVATE_TOKEN )
+  return test.true( true );
+
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+
+  const testAction = 'dmvict/test.action.private@master';
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'missed required argument, default bool value exists';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_GITHUB_TOKEN`, process.env.PRIVATE_TOKEN );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::' ), 0 );
+    test.identical( _.strCount( op.output, 'Success' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    return a.ready;
+  }
+}
+
+retryPrivateActionWithoutInputsMap.timeOut = 120000;
+
+//
+
 function retryDockerTrivialAction( test )
 {
   const ubuntuIs = process.env.ImageOS && _.str.begins( process.env.ImageOS, 'ubuntu' );
@@ -1702,6 +1760,8 @@ const Proto =
     retryActionWithDefaultInputsAsExpressions,
     retryActionWithDefaultInputsFromJobContext,
     retryActionWithDefaultInputsFromMatrixContext,
+
+    retryPrivateActionWithoutInputsMap,
 
     retryDockerTrivialAction,
     retryDockerActionWithInputs,

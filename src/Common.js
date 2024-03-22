@@ -30,7 +30,7 @@ function commandsForm( command )
 
 //
 
-function remotePathFromActionName( name )
+function remotePathForm( name, token )
 {
   if( _.str.begins( name, [ './', 'docker:' ] ) )
   {
@@ -39,6 +39,9 @@ function remotePathFromActionName( name )
   else
   {
     name = name.replace( /^([^\/]+\/[^\/]+)\//, '$1.git/' );
+    if( token )
+    return _.git.path.parse( `https://oauth2:${ token }@github.com/${ _.str.replace( name, '@', '!' ) }` );
+    else
     return _.git.path.parse( `https://github.com/${ _.str.replace( name, '@', '!' ) }` );
   }
 }
@@ -197,7 +200,7 @@ function contextGet( contextName )
 
   function githubContextUpdate( githubContext )
   {
-    const remoteActionPath = remotePathFromActionName( process.env.RETRY_ACTION );
+    const remoteActionPath = remotePathForm( process.env.RETRY_ACTION );
     const localActionPath = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
     githubContext.action_path = localActionPath;
     githubContext.action_ref = remoteActionPath.tag;
@@ -220,7 +223,7 @@ function envOptionsSetup( options )
 const Self =
 {
   commandsForm,
-  remotePathFromActionName,
+  remotePathForm,
   actionClone,
   actionConfigRead,
   actionOptionsParse,
