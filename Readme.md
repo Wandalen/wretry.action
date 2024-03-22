@@ -91,6 +91,10 @@ Set delay between attempts in ms. Default is 0.
 
 Set time out in ms for entire step including all retries. By default actions sets no time out.
 
+### `github_token`
+
+A token to access private actions. Does not required for public actions.
+
 ## Outputs
 
 The action exposes single output named `outputs`. It collects all the outputs from the action/command in JSON map.

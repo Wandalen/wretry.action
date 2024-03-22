@@ -35,6 +35,9 @@ inputs:
       actions sets no time out.
     required: false
     default: false
+  github_token:
+    description: 'A token to access private actions. Does not required for public actions.'
+    required: false
 outputs:
   outputs:
     description: A pretty print JSON map with outputs from the wrapped action.
@@ -57,3 +60,4 @@ runs:
         job_context: '${{ toJSON( job ) }}'
         matrix_context: '${{ toJSON( matrix ) }}'
         time_out: '${{ inputs.time_out }}'
+        github_token: '${{ inputs.github_token }}'
