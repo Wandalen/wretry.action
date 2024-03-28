@@ -75,7 +75,7 @@ function retry( scriptType )
       {
         const actionFileDir = _.path.nativize( _.path.join( localActionDir, remoteActionPath.localVcsPath ) );
         const config = common.actionConfigRead( actionFileDir );
-        if( shouldExit( config, scriptType ) )
+        if( common.shouldExit( config, scriptType ) )
         return null;
 
         const currentPath = process.env.GITHUB_WORKSPACE || _.path.current();
@@ -198,19 +198,6 @@ function retry( scriptType )
     _.error.attend( err );
     return shouldRetry;
   }
-}
-
-//
-
-function shouldExit( config, scriptType )
-{
-  if( _.strBegins( config.runs.using, 'node' ) && !config.runs[ scriptType ] )
-  return true;
-
-  if( config.runs.using === 'docker' && scriptType !== 'main' && !config.runs[ `${ scriptType }-entrypoint` ] )
-  return true;
-
-  return false;
 }
 
 module.exports = { retry };
