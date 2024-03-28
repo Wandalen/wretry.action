@@ -13,6 +13,7 @@ if( typeof module !== 'undefined' )
 const _ = _global_.wTools;
 const __ = _globals_.testing.wTools;
 const common = require( '../src/Common.js' );
+const core = require( '@actions/core' );
 
 // --
 // test
@@ -1246,6 +1247,145 @@ function envOptionsSetup( test )
   delete process.env.INPUT_V;
 }
 
+//
+
+function shouldExit( test )
+{
+  test.open( 'without conditions' );
+
+  var config =
+  {
+    runs:
+    {
+      using : 'node20',
+      main : 'index.js'
+    }
+  };
+
+  test.case = 'only main in config, pre';
+  var got = common.shouldExit( config, 'pre' );
+  test.identical( got, true );
+
+  test.case = 'only main in config, main';
+  var got = common.shouldExit( config, 'main' );
+  test.identical( got, false );
+
+  test.case = 'only main in config, post';
+  var got = common.shouldExit( config, 'post' );
+  test.identical( got, true );
+
+  test.case = 'only main in config, unknown script type';
+  var got = common.shouldExit( config, 'unknown' );
+  test.identical( got, true );
+
+  /* */
+
+  var config =
+  {
+    runs:
+    {
+      using : 'node20',
+      pre : 'pre.js',
+      main : 'index.js',
+      post : 'post.js',
+    }
+  };
+
+  test.case = 'all entries in config, pre';
+  var got = common.shouldExit( config, 'pre' );
+  test.identical( got, false );
+
+  test.case = 'all entries in config, main';
+  var got = common.shouldExit( config, 'main' );
+  test.identical( got, false );
+
+  test.case = 'all entries in config, post';
+  var got = common.shouldExit( config, 'post' );
+  test.identical( got, false );
+
+  /* */
+
+  var config =
+  {
+    runs:
+    {
+      using : 'docker',
+      image : 'Dockerfile',
+    }
+  };
+
+  test.case = 'only image in config, pre';
+  var got = common.shouldExit( config, 'pre' );
+  test.identical( got, true );
+
+  test.case = 'only main in config, main';
+  var got = common.shouldExit( config, 'main' );
+  test.identical( got, false );
+
+  test.case = 'only main in config, post';
+  var got = common.shouldExit( config, 'post' );
+  test.identical( got, true );
+
+  test.case = 'only main in config, unknown script type';
+  var got = common.shouldExit( config, 'unknown' );
+  test.identical( got, true );
+
+  /* */
+
+  var config =
+  {
+    runs:
+    {
+      'using' : 'docker',
+      'image' : 'Dockerfile',
+      'pre-entrypoint' : 'pre.sh',
+      'post-entrypoint' : 'post.sh',
+    }
+  };
+
+  test.case = 'all entries in config, pre';
+  var got = common.shouldExit( config, 'pre' );
+  test.identical( got, true );
+
+  test.case = 'all entries in config, main';
+  var got = common.shouldExit( config, 'main' );
+  test.identical( got, false );
+
+  test.case = 'all entries in config, post';
+  var got = common.shouldExit( config, 'post' );
+  test.identical( got, true );
+
+  test.close( 'without conditions' );
+
+  /* - */
+
+  test.open( 'with conditions' );
+
+  var config =
+  {
+    runs:
+    {
+      'using' : 'node20',
+      'pre' : 'pre.js',
+      'pre-if' : 'env.TEST_CI == true',
+      'main' : 'index.js',
+      'post' : 'post.js',
+    }
+  };
+
+  test.case = 'all entries in config, pre with condition, should be false';
+  core.exportVariable( 'INPUT_ENV_CONTEXT', '{"TEST_CI": true}' );
+  var got = common.shouldExit( config, 'pre' );
+  test.identical( got, false );
+
+  test.case = 'all entries in config, pre with condition, should be true';
+  core.exportVariable( 'INPUT_ENV_CONTEXT', '{"TEST_CI": false}' );
+  var got = common.shouldExit( config, 'pre' );
+  test.identical( got, true );
+
+  test.close( 'with conditions' );
+}
+
 // --
 // declare
 // --
@@ -1269,6 +1409,7 @@ const Proto =
     envOptionsFrom,
     contextGet,
     envOptionsSetup,
+    shouldExit,
   },
 };
 

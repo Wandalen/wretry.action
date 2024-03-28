@@ -216,6 +216,29 @@ function envOptionsSetup( options )
   core.exportVariable( key, options[ key ] );
 }
 
+//
+
+function shouldExit( config, scriptType )
+{
+  if( _.strBegins( config.runs.using, 'node' ) )
+  {
+    if( !config.runs[ scriptType ])
+    return true;
+
+    if( config.runs[ `${ scriptType }-if` ] )
+    {
+      if( GithubActionsParser === null )
+      GithubActionsParser = require( 'github-actions-parser' );
+      return !GithubActionsParser.evaluateExpression( config.runs[ `${ scriptType }-if` ], { get : contextGet } );
+    }
+  }
+
+  if( config.runs.using === 'docker' && scriptType !== 'main' )
+  return true;
+
+  return false;
+}
+
 // --
 // export
 // --
@@ -231,6 +254,7 @@ const Self =
   envOptionsFrom,
   contextGet,
   envOptionsSetup,
+  shouldExit,
 };
 
 module.exports = Self;
