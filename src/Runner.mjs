@@ -1,27 +1,33 @@
 
-/* this branch exists because some MacOs NodeJs instances cannot send big messages */
-if( process.platform === 'darwin' )
+import ( 'url' ).then( ( url ) =>
 {
-  let initEnvs = Object.assign( Object.create( null ), process.env );
-
-  import ( process.argv[ 2 ] ).then( () =>
+  return url.pathToFileURL( process.argv[ 2 ] );
+})
+.then( ( path ) =>
+{
+  /* this branch exists because some MacOs NodeJs instances cannot send big messages */
+  if( process.platform === 'darwin' )
   {
-    process.on( 'exit', () =>
+    let initEnvs = Object.assign( Object.create( null ), process.env );
+
+    import ( path ).then( () =>
     {
-      let result = Object.create( null );
-      for( let key in process.env )
-      if( ( !key in initEnvs ) || initEnvs[ key ] !== process.env[ key ] )
-      result[ key ] = process.env[ key ];
+      process.on( 'exit', () =>
+      {
+        let result = Object.create( null );
+        for( let key in process.env )
+        if( ( !key in initEnvs ) || initEnvs[ key ] !== process.env[ key ] )
+        result[ key ] = process.env[ key ];
 
-      process.send( result );
+        process.send( result );
+      });
     });
-  });
-}
-else
-{
-  import ( process.argv[ 2 ] ).then( () =>
+  }
+  else
   {
-    process.on( 'exit', () => process.send( process.env ) );
-  });
-}
-
+    import ( path ).then( () =>
+    {
+      process.on( 'exit', () => process.send( process.env ) );
+    });
+  }
+});
