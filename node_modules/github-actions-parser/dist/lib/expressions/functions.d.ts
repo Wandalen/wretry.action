@@ -1,3 +1,4 @@
+import { ExpressionContext } from "./evaluator";
 export declare const Undetermined: {};
 export declare function getFunctionDescription(f: string): string | undefined;
 export declare function contains<T>(haystack: T | T[], needle: T): boolean;
@@ -8,7 +9,7 @@ export declare function toJSON(input: unknown): string;
 export declare function fromJSON(input: string | typeof Undetermined): unknown;
 export declare function hashFiles(path: string[]): string;
 export declare function format(format: string, ...params: string[]): string;
-export declare function always(): boolean;
-export declare function failure(): {};
-export declare function success(): {};
-export declare function cancelled(): {};
+export declare function always(_context: ExpressionContext): boolean;
+export declare function failure(context: ExpressionContext): any;
+export declare function success(context: ExpressionContext): any;
+export declare function cancelled(context: ExpressionContext): any;
