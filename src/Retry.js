@@ -101,7 +101,7 @@ function retry( scriptType )
         if( _.str.begins( config.runs.using, 'node' ) )
         {
           const node = process.argv[ 0 ];
-          const runnerPath = _.path.nativize( _.path.join( __dirname, 'Runner.js' ) );
+          const runnerPath = _.path.nativize( _.path.join( __dirname, 'Runner.mjs' ) );
           const scriptPath = _.path.nativize( _.path.join( actionFileDir, config.runs[ scriptType ] ) );
           routine = () =>
           {
