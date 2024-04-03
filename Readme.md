@@ -57,7 +57,6 @@ An options map for Github action. It is a multiline string with pairs `key : val
 
 An example of declaration of option with single line value :
 ```yaml
-
 - uses: Wandalen/wretry.action@master
   with:
     action: owner/action-repo@version
@@ -113,6 +112,15 @@ Set time out in ms for entire step including all retries. By default actions set
 ### `retry_condition`
 
 Use any valid expression to decide the continuation of retries. If expression resolves to `false`, then the action interrupts retries. Default value is `true`.
+```yaml
+- uses: Wandalen/wretry.action@master
+  with:
+    action: owner/action-repo@version
+    retry_condition: ${{ github.ref_name == 'main' }}
+    with: |
+      option1: value
+      option2: value
+```
 
 ### `github_token`
 
@@ -127,7 +135,6 @@ The action exposes single output named `outputs`. It collects all the outputs fr
 To access the value from an external action outputs parse the `wretry.action` output and select required key. To parse the outputs use builtin Github Actions function `fromJSON`.
 
 Let's look at an example:
-
 ```yaml
 jobs:
   job1:
@@ -160,7 +167,6 @@ To setup job output we access output `outputs` of the step `my-action`. In the j
 ## Example usage
 
 ### Retry action
-
 ```yaml
 - uses: Wandalen/wretry.action@master
   with:
@@ -173,7 +179,6 @@ To setup job output we access output `outputs` of the step `my-action`. In the j
 ```
 
 ### Retry command
-
 ```yaml
 - uses: Wandalen/wretry.action@master
   with:
@@ -185,7 +190,6 @@ To setup job output we access output `outputs` of the step `my-action`. In the j
 ### Development and contributing
 
 To build compiled dependencies utility `willbe` is required. To install utility run :
-
 ```
 npm i -g 'willbe@latest'
 ```
