@@ -110,6 +110,10 @@ Set delay between attempts in ms. Default is 0.
 
 Set time out in ms for entire step including all retries. By default actions sets no time out.
 
+### `retry_condition`
+
+Use any valid expression to decide the continuation of retries. If expression resolves to `false`, then the action interrupts retries. Default value is `true`.
+
 ### `github_token`
 
 A token to access private actions. Does not required for public actions.

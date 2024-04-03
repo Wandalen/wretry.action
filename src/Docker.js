@@ -94,18 +94,14 @@ function commandArgsFrom( args, options )
     if( _.str.is( value ) )
     if( value.startsWith( '${{' ) && value.endsWith( '}}' ) )
     {
-      if( GithubActionsParser === null )
-      GithubActionsParser = require( 'github-actions-parser' );
-      value = GithubActionsParser.evaluateExpression( value,
+      const getter = ( name ) =>
       {
-        get : ( name ) =>
-        {
-          if( name === 'inputs' )
-          return options;
-          let context = common.contextGet( name );
-          return context;
-        }
-      });
+        if( name === 'inputs' )
+        return options;
+        let context = common.contextGet( name );
+        return context;
+      };
+      value = common.evaluateExpression( value, getter );
     }
     if( value === '' )
     {

@@ -7,7 +7,7 @@ const _ = wTools;
 
 function retry( scriptType )
 {
-  let shouldRetry = true;
+  let shouldRetry = core.getInput( 'retry_condition' ) || true;
 
   return _.Consequence.Try( () =>
   {
@@ -196,7 +196,9 @@ function retry( scriptType )
   function onError( err )
   {
     _.error.attend( err );
+    if( _.bool.is( shouldRetry ) )
     return shouldRetry;
+    return !!common.evaluateExpression( shouldRetry );
   }
 }
 
