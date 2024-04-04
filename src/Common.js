@@ -197,10 +197,13 @@ function contextGet( contextName )
 
   function githubContextUpdate( githubContext )
   {
-    const remoteActionPath = remotePathForm( process.env.RETRY_ACTION );
-    const localActionPath = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
-    githubContext.action_path = localActionPath;
-    githubContext.action_ref = remoteActionPath.tag;
+    if( process.env.RETRY_ACTION )
+    {
+      const remoteActionPath = remotePathForm( process.env.RETRY_ACTION );
+      const localActionPath = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
+      githubContext.action_path = localActionPath;
+      githubContext.action_ref = remoteActionPath.tag;
+    }
     return githubContext;
   }
 }

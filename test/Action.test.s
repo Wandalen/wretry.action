@@ -832,6 +832,34 @@ function retryWithOptionRetryCondition( test )
     return null;
   });
 
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'enought attempts, retry_condition resolve from context and return false';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_WITH`, 'value : 0' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    core.exportVariable( `INPUT_GITHUB_CONTEXT`, '{ "ref_name": "master" }' );
+    core.exportVariable( `INPUT_RETRY_CONDITION`, 'github.ref_name == \'main\'' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.notIdentical( op.exitCode, 0 );
+    if( !isTestContainer )
+    test.ge( _.strCount( op.output, '::set-env' ), 2 );
+    test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 1 );
+    test.identical( _.strCount( op.output, /::error::.*Attempts exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::.*Process returned exit code/ ), 1 );
+    test.identical( _.strCount( op.output, 'Success' ), 0 );
+    return null;
+  });
+
   /* - */
 
   return a.ready;

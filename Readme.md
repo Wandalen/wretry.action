@@ -116,11 +116,12 @@ Use any valid expression to decide the continuation of retries. If expression re
 - uses: Wandalen/wretry.action@master
   with:
     action: owner/action-repo@version
-    retry_condition: ${{ github.ref_name == 'main' }}
+    retry_condition: github.ref_name == 'main'
     with: |
       option1: value
       option2: value
 ```
+It is important to skip expression tokens `${{ }}` because Github workflow runner resolves expressions wrapped in the tokens to a specific value and replaces action input.
 
 ### `github_token`
 
