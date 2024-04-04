@@ -121,7 +121,7 @@ Use any valid expression to decide the continuation of retries. If expression re
       option1: value
       option2: value
 ```
-It is important to skip expression tokens `${{ }}` because Github workflow runner resolves expressions wrapped in the tokens to a specific value and replaces action input.
+**Attention**. The expression can be wrapped by expression tokens `${{ <expr> }}`. Github workflow runner resolves expressions wrapped in the tokens to a specific value and replaces action input. The expression without tokens will be resolved by the action for each retry. If you don't need recalculations put the expression in the expression tokens.
 
 ### `github_token`
 

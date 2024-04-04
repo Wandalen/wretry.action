@@ -860,6 +860,14 @@ function retryWithOptionRetryCondition( test )
     return null;
   });
 
+  /* */
+
+  a.ready.finally( () =>
+  {
+    core.exportVariable( `INPUT_RETRY_CONDITION`, true );
+    return null;
+  });
+
   /* - */
 
   return a.ready;
