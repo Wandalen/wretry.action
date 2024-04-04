@@ -57,7 +57,6 @@ An options map for Github action. It is a multiline string with pairs `key : val
 
 An example of declaration of option with single line value :
 ```yaml
-
 - uses: Wandalen/wretry.action@master
   with:
     action: owner/action-repo@version
@@ -110,6 +109,20 @@ Set delay between attempts in ms. Default is 0.
 
 Set time out in ms for entire step including all retries. By default actions sets no time out.
 
+### `retry_condition`
+
+Use any valid expression to decide the continuation of retries. If expression resolves to `false`, then the action interrupts retries. Default value is `true`.
+```yaml
+- uses: Wandalen/wretry.action@master
+  with:
+    action: owner/action-repo@version
+    retry_condition: github.ref_name == 'main'
+    with: |
+      option1: value
+      option2: value
+```
+**Attention**. The expression can be wrapped by expression tokens `${{ <expr> }}`. Github workflow runner resolves expressions wrapped in the tokens to a specific value and replaces action input. The expression without tokens will be resolved by the action for each retry. If you don't need recalculations put the expression in the expression tokens.
+
 ### `github_token`
 
 A token to access private actions. Does not required for public actions.
@@ -123,7 +136,6 @@ The action exposes single output named `outputs`. It collects all the outputs fr
 To access the value from an external action outputs parse the `wretry.action` output and select required key. To parse the outputs use builtin Github Actions function `fromJSON`.
 
 Let's look at an example:
-
 ```yaml
 jobs:
   job1:
@@ -156,7 +168,6 @@ To setup job output we access output `outputs` of the step `my-action`. In the j
 ## Example usage
 
 ### Retry action
-
 ```yaml
 - uses: Wandalen/wretry.action@master
   with:
@@ -169,7 +180,6 @@ To setup job output we access output `outputs` of the step `my-action`. In the j
 ```
 
 ### Retry command
-
 ```yaml
 - uses: Wandalen/wretry.action@master
   with:
@@ -181,7 +191,6 @@ To setup job output we access output `outputs` of the step `my-action`. In the j
 ### Development and contributing
 
 To build compiled dependencies utility `willbe` is required. To install utility run :
-
 ```
 npm i -g 'willbe@latest'
 ```

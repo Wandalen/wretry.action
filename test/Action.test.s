@@ -769,6 +769,122 @@ function retryWithOptionAttemptDelay( test )
 
 //
 
+function retryWithOptionRetryCondition( test )
+{
+  const context = this;
+  const a = test.assetFor( false );
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const testAction = 'dmvict/test.action@v0.0.2';
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+  const isTestContainer = _.process.insideTestContainer();
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'enought attempts, retry_condition returns true';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_WITH`, 'value : 0' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    core.exportVariable( `INPUT_RETRY_CONDITION`, '2 < 4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    if( !isTestContainer )
+    test.ge( _.strCount( op.output, '::set-env' ), 3 );
+    test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::.*Process returned exit code/ ), 0 );
+    test.identical( _.strCount( op.output, 'Success' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'enought attempts, retry_condition returns false';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_WITH`, 'value : 0' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    core.exportVariable( `INPUT_RETRY_CONDITION`, '2 == 4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.notIdentical( op.exitCode, 0 );
+    if( !isTestContainer )
+    test.ge( _.strCount( op.output, '::set-env' ), 2 );
+    test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 1 );
+    test.identical( _.strCount( op.output, /::error::.*Attempts exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::.*Process returned exit code/ ), 1 );
+    test.identical( _.strCount( op.output, 'Success' ), 0 );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'enought attempts, retry_condition resolve from context and return false';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_WITH`, 'value : 0' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    core.exportVariable( `INPUT_GITHUB_CONTEXT`, '{ "ref_name": "master" }' );
+    core.exportVariable( `INPUT_RETRY_CONDITION`, 'github.ref_name == \'main\'' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.notIdentical( op.exitCode, 0 );
+    if( !isTestContainer )
+    test.ge( _.strCount( op.output, '::set-env' ), 2 );
+    test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 1 );
+    test.identical( _.strCount( op.output, /::error::.*Attempts exhausted, made 3 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, /::error::.*Process returned exit code/ ), 1 );
+    test.identical( _.strCount( op.output, 'Success' ), 0 );
+    return null;
+  });
+
+  /* */
+
+  a.ready.finally( () =>
+  {
+    core.exportVariable( `INPUT_RETRY_CONDITION`, true );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null; } );
+    a.ready.then( () => { a.fileProvider.dirMake( actionPath ); return null; } );
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    return a.ready;
+  }
+}
+
+//
+
 function retryWithExternalActionOnLocal( test )
 {
   const context = this;
@@ -1746,6 +1862,7 @@ const Proto =
 
     retryWithOptionAttemptLimit,
     retryWithOptionAttemptDelay,
+    retryWithOptionRetryCondition,
 
     retryWithExternalActionOnLocal,
     retryWithExternalActionOnRemote,

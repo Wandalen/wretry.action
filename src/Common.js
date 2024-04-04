@@ -2,8 +2,7 @@ const core = require( '@actions/core' );
 if( typeof wTools === 'undefined' )
 require( '../node_modules/Joined.s' );
 const _ = wTools;
-
-let GithubActionsParser = null;
+const GithubActionsParser = require( 'github-actions-parser' );
 
 //
 
@@ -134,9 +133,7 @@ function optionsExtendByInputDefaults( options, inputs )
         if( _.str.is( value ) )
         if( value.startsWith( '${{' ) && value.endsWith( '}}' ) )
         {
-          if( GithubActionsParser === null )
-          GithubActionsParser = require( 'github-actions-parser' );
-          value = GithubActionsParser.evaluateExpression( value, { get : contextGet } );
+          value = evaluateExpression( value );
         }
         result[ key ] = value;
       }
@@ -200,10 +197,13 @@ function contextGet( contextName )
 
   function githubContextUpdate( githubContext )
   {
-    const remoteActionPath = remotePathForm( process.env.RETRY_ACTION );
-    const localActionPath = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
-    githubContext.action_path = localActionPath;
-    githubContext.action_ref = remoteActionPath.tag;
+    if( process.env.RETRY_ACTION )
+    {
+      const remoteActionPath = remotePathForm( process.env.RETRY_ACTION );
+      const localActionPath = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
+      githubContext.action_path = localActionPath;
+      githubContext.action_ref = remoteActionPath.tag;
+    }
     return githubContext;
   }
 }
@@ -227,9 +227,7 @@ function shouldExit( config, scriptType )
 
     if( config.runs[ `${ scriptType }-if` ] )
     {
-      if( GithubActionsParser === null )
-      GithubActionsParser = require( 'github-actions-parser' );
-      return !GithubActionsParser.evaluateExpression( config.runs[ `${ scriptType }-if` ], { get : contextGet } );
+      return !evaluateExpression( config.runs[ `${ scriptType }-if` ] );
     }
   }
 
@@ -237,6 +235,13 @@ function shouldExit( config, scriptType )
   return true;
 
   return false;
+}
+
+//
+
+function evaluateExpression( expression, getter )
+{
+  return GithubActionsParser.evaluateExpression( expression, { get : getter || contextGet } );
 }
 
 // --
@@ -255,6 +260,7 @@ const Self =
   contextGet,
   envOptionsSetup,
   shouldExit,
+  evaluateExpression,
 };
 
 module.exports = Self;
