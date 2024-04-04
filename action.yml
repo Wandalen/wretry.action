@@ -35,6 +35,10 @@ inputs:
       actions sets no time out.
     required: false
     default: false
+  retry_condition:
+    description: 'Use any valid expression to decide the continuation of retries. Default value is true.'
+    required: false
+    default: true
   github_token:
     description: A token to access private actions. Does not required for public actions.
     required: false
@@ -55,6 +59,7 @@ runs:
         current_path: '${{ inputs.current_path }}'
         attempt_limit: '${{ inputs.attempt_limit }}'
         attempt_delay: '${{ inputs.attempt_delay }}'
+        retry_condition: '${{ inputs.retry_condition }}'
         env_context: '${{ toJSON( env ) }}'
         github_context: '${{ toJSON( github ) }}'
         job_context: '${{ toJSON( job ) }}'
