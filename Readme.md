@@ -31,8 +31,7 @@ It is a cause of failed jobs. For this case, the action `wretry.action` can retr
 - Can retry single action or single command ( multiline command ), but not both simultaneously.
 - Retries `main`, `pre` and `post` stages of external actions.
 - Always has `pre` and `post` stages. If external action has `pre` or/and `post` stage, then action run it also.
-- Action handles conditions in `JavaScript` actions ( fields `pre-if` and `post-if` ). Some conditions can be unsolvable and then action skips the stage.
-- Executes only the main script of Docker actions, excluding pre-entrypoint and post-entrypoint scripts.
+- Action handles conditions in `JavaScript` and `Docker` actions ( fields `pre-if` and `post-if` ). Some conditions can be unsolvable and then action skips the stage.
 - Resolves external action default inputs from next contexts : `github`, `env`, `job`, `matrix`, `inputs`.
 - Retries actions with defined number of attempts ( default is 2 ).
 - Retries actions with defined delay between attempts ( default is 0 ).

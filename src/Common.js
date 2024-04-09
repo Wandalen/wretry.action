@@ -220,9 +220,14 @@ function envOptionsSetup( options )
 
 function shouldExit( config, scriptType )
 {
-  if( _.strBegins( config.runs.using, 'node' ) )
+  const using = config.runs.using;
+  if( _.strBegins( using, 'node' ) || using === 'docker' )
   {
-    if( !config.runs[ scriptType ])
+    if( using === 'docker' && scriptType === 'main' )
+    return false;
+
+    const localScriptType = using === 'docker' ? `${ scriptType }-entrypoint` : scriptType;
+    if( !config.runs[ localScriptType ] )
     return true;
 
     if( config.runs[ `${ scriptType }-if` ] )
@@ -230,9 +235,6 @@ function shouldExit( config, scriptType )
       return !evaluateExpression( config.runs[ `${ scriptType }-if` ] );
     }
   }
-
-  if( config.runs.using === 'docker' && scriptType !== 'main' )
-  return true;
 
   return false;
 }

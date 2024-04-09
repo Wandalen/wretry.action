@@ -75,6 +75,7 @@ function retry( scriptType )
       {
         const actionFileDir = _.path.nativize( _.path.join( localActionDir, remoteActionPath.localVcsPath ) );
         const config = common.actionConfigRead( actionFileDir );
+
         if( common.shouldExit( config, scriptType ) )
         return null;
 
@@ -122,16 +123,11 @@ function retry( scriptType )
         }
         else if( config.runs.using === 'docker' )
         {
-          if( scriptType === 'pre' || scriptType === 'post' )
-          throw _.error.brief
-          (
-            `The required feature "${ scriptType }-entrypoint" does not implemented.`
-            + '\nPlease, open an issue with the request for the feature.'
-          );
           const docker = require( './Docker.js' );
           const imageName = docker.imageBuild( actionFileDir, config.runs.image );
           const args = docker.commandArgsFrom( config.runs.args, fullOptions );
-          const execPath = docker.runCommandForm( imageName, envOptions, args );
+          const entrypoint = scriptType === 'main' ? config.runs.entrypoint : config.runs[ `${ scriptType }-entrypoint` ];
+          const execPath = docker.runCommandForm( imageName, envOptions, args, entrypoint );
 
           routine = () =>
           {

@@ -1871,14 +1871,14 @@ const Proto =
     retryActionWithPostScript,
     retryActionWithPreAndPostScript,
 
-    //
-
     retryActionWithDefaultInputs,
     retryActionWithDefaultInputsAsExpressions,
     retryActionWithDefaultInputsFromJobContext,
     retryActionWithDefaultInputsFromMatrixContext,
 
     retryPrivateActionWithoutInputsMap,
+
+    //
 
     retryDockerTrivialAction,
     retryDockerActionWithInputs,

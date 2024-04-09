@@ -1345,7 +1345,7 @@ function shouldExit( test )
 
   test.case = 'all entries in config, pre';
   var got = common.shouldExit( config, 'pre' );
-  test.identical( got, true );
+  test.identical( got, false );
 
   test.case = 'all entries in config, main';
   var got = common.shouldExit( config, 'main' );
@@ -1353,7 +1353,7 @@ function shouldExit( test )
 
   test.case = 'all entries in config, post';
   var got = common.shouldExit( config, 'post' );
-  test.identical( got, true );
+  test.identical( got, false );
 
   test.close( 'without conditions' );
 
@@ -1370,6 +1370,30 @@ function shouldExit( test )
       'pre-if' : 'env.TEST_CI == true',
       'main' : 'index.js',
       'post' : 'post.js',
+    }
+  };
+
+  test.case = 'all entries in config, pre with condition, should be false';
+  core.exportVariable( 'INPUT_ENV_CONTEXT', '{"TEST_CI": true}' );
+  var got = common.shouldExit( config, 'pre' );
+  test.identical( got, false );
+
+  test.case = 'all entries in config, pre with condition, should be true';
+  core.exportVariable( 'INPUT_ENV_CONTEXT', '{"TEST_CI": false}' );
+  var got = common.shouldExit( config, 'pre' );
+  test.identical( got, true );
+
+  /* */
+
+  var config =
+  {
+    runs:
+    {
+      'using' : 'docker',
+      'image' : 'Dockerfile',
+      'pre-if' : 'env.TEST_CI == true',
+      'pre-entrypoint' : 'pre.sh',
+      'post-entrypoint' : 'post.sh',
     }
   };
 
