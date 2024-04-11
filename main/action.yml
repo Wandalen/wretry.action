@@ -53,7 +53,7 @@ runs:
   steps:
     - name: retry
       id: retry
-      uses: Wandalen/wretry.action/main@js_action
+      uses: Wandalen/wretry.action/main@v3.3.0_js_action
       with:
         action: '${{ inputs.action }}'
         command: '${{ inputs.command }}'
