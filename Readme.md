@@ -30,7 +30,8 @@ It is a cause of failed jobs. For this case, the action `wretry.action` can retr
 - Retries shell commands. Uses default shells to run commands.
 - Can retry single action or single command ( multiline command ), but not both simultaneously.
 - Retries `main`, `pre` and `post` stages of external actions.
-- Always has `pre` and `post` stages. If external action has `pre` or/and `post` stage, then action run it also.
+- Default action always includes both `pre` and `post` stages. If an external action contains a `pre` and/or `post` stage, the action will also execute these stages.
+- The repository includes subdirectories with alternative action setups that can skip the `pre` or/and `post` stages, as necessary.
 - Action handles conditions in `JavaScript` and `Docker` actions ( fields `pre-if` and `post-if` ). Some conditions can be unsolvable and then action skips the stage.
 - Resolves external action default inputs from next contexts : `github`, `env`, `job`, `matrix`, `inputs`.
 - Retries actions with defined number of attempts ( default is 2 ).
@@ -163,6 +164,23 @@ jobs:
 ```
 
 To setup job output we access output `outputs` of the step `my-action`. In the job `job2` we parse this output to JSON. The environment variable `OUPUT1` represents full JSON and the variable `OUPUT2` represents key `foo` of the parsed JSON.
+
+## How to skip `pre` or/and `post` stages
+
+The repository provides three subdirectories, each containing a different setup for action retries:
+
+- `pre`: This directory retries the `pre` and `main` stages.
+- `post`: This directory retries the `main` and `post` stages.
+- `main`: This directory retries only the `main` stage.
+
+It is crucial to note that, regardless of the retried action specification, the actions in the repository will only execute the declared stages. This behavior can disrupt your workflow, so please use the actions with caution.
+
+### Selecting the Alternative Action
+
+You have a few options for obtaining a compatible action implementation:
+- Run the workflow with the required action, but without the `wretry.action`, and check the stages in the workflow run.
+- Open the action directory and review the `action.yml` file. Look for any extra stages listed besides `main`.
+- If you run command, then you can get `main` action that skips `pre` and `post` stages.
 
 ## Example usage
 

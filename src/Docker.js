@@ -9,7 +9,6 @@ if( _.map.keys( common ).length === 0 )
   const path = require.resolve( './Common.js' );
   common = require.cache[ path ].exports;
 }
-let GithubActionsParser = null;
 
 //
 
