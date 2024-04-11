@@ -22,13 +22,19 @@ function actionWrite( frame )
 
   /* */
 
-  const actionPath = fileProvider.path.join( module.dirPath, 'action.yml' );
-  const action = fileProvider.fileReadUnknown( actionPath );
-  action.runs.steps[ 0 ].uses = `Wandalen/wretry.action@v${ module.about.version }_js_action`;
+  const subdirectories = [ '', 'main', 'pre', 'post' ];
+  for( let i = 0 ; i < subdirectories.length ; i++ )
+  {
+    const slash = subdirectories[ i ] === '' ? '' : '/';
+    const actionRelativePath = `${ subdirectories[ i ] }${ slash }action.yml`;
+    const actionPath = fileProvider.path.join( module.dirPath, actionRelativePath );
+    const action = fileProvider.fileReadUnknown( actionPath );
+    action.runs.steps[ 0 ].uses = `Wandalen/wretry.action${ slash }${ subdirectories[ i ] }@v${ module.about.version }_js_action`;
 
-  logger.log( `Updating action. Setup used action version to "Wandalen/wretry.action@v${ module.about.version }_js_action".` );
+    logger.log( `Updating action file "${ actionRelativePath }". Setup action version to "${ action.runs.steps[ 0 ].uses }".` );
 
-  fileProvider.fileWrite({ filePath : actionPath, data : action, encoding : 'yaml' });
+    fileProvider.fileWrite({ filePath : actionPath, data : action, encoding : 'yaml' });
+  }
 }
 
 module.exports = actionWrite;

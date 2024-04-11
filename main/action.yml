@@ -1,0 +1,70 @@
+name: retry action
+author: |
+  Wandalen <wandalen@obox.systems>
+  dmvict <dm.vict.kr@gmail.com>
+branding:
+  icon: activity
+  color: white
+description: Retries an Github Action step on failure
+inputs:
+  action:
+    description: 'Github action name. Should be defined action or command, not both.'
+    required: false
+  command:
+    description: 'Command to run. Should be defined action or command, not both.'
+    required: false
+  with:
+    description: An options map for Github action
+    required: false
+  current_path:
+    description: >-
+      Setup working directory for the action. Works with only commands. Default
+      is `github.workspace` path.
+    required: false
+  attempt_limit:
+    description: Number of attempts
+    required: false
+    default: 2
+  attempt_delay:
+    description: A delay between attempts in ms
+    required: false
+    default: 0
+  time_out:
+    description: >-
+      Set time out in ms for entire step including all retries. By default
+      actions sets no time out.
+    required: false
+    default: false
+  retry_condition:
+    description: >-
+      Use any valid expression to decide the continuation of retries. Default
+      value is true.
+    required: false
+    default: true
+  github_token:
+    description: A token to access private actions. Does not required for public actions.
+    required: false
+outputs:
+  outputs:
+    description: A pretty print JSON map with outputs from the wrapped action.
+    value: '${{ toJSON( steps.retry.outputs ) }}'
+runs:
+  using: composite
+  steps:
+    - name: retry
+      id: retry
+      uses: Wandalen/wretry.action/main@js_action
+      with:
+        action: '${{ inputs.action }}'
+        command: '${{ inputs.command }}'
+        with: '${{ inputs.with }}'
+        current_path: '${{ inputs.current_path }}'
+        attempt_limit: '${{ inputs.attempt_limit }}'
+        attempt_delay: '${{ inputs.attempt_delay }}'
+        retry_condition: '${{ inputs.retry_condition }}'
+        env_context: '${{ toJSON( env ) }}'
+        github_context: '${{ toJSON( github ) }}'
+        job_context: '${{ toJSON( job ) }}'
+        matrix_context: '${{ toJSON( matrix ) }}'
+        time_out: '${{ inputs.time_out }}'
+        github_token: '${{ inputs.github_token }}'
