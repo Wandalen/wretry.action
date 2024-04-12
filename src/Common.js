@@ -170,20 +170,10 @@ function contextGet( contextName )
     githubContext = githubContextUpdate( githubContext );
     return githubContext;
   }
-  else if( contextName === 'job' )
+  else if(  [ 'job', 'matrix', 'inputs', 'steps' ].includes( contextName ) )
   {
-    const jobContext = JSON.parse( core.getInput( 'job_context' ) );
-    return jobContext;
-  }
-  else if( contextName === 'matrix' )
-  {
-    const matrixContext = JSON.parse( core.getInput( 'matrix_context' ) );
-    return matrixContext;
-  }
-  else if( contextName === 'inputs' )
-  {
-    const inputsContext = JSON.parse( core.getInput( 'inputs_context' ) );
-    return inputsContext;
+    const context = JSON.parse( core.getInput( `${ contextName }_context` ) );
+    return context;
   }
 
   _.sure
