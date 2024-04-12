@@ -27,6 +27,10 @@ inputs:
     description: 'Pass context `github` into an external action. Default is global context `github`.'
     required: false
     default: ${{ toJSON( github ) }}
+  inputs_context:
+    description: 'Pass context `inputs` into an external action. The action cannot resolve context `inputs` and resolve all inputs. If you need valid context `inputs`, then add option as described in `Readme.md`.'
+    required: false
+    default: '{}'
   job_context:
     description: 'Pass context `job` into an external action. Default is context `job` of a job.'
     required: false
@@ -35,8 +39,8 @@ inputs:
     description: 'Pass context `matrix` into an external action. Default is context `matrix` of a job.'
     required: false
     default: ${{ toJSON( matrix ) }}
-  inputs_context:
-    description: 'Pass context `inputs` into an external action. The action cannot resolve context `inputs` and resolve all inputs. If you need valid context `inputs`, then add option as described in `Readme.md`.'
+  steps_context:
+    description: 'Pass context `steps` into an external action. If you need valid context `steps`, then add option as described in `Readme.md`.'
     required: false
     default: '{}'
   attempt_limit:
