@@ -28,7 +28,7 @@ inputs:
     required: false
     default: ${{ toJSON( github ) }}
   inputs_context:
-    description: 'Pass context `inputs` into an external action. The action cannot resolve context `inputs` and resolve all inputs. If you need valid context `inputs`, then add option as described in `Readme.md`.'
+    description: 'Pass context `inputs` into an external action. The action cannot resolve context `inputs` and resolves all inputs from passed options and action description.'
     required: false
     default: '{}'
   job_context:
