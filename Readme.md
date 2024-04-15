@@ -34,6 +34,7 @@ It is a cause of failed jobs. For this case, the action `wretry.action` can retr
 - The repository includes subdirectories with alternative action setups that can skip the `pre` or/and `post` stages, as necessary.
 - Action handles conditions in `JavaScript` and `Docker` actions ( fields `pre-if` and `post-if` ). Some conditions can be unsolvable and then action skips the stage.
 - Resolves external action default inputs from next contexts : `github`, `env`, `job`, `matrix`, `inputs`.
+- Can resolve user-provided context `steps`.
 - Retries actions with defined number of attempts ( default is 2 ).
 - Retries actions with defined delay between attempts ( default is 0 ).
 
@@ -80,6 +81,10 @@ An example of declaration of option with multiline string :
 ### `current_path`
 
 Setup working directory for the action. Works with only commands. Default is `github.workspace` path.
+
+### `steps_context`
+
+Pass context `steps` into an external action. The action cannot resolve runtime context `steps` from environment contexts. If you need valid context `steps`, then add option `steps_context : ${{ toJSON( steps ) }}`.
 
 ### `attempt_limit`
 
