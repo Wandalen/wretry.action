@@ -33,7 +33,8 @@ It is a cause of failed jobs. For this case, the action `wretry.action` can retr
 - Default action always includes both `pre` and `post` stages. If an external action contains a `pre` and/or `post` stage, the action will also execute these stages.
 - The repository includes subdirectories with alternative action setups that can skip the `pre` or/and `post` stages, as necessary.
 - Action handles conditions in `JavaScript` and `Docker` actions ( fields `pre-if` and `post-if` ). Some conditions can be unsolvable and then action skips the stage.
-- Resolves external action default inputs from next contexts : `github`, `env`, `job`, `matrix`, `inputs`.
+- Resolves external action default inputs from next contexts : `github`, `env`, `job`, `matrix`, `steps`, `inputs`.
+- Can resolve user-provided context `steps`.
 - Retries actions with defined number of attempts ( default is 2 ).
 - Retries actions with defined delay between attempts ( default is 0 ).
 
@@ -89,6 +90,10 @@ Pass context `env` into an external action. Action cannot resolve separate envir
 
 Pass context `github` into an external action. Default is global context `github`.
 
+### `inputs_context`
+
+Pass context `inputs` into an external action. The action cannot resolve context `inputs` and resolves all inputs from passed options and action description. To pass correct inputs context you need to combine passed options into and stringified JSON object.
+
 ### `job_context`
 
 Pass context `job` into an external action. Default is context `job` of a job.
@@ -96,6 +101,10 @@ Pass context `job` into an external action. Default is context `job` of a job.
 ### `matrix_context`
 
 Pass context `matrix` into an external action. Default is context `matrix` of a job.
+
+### `steps_context`
+
+Pass context `steps` into an external action. If you need valid context `steps`, then add option `steps_context : ${{ toJSON( steps ) }}`.
 
 ### `attempt_limit`
 
