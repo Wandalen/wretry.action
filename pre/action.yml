@@ -22,7 +22,9 @@ inputs:
       is `github.workspace` path.
     required: false
   steps_context:
-    description: 'Pass context `steps` into an external action. If you need valid context `steps`, then add option as described in `Readme.md`.'
+    description: >-
+      Pass context `steps` into an external action. If you need valid context
+      `steps`, then add option as described in `Readme.md`.
     required: false
     default: '{}'
   attempt_limit:
@@ -57,7 +59,7 @@ runs:
   steps:
     - name: retry
       id: retry
-      uses: Wandalen/wretry.action/pre@v3.3.0_js_action
+      uses: Wandalen/wretry.action/pre@v3.4.0_js_action
       with:
         action: '${{ inputs.action }}'
         command: '${{ inputs.command }}'
