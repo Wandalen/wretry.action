@@ -21,6 +21,10 @@ inputs:
       Setup working directory for the action. Works with only commands. Default
       is `github.workspace` path.
     required: false
+  steps_context:
+    description: 'Pass context `steps` into an external action. If you need valid context `steps`, then add option as described in `Readme.md`.'
+    required: false
+    default: '{}'
   attempt_limit:
     description: Number of attempts
     required: false
@@ -59,6 +63,7 @@ runs:
         command: '${{ inputs.command }}'
         with: '${{ inputs.with }}'
         current_path: '${{ inputs.current_path }}'
+        steps_context: '${{ inputs.steps_context }}'
         attempt_limit: '${{ inputs.attempt_limit }}'
         attempt_delay: '${{ inputs.attempt_delay }}'
         retry_condition: '${{ inputs.retry_condition }}'
