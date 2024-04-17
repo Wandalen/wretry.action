@@ -36,23 +36,17 @@ jobs :
       run : git config --system core.longpaths true
     - uses : actions/checkout@v4
     - name : ${{ matrix.node-version }}
-      uses : Wandalen/wretry.action@master
+      uses : Wandalen/wretry.action/post@master
       with :
         action : actions/setup-node@v4
         with : |
           node-version : ${{ matrix.node-version }}
         attempt_limit : 3
         attempt_delay: 1000
-    - name : Install willbe
-      uses : Wandalen/wretry.action@master
-      with :
-        command : npm i -g willbe@latest
-        attempt_limit : 3
-        attempt_delay: 1000
     - name : Install submodules
-      uses : Wandalen/wretry.action@master
+      uses : Wandalen/wretry.action/main@master
       with :
-        command : will .npm.install
+        command : npm i
         attempt_limit : 3
         attempt_delay: 1000
     - name : Environment
