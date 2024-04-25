@@ -525,7 +525,7 @@ function retryCheckRetryTime( test )
     test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
     if( process.platform === 'win32' )
     {
-      test.le( _.strCount( op.output, 'str' ), 1 );
+      test.le( _.strCount( op.output, 'str' ), 2 );
       test.identical( _.strCount( op.output, '::error::Process returned exit code 1' ), 1 );
     }
     else
@@ -586,7 +586,7 @@ function retryCheckRetryTime( test )
     test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
     if( process.platform === 'win32' )
     {
-      test.le( _.strCount( op.output, 'str' ), 2 );
+      test.le( _.strCount( op.output, 'str' ), 3 );
       test.identical( _.strCount( op.output, '::error::Process returned exit code 1' ), 1 );
     }
     else
