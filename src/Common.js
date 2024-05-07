@@ -170,7 +170,21 @@ function contextGet( contextName )
     githubContext = githubContextUpdate( githubContext );
     return githubContext;
   }
-  else if(  [ 'job', 'matrix', 'inputs', 'steps' ].includes( contextName ) )
+  else if( contextName === 'steps' )
+  {
+    const context = JSON.parse( core.getInput( `${ contextName }_context` ) );
+    if( _.fileProvider.fileExists( process.env.GITHUB_OUTPUT ) )
+    {
+      const rawFile = _.fileProvider.fileRead({ filePath : process.env.GITHUB_OUTPUT });
+      const regex = /^(.*)<<ghadelimiter_(.*)(\s*)(.+)\3ghadelimiter_\2/mg;
+      const filteredFile = rawFile.replaceAll( regex, '$1=$4' );
+      const Ini = require( 'ini' );
+      const parsed = Ini.parse( filteredFile );
+      context._this = { outputs : parsed, outcome : 'failure', conclusion : 'failure' };
+    }
+    return context;
+  }
+  else if(  [ 'job', 'matrix', 'inputs' ].includes( contextName ) )
   {
     const context = JSON.parse( core.getInput( `${ contextName }_context` ) );
     return context;
