@@ -162,14 +162,23 @@ function retry( scriptType )
     return con.then( () =>
     {
       if( routine )
-      return _.retry
-      ({
-        routine,
-        attemptLimit,
-        attemptDelay,
-        onSuccess,
-        onError,
-      });
+      {
+        const githubOutputCleanRoutine = () =>
+        {
+          if( _.fileProvider.fileExists( process.env.GITHUB_OUTPUT ) )
+          _.fileProvider.fileWrite( process.env.GITHUB_OUTPUT, '' );
+          return routine();
+        };
+        return _.retry
+        ({
+          routine : githubOutputCleanRoutine,
+          attemptLimit,
+          attemptDelay,
+          onSuccess,
+          onError,
+        });
+      }
+
       return null;
     });
   })
