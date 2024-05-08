@@ -467,6 +467,92 @@ function retryAndCheckRuntimeEnvironments( test )
 
 //
 
+function retryWithOptionRetryConditionAndCheckOfStepOutput( test )
+{
+  let context = this;
+  const a = test.assetFor( false );
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'multiline command';
+    core.exportVariable( `INPUT_COMMAND`, '|\necho "foo=bar" >> $GITHUB_OUTPUT\nexit 1' );
+    core.exportVariable( `INPUT_STEPS_CONTEXT`, '{}' );
+    core.exportVariable( `INPUT_RETRY_CONDITION`, `steps._this.outputs.foo == 'bar'` );
+    core.exportVariable( `GITHUB_OUTPUT`, `${ actionPath }/github_output` );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.notIdentical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
+    test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'multiline command';
+    core.exportVariable( `INPUT_COMMAND`, '|\necho "foo=bar" >> $GITHUB_OUTPUT\nexit 1' );
+    core.exportVariable( `INPUT_STEPS_CONTEXT`, '{}' );
+    core.exportVariable( `INPUT_RETRY_CONDITION`, `steps._this.outputs.foo == 'foo'` );
+    core.exportVariable( `GITHUB_OUTPUT`, `${ actionPath }/github_output` );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.notIdentical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
+    test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.ready.then( () =>
+    {
+      return __.git.repositoryClone
+      ({
+        localPath : actionPath,
+        remotePath : __.git.path.normalize( context.actionDirPath ),
+        attemptLimit : 4,
+        attemptDelay : 250,
+        attemptDelayMultiplier : 4,
+      });
+    });
+    return a.ready;
+  }
+}
+
+//
+
 function retryCheckRetryTime( test )
 {
   let context = this;
@@ -654,6 +740,7 @@ const Proto =
     retryWithOptionCurrentPath,
     retryWithMultilineCommand,
     retryAndCheckRuntimeEnvironments,
+    retryWithOptionRetryConditionAndCheckOfStepOutput,
     retryCheckRetryTime,
   },
 };
