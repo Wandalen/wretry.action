@@ -165,7 +165,7 @@ function retry( scriptType )
       {
         const githubOutputCleanRoutine = () =>
         {
-          if( _.fileProvider.fileExists( process.env.GITHUB_OUTPUT ) )
+          if( process.env.GITHUB_OUTPUT && _.fileProvider.fileExists( process.env.GITHUB_OUTPUT ) )
           _.fileProvider.fileWrite( process.env.GITHUB_OUTPUT, '' );
           return routine();
         };
