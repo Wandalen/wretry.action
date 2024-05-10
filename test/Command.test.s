@@ -479,10 +479,13 @@ function retryWithOptionRetryConditionAndCheckOfStepOutput( test )
   a.ready.then( () =>
   {
     test.case = 'multiline command';
-    core.exportVariable( `INPUT_COMMAND`, '|\necho "foo=bar" >> $GITHUB_OUTPUT\nexit 1' );
+    if( process.platform === 'win32' )
+    core.exportVariable( `INPUT_COMMAND`, '|\necho $Env:GITHUB_OUTPUT\necho "foo=bar" >> $Env:GITHUB_OUTPUT\nexit 1' );
+    else
+    core.exportVariable( `INPUT_COMMAND`, '|\necho $GITHUB_OUTPUT\necho "foo=bar" >> $GITHUB_OUTPUT\nexit 1' );
     core.exportVariable( `INPUT_STEPS_CONTEXT`, '{}' );
     core.exportVariable( `INPUT_RETRY_CONDITION`, `steps._this.outputs.foo == 'bar'` );
-    core.exportVariable( `GITHUB_OUTPUT`, `${ actionPath }/github_output` );
+    core.exportVariable( `GITHUB_OUTPUT`, `${ a.path.nativize( a.abs( actionPath, 'github_output' ) ) }` );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
   });
@@ -492,6 +495,7 @@ function retryWithOptionRetryConditionAndCheckOfStepOutput( test )
   a.shellNonThrowing({ currentPath : actionPath, execPath });
   a.ready.then( ( op ) =>
   {
+    console.log( op.output );
     test.notIdentical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
     test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 1 );
@@ -503,10 +507,13 @@ function retryWithOptionRetryConditionAndCheckOfStepOutput( test )
   a.ready.then( () =>
   {
     test.case = 'multiline command';
-    core.exportVariable( `INPUT_COMMAND`, '|\necho "foo=bar" >> $GITHUB_OUTPUT\nexit 1' );
+    if( process.platform === 'win32' )
+    core.exportVariable( `INPUT_COMMAND`, '|\necho $Env:GITHUB_OUTPUT\necho "foo=bar" >> $Env:GITHUB_OUTPUT\nexit 1' );
+    else
+    core.exportVariable( `INPUT_COMMAND`, '|\necho $GITHUB_OUTPUT\necho "foo=bar" >> $GITHUB_OUTPUT\nexit 1' );
     core.exportVariable( `INPUT_STEPS_CONTEXT`, '{}' );
     core.exportVariable( `INPUT_RETRY_CONDITION`, `steps._this.outputs.foo == 'foo'` );
-    core.exportVariable( `GITHUB_OUTPUT`, `${ actionPath }/github_output` );
+    core.exportVariable( `GITHUB_OUTPUT`, `${ a.path.nativize( a.abs( actionPath, 'github_output' ) ) }` );
     core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
     return null;
   });
