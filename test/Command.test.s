@@ -31,6 +31,7 @@ function onRoutineBegin()
   delete process.env.INPUT_WITH;
   delete process.env.INPUT_ATTEMPT_DELAY;
   delete process.env.INPUT_RETRY_CONDITION;
+  delete process.env.GITHUB_OUTPUT;
 }
 
 //
@@ -533,6 +534,12 @@ function retryWithOptionRetryConditionAndCheckOfStepOutput( test )
   a.ready.finally( () =>
   {
     core.exportVariable( `INPUT_RETRY_CONDITION`, true );
+    return null;
+  });
+
+  a.ready.finally( () =>
+  {
+    delete process.env.GITHUB_OUTPUT;
     return null;
   });
 

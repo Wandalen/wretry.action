@@ -1681,6 +1681,12 @@ function retryDockerTrivialAction( test )
     return null;
   });
 
+  a.ready.finally( () =>
+  {
+    delete process.env.GITHUB_OUTPUT;
+    return null;
+  });
+
   /* - */
 
   return a.ready;
