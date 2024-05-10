@@ -30,6 +30,7 @@ function onRoutineBegin()
   delete process.env.INPUT_ATTEMPT_LIMIT;
   delete process.env.INPUT_WITH;
   delete process.env.INPUT_ATTEMPT_DELAY;
+  delete process.env.INPUT_RETRY_CONDITION;
 }
 
 //
@@ -526,6 +527,12 @@ function retryWithOptionRetryConditionAndCheckOfStepOutput( test )
     test.notIdentical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
     test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
+    return null;
+  });
+
+  a.ready.finally( () =>
+  {
+    core.exportVariable( `INPUT_RETRY_CONDITION`, true );
     return null;
   });
 
