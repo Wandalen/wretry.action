@@ -120,7 +120,7 @@ Set time out in ms for entire step including all retries. By default actions set
 
 ### `retry_condition`
 
-Use any valid expression to decide the continuation of retries. If expression resolves to `false`, then the action interrupts retries. Default value is `true`.
+Use any valid expression to control the continuation of retries. If the expression resolves to `false`, the action will interrupt the retries. Default value is `true`.
 ```yaml
 - uses: Wandalen/wretry.action@master
   with:
@@ -130,7 +130,22 @@ Use any valid expression to decide the continuation of retries. If expression re
       option1: value
       option2: value
 ```
-**Attention**. The expression can be wrapped by expression tokens `${{ <expr> }}`. Github workflow runner resolves expressions wrapped in the tokens to a specific value and replaces action input. The expression without tokens will be resolved by the action for each retry. If you don't need recalculations put the expression in the expression tokens.
+**Attention**. The expression can be wrapped in expression tokens `${{ <expr> }}`. The Github workflow runner will resolve the expressions wrapped in these tokens and replace the action input with the specific value. If you don't need the expression to be recalculated for each retry, you can put it inside the expression tokens.
+
+**How to use outputs of current step in condition**
+
+The action can resolve the output of the current step using the special syntax: `steps._this.outputs.<output_name>`. The action uses the special name `_this` to refer to the current step. If you have a step with the name `_this` and provide the steps context using the `steps_context` option, the action will rewrite the value of this field. This does not affect the outputs of the workflow, but allows the action to access the current step's outputs.
+
+Example of condition with check of current step output:
+```yaml
+- uses: Wandalen/wretry.action@master
+  with:
+    action: owner/action-repo@version
+    retry_condition: steps._this.outputs.code == 0
+    with: |
+      option1: value
+      option2: value
+```
 
 ### `github_token`
 
