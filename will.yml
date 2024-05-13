@@ -181,6 +181,7 @@ reflector:
           - !<tag:yaml.org,2002:js/regexp> /file-uri-to-path/
           - !<tag:yaml.org,2002:js/regexp> /github-actions-parser/
           - !<tag:yaml.org,2002:js/regexp> /graceful-fs/
+          - !<tag:yaml.org,2002:js/regexp> /ini/
           - !<tag:yaml.org,2002:js/regexp> /js-yaml/
           - !<tag:yaml.org,2002:js/regexp> /lodash/
           - !<tag:yaml.org,2002:js/regexp> /proper-lockfile/
