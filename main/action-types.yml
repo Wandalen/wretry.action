@@ -1,0 +1,35 @@
+# See https://github.com/typesafegithub/github-actions-typing/
+inputs:
+  action:
+    type: string
+
+  command:
+    type: string
+
+  with:
+    type: string
+
+  current_path:
+    type: string
+
+  steps_context:
+    type: string
+
+  attempt_limit:
+    type: integer
+
+  attempt_delay:
+    type: integer
+
+  time_out:
+    type: integer
+
+  retry_condition:
+    type: string
+
+  github_token:
+    type: string
+
+outputs:
+  outputs:
+    type: string
