@@ -38,6 +38,9 @@ It is a cause of failed jobs. For this case, the action `wretry.action` can retr
 - Retries actions with defined number of attempts ( default is 2 ).
 - Retries actions with defined delay between attempts ( default is 0 ).
 
+Thanks to the provided [typings](action-types.yml), it is possible to use this action in a type-safe way using
+https://github.com/typesafegithub/github-workflows-kt which allows writing workflow files using a type-safe Kotlin DSL.
+
 ## Inputs
 
 ### `action`
