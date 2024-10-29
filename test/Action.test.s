@@ -949,6 +949,12 @@ function retryWithOptionPreRetryCommand( test )
     return null;
   });
 
+  a.ready.finally( () =>
+  {
+    delete process.env.INPUT_PRE_RETRY_COMMAND;
+    return null;
+  });
+
   /* - */
 
   return a.ready;
