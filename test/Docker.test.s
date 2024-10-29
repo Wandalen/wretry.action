@@ -58,7 +58,6 @@ function exists( test )
 exists.timeOut = 15000;
 
 //
-
 function imageBuild( test )
 {
   const ubuntuIs = process.env.ImageOS && _.str.begins( process.env.ImageOS, 'ubuntu' );
@@ -75,6 +74,10 @@ function imageBuild( test )
   var got = docker.imageBuild( a.routinePath, 'Dockerfile' );
   test.identical( got, 'imagebuild_repo:imagebuild_tag' );
 
+  test.case = 'pull an image';
+  var got = docker.imageBuild( a.routinePath, 'docker://ghcr.io/pytooling/releaser' );
+  test.identical( got, 'imagebuild_repo:imagebuild_tag' );
+
   /* - */
 
   if( !Config.debug )
@@ -89,6 +92,8 @@ function imageBuild( test )
   };
   test.shouldThrowErrorSync( () => docker.imageBuild( a.routinePath, 'wrong:image' ), onResolve );
 }
+
+imageBuild.timeOut = 60000;
 
 //
 
