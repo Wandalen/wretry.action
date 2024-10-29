@@ -52,6 +52,10 @@ The command to run. The action runs the command in the default shell.
 
 **Attention**. Action requires defined `action` or `command`. If the fields `action` and `commands` are defined simultaneously, then action will throw error.
 
+### `pre_retry_command`
+
+Command to run between retries.
+
 ### `with`
 
 An options map for Github action. It is a multiline string with pairs `key : value`.
