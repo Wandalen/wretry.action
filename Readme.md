@@ -24,7 +24,7 @@ It is a cause of failed jobs. For this case, the action `wretry.action` can retr
 ## Features
 
 - Retries Github `JavaScript` actions.
-- Retries `GitHub Docker` actions utilizing a `Dockerfile` as the image source.
+- Retries `GitHub Docker` actions utilizing a `Dockerfile`'s and Docker registry image as the source.
 - Retries private actions. The option `github_token` is used for private repositories.
 - The action can be an action repository that is not published on `Marketplace`.
 - Retries shell commands. Uses default shells to run commands.

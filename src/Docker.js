@@ -54,11 +54,31 @@ function imageBuild( actionPath, image )
     + 'and select valid workflow runner.'
   );
 
-  if( image === 'Dockerfile' )
+  const actionName = _.path.name( actionPath );
+  const imageName = `${ actionName }_repo:${ actionName }_tag`.toLowerCase();
+
+  if( _.uri.isGlobal( image ) )
   {
-    const actionName = _.path.name( actionPath );
-    const imageName = `${ actionName }_repo:${ actionName }_tag`.toLowerCase();
-    const dockerfilePath = _.path.nativize( _.path.join( actionPath, 'Dockerfile' ) );
+    const parsed = _.uri.parse( image );
+    const publicDockerImage = parsed.longPath;
+    const pullCommand = `docker image pull ${ publicDockerImage }`;
+    const pull = execSyncNonThrowing( pullCommand );
+    if( _.error.is( pull ) )
+    throw _.error.brief( pull );
+
+    const tagCommand = `docker image tag ${ publicDockerImage } ${ imageName }`;
+    const tagging = execSyncNonThrowing( tagCommand );
+    if( _.error.is( tagging ) )
+    throw _.error.brief( tagging );
+
+    core.info( `Docker image : ${ publicDockerImage }.` );
+    core.info( pullCommand );
+    core.info( pull.toString() );
+    core.info( tagCommand );
+  }
+  else if( _.str.ends( image, 'Dockerfile' ) && _.path.isRelative( image ) )
+  {
+    const dockerfilePath = _.path.nativize( _.path.join( actionPath, image ) );
     const command = `docker build -t ${ imageName } -f ${ dockerfilePath } ${ _.path.nativize( actionPath ) }`;
     const build = execSyncNonThrowing( command );
     if( _.error.is( build ) )
@@ -67,16 +87,16 @@ function imageBuild( actionPath, image )
     core.info( `Dockerfile for action : ${ dockerfilePath }.` );
     core.info( command );
     core.info( build.toString() );
-
-    return imageName;
   }
-
+  else
   _.sure
   (
     false,
     `The action does not support requested Docker image type "${ image }".`
     + '\nPlease, open an issue with the request for the feature.'
   );
+
+  return imageName;
 }
 
 //
