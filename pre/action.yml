@@ -13,6 +13,9 @@ inputs:
   command:
     description: 'Command to run. Should be defined action or command, not both.'
     required: false
+  pre_retry_command:
+    description: 'Command to run between retries.'
+    required: false
   with:
     description: An options map for Github action
     required: false
