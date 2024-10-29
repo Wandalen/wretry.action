@@ -8,43 +8,42 @@ const _ = wTools;
 function retry( scriptType )
 {
   let shouldRetry = core.getInput( 'retry_condition' ) || true;
+  const actionName = core.getInput( 'action' );
+  const command = core.getMultilineInput( 'command' );
+  const preRetryCommand = core.getMultilineInput( 'pre_retry_command' );
+
+  let currentPath = core.getInput( 'current_path' ) || _.path.current();
+  if( !_.path.isAbsolute( currentPath ) )
+  currentPath = _.path.join( _.path.current(), currentPath );
+
+  let preRetryExecPath = null;
+  if( preRetryCommand.length > 0 )
+  preRetryExecPath = execPathFromCommandAndNameForm( preRetryCommand, 'pre_script' );
+
+  let startTime = null;
+  const timeLimit = _.number.from( core.getInput( 'time_out' ) ) || null;
+  let timeoutGet = () => null;
+  if( timeLimit )
+  {
+    startTime = _.time.now();
+    timeoutGet = () =>
+    {
+      let now = _.time.now();
+      let spent = now - startTime;
+      if( spent >= timeLimit )
+      shouldRetry = false;
+      return timeLimit - spent;
+    };
+  }
 
   return _.Consequence.Try( () =>
   {
-    let routine, startTime;
+    let routine;
     const con = _.take( null );
-    const actionName = core.getInput( 'action' );
-    const command = core.getMultilineInput( 'command' );
-
-    const timeLimit = _.number.from( core.getInput( 'time_out' ) ) || null;
-    let timeoutGet = () => null;
-    if( timeLimit )
-    {
-      startTime = _.time.now();
-      timeoutGet = () =>
-      {
-        let now = _.time.now();
-        let spent = now - startTime;
-        if( spent >= timeLimit )
-        shouldRetry = false;
-        return timeLimit - spent;
-      };
-    }
 
     if( !actionName )
     {
-      const commands = common.commandsForm( command );
-      const commandsScriptPath = _.path.join( __dirname, process.platform === 'win32' ? 'script.ps1' : 'script.sh' );
-      _.fileProvider.fileWrite( commandsScriptPath, commands.join( '\n' ) );
-
-      let currentPath = core.getInput( 'current_path' ) || _.path.current();
-      if( !_.path.isAbsolute( currentPath ) )
-      currentPath = _.path.join( _.path.current(), currentPath );
-      const execPath =
-        process.platform === 'win32' ?
-        `pwsh -command ". '${ _.path.nativize( commandsScriptPath ) }'"` :
-        `bash --noprofile --norc -eo pipefail ${ _.path.nativize( commandsScriptPath ) }`;
-
+      const execPath = execPathFromCommandAndNameForm( command, 'script' );
       routine = () =>
       {
         const o =
@@ -167,8 +166,37 @@ function retry( scriptType )
         {
           if( process.env.GITHUB_OUTPUT && _.fileProvider.fileExists( process.env.GITHUB_OUTPUT ) )
           _.fileProvider.fileWrite( process.env.GITHUB_OUTPUT, '' );
-          return routine();
+
+          if( preRetryCommand.length > 0 )
+          {
+            const o =
+            {
+              currentPath,
+              execPath : preRetryExecPath,
+              inputMirroring : 0,
+              stdio : 'inherit',
+              mode : 'shell',
+            };
+            o.timeOut = timeoutGet();
+            _.process.start( o );
+
+            return o.ready.catch( ( err ) =>
+            {
+              _.error.attend( err );
+              shouldRetry = false;
+              return err;
+            })
+            .then( () =>
+            {
+              return routine();
+            });
+          }
+          else
+          {
+            return routine();
+          }
         };
+
         return _.retry
         ({
           routine : githubOutputCleanRoutine,
@@ -201,9 +229,24 @@ function retry( scriptType )
   function onError( err )
   {
     _.error.attend( err );
+
     if( _.bool.is( shouldRetry ) )
     return shouldRetry;
     return !!common.evaluateExpression( shouldRetry );
+  }
+
+  function execPathFromCommandAndNameForm( command, scriptName )
+  {
+
+    const commands = common.commandsForm( command );
+    const commandsScriptPath = _.path.join( __dirname, process.platform === 'win32' ? `${ scriptName }.ps1` : `${ scriptName }.sh` );
+    _.fileProvider.fileWrite( commandsScriptPath, commands.join( '\n' ) );
+
+    const execPath = process.platform === 'win32' ?
+      `pwsh -command ". '${ _.path.nativize( commandsScriptPath ) }'"` :
+      `bash --noprofile --norc -eo pipefail ${ _.path.nativize( commandsScriptPath ) }`;
+
+    return execPath;
   }
 }
 
