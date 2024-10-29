@@ -6,6 +6,9 @@ inputs:
   command:
     type: string
 
+  pre_retry_command:
+    type: string
+
   with:
     type: string
 
