@@ -14,7 +14,7 @@ inputs:
     description: 'Command to run. Should be defined action or command, not both.'
     required: false
   pre_retry_command:
-    description: 'Command to run between retries.'
+    description: Command to run between retries.
     required: false
   with:
     description: An options map for Github action
@@ -62,7 +62,7 @@ runs:
   steps:
     - name: retry
       id: retry
-      uses: Wandalen/wretry.action/main@v3.5.0_js_action
+      uses: Wandalen/wretry.action/main@v3.6.0_js_action
       with:
         action: '${{ inputs.action }}'
         command: '${{ inputs.command }}'
