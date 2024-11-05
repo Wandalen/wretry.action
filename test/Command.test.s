@@ -313,6 +313,182 @@ function retryWithOptionCurrentPath( test )
 
 //
 
+function retryWithOptionRetryConditionAndCheckOfStepOutput( test )
+{
+  let context = this;
+  const a = test.assetFor( false );
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'multiline command';
+    if( process.platform === 'win32' )
+    core.exportVariable( `INPUT_COMMAND`, '|\necho $Env:GITHUB_OUTPUT\necho "foo=bar" >> $Env:GITHUB_OUTPUT\nexit 1' );
+    else
+    core.exportVariable( `INPUT_COMMAND`, '|\necho $GITHUB_OUTPUT\necho "foo=bar" >> $GITHUB_OUTPUT\nexit 1' );
+    core.exportVariable( `INPUT_STEPS_CONTEXT`, '{}' );
+    core.exportVariable( `INPUT_RETRY_CONDITION`, `steps._this.outputs.foo == 'bar'` );
+    core.exportVariable( `GITHUB_OUTPUT`, `${ a.path.nativize( a.abs( actionPath, 'github_output' ) ) }` );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    console.log( op.output );
+    test.notIdentical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
+    test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'multiline command';
+    if( process.platform === 'win32' )
+    core.exportVariable( `INPUT_COMMAND`, '|\necho $Env:GITHUB_OUTPUT\necho "foo=bar" >> $Env:GITHUB_OUTPUT\nexit 1' );
+    else
+    core.exportVariable( `INPUT_COMMAND`, '|\necho $GITHUB_OUTPUT\necho "foo=bar" >> $GITHUB_OUTPUT\nexit 1' );
+    core.exportVariable( `INPUT_STEPS_CONTEXT`, '{}' );
+    core.exportVariable( `INPUT_RETRY_CONDITION`, `steps._this.outputs.foo == 'foo'` );
+    core.exportVariable( `GITHUB_OUTPUT`, `${ a.path.nativize( a.abs( actionPath, 'github_output' ) ) }` );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.notIdentical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
+    test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
+    return null;
+  });
+
+  a.ready.finally( () =>
+  {
+    core.exportVariable( `INPUT_RETRY_CONDITION`, true );
+    return null;
+  });
+
+  a.ready.finally( () =>
+  {
+    delete process.env.GITHUB_OUTPUT;
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.ready.then( () =>
+    {
+      return __.git.repositoryClone
+      ({
+        localPath : actionPath,
+        remotePath : __.git.path.normalize( context.actionDirPath ),
+        attemptLimit : 4,
+        attemptDelay : 250,
+        attemptDelayMultiplier : 4,
+      });
+    });
+    return a.ready;
+  }
+}
+
+//
+
+function retryWithOptionPreRetryCommand( test )
+{
+  let context = this;
+  const a = test.assetFor( false );
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+  const command = 'exit 1';
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'without current path';
+    core.exportVariable( `INPUT_COMMAND`, command );
+    core.exportVariable( `INPUT_PRE_RETRY_COMMAND`, 'echo "Executing pre_retry_command"' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    console.log( op.output );
+    test.notIdentical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
+    test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 1 );
+    test.identical( _.strCount( op.output, 'Executing pre_retry_command' ), 4 );
+    return null;
+  });
+
+  /* */
+
+  a.ready.finally( () =>
+  {
+    delete process.env.INPUT_PRE_RETRY_COMMAND;
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      return null;
+    });
+    a.ready.then( () =>
+    {
+      return __.git.repositoryClone
+      ({
+        localPath : actionPath,
+        remotePath : __.git.path.normalize( context.actionDirPath ),
+        attemptLimit : 4,
+        attemptDelay : 250,
+        attemptDelayMultiplier : 4,
+      });
+    });
+    return a.ready;
+  }
+}
+
+//
+
 function retryWithMultilineCommand( test )
 {
   let context = this;
@@ -435,111 +611,6 @@ function retryAndCheckRuntimeEnvironments( test )
     test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
     test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
     test.identical( _.strCount( op.output, 'foobar' ), 1 );
-    return null;
-  });
-
-  /* - */
-
-  return a.ready;
-
-  /* */
-
-  function actionSetup()
-  {
-    a.ready.then( () =>
-    {
-      a.fileProvider.filesDelete( a.abs( '.' ) );
-      a.fileProvider.dirMake( actionPath );
-      return null;
-    });
-    a.ready.then( () =>
-    {
-      return __.git.repositoryClone
-      ({
-        localPath : actionPath,
-        remotePath : __.git.path.normalize( context.actionDirPath ),
-        attemptLimit : 4,
-        attemptDelay : 250,
-        attemptDelayMultiplier : 4,
-      });
-    });
-    return a.ready;
-  }
-}
-
-//
-
-function retryWithOptionRetryConditionAndCheckOfStepOutput( test )
-{
-  let context = this;
-  const a = test.assetFor( false );
-  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
-  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
-
-  /* - */
-
-  a.ready.then( () =>
-  {
-    test.case = 'multiline command';
-    if( process.platform === 'win32' )
-    core.exportVariable( `INPUT_COMMAND`, '|\necho $Env:GITHUB_OUTPUT\necho "foo=bar" >> $Env:GITHUB_OUTPUT\nexit 1' );
-    else
-    core.exportVariable( `INPUT_COMMAND`, '|\necho $GITHUB_OUTPUT\necho "foo=bar" >> $GITHUB_OUTPUT\nexit 1' );
-    core.exportVariable( `INPUT_STEPS_CONTEXT`, '{}' );
-    core.exportVariable( `INPUT_RETRY_CONDITION`, `steps._this.outputs.foo == 'bar'` );
-    core.exportVariable( `GITHUB_OUTPUT`, `${ a.path.nativize( a.abs( actionPath, 'github_output' ) ) }` );
-    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
-    return null;
-  });
-
-  actionSetup();
-
-  a.shellNonThrowing({ currentPath : actionPath, execPath });
-  a.ready.then( ( op ) =>
-  {
-    console.log( op.output );
-    test.notIdentical( op.exitCode, 0 );
-    test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
-    test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 1 );
-    return null;
-  });
-
-  /* */
-
-  a.ready.then( () =>
-  {
-    test.case = 'multiline command';
-    if( process.platform === 'win32' )
-    core.exportVariable( `INPUT_COMMAND`, '|\necho $Env:GITHUB_OUTPUT\necho "foo=bar" >> $Env:GITHUB_OUTPUT\nexit 1' );
-    else
-    core.exportVariable( `INPUT_COMMAND`, '|\necho $GITHUB_OUTPUT\necho "foo=bar" >> $GITHUB_OUTPUT\nexit 1' );
-    core.exportVariable( `INPUT_STEPS_CONTEXT`, '{}' );
-    core.exportVariable( `INPUT_RETRY_CONDITION`, `steps._this.outputs.foo == 'foo'` );
-    core.exportVariable( `GITHUB_OUTPUT`, `${ a.path.nativize( a.abs( actionPath, 'github_output' ) ) }` );
-    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
-    return null;
-  });
-
-  actionSetup();
-
-  a.shellNonThrowing({ currentPath : actionPath, execPath });
-  a.ready.then( ( op ) =>
-  {
-    test.notIdentical( op.exitCode, 0 );
-    test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
-    test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 0 );
-    return null;
-  });
-
-  a.ready.finally( () =>
-  {
-    core.exportVariable( `INPUT_RETRY_CONDITION`, true );
-    return null;
-  });
-
-  a.ready.finally( () =>
-  {
-    delete process.env.GITHUB_OUTPUT;
     return null;
   });
 
@@ -758,10 +829,13 @@ const Proto =
     retryWithoutCommand,
     retryWithWrongCommand,
     retryWithValidCommand,
+
     retryWithOptionCurrentPath,
+    retryWithOptionRetryConditionAndCheckOfStepOutput,
+    retryWithOptionPreRetryCommand,
+
     retryWithMultilineCommand,
     retryAndCheckRuntimeEnvironments,
-    retryWithOptionRetryConditionAndCheckOfStepOutput,
     retryCheckRetryTime,
   },
 };
