@@ -66,6 +66,7 @@ runs:
       with:
         action: '${{ inputs.action }}'
         command: '${{ inputs.command }}'
+        pre_retry_command: '${{ inputs.pre_retry_command }}'
         with: '${{ inputs.with }}'
         current_path: '${{ inputs.current_path }}'
         steps_context: '${{ inputs.steps_context }}'
