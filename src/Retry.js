@@ -8,6 +8,7 @@ const _ = wTools;
 function retry( scriptType )
 {
   let shouldRetry = core.getInput( 'retry_condition' ) || true;
+  let isRetry = false;
   const actionName = core.getInput( 'action' );
   const command = core.getMultilineInput( 'command' );
   const preRetryCommand = core.getMultilineInput( 'pre_retry_command' );
@@ -167,7 +168,7 @@ function retry( scriptType )
           if( process.env.GITHUB_OUTPUT && _.fileProvider.fileExists( process.env.GITHUB_OUTPUT ) )
           _.fileProvider.fileWrite( process.env.GITHUB_OUTPUT, '' );
 
-          if( preRetryCommand.length > 0 )
+          if( isRetry && preRetryCommand.length > 0 )
           {
             const o =
             {
@@ -229,6 +230,8 @@ function retry( scriptType )
   function onError( err )
   {
     _.error.attend( err );
+
+    isRetry = true;
 
     if( _.bool.is( shouldRetry ) )
     return shouldRetry;

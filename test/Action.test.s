@@ -918,7 +918,7 @@ function retryWithOptionPreRetryCommand( test )
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, /::error::.*Process returned exit code/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
-    test.identical( _.strCount( op.output, 'Executing pre_retry_command' ), 4 );
+    test.identical( _.strCount( op.output, 'Executing pre_retry_command' ), 3 );
     return null;
   });
 
@@ -942,7 +942,7 @@ function retryWithOptionPreRetryCommand( test )
     test.notIdentical( op.exitCode, 0 );
     if( !isTestContainer )
     test.ge( _.strCount( op.output, '::set-env' ), 2 );
-    test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 1 );
+    test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 2 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, /::error::.*Process returned exit code/ ), 1 );
     test.identical( _.strCount( op.output, 'Success' ), 0 );
