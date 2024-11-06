@@ -446,7 +446,7 @@ function retryWithOptionPreRetryCommand( test )
     test.notIdentical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, '::error::Please, specify Github action name' ), 0 );
     test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts' ), 1 );
-    test.identical( _.strCount( op.output, 'Executing pre_retry_command' ), 4 );
+    test.identical( _.strCount( op.output, 'Executing pre_retry_command' ), 3 );
     return null;
   });
 
