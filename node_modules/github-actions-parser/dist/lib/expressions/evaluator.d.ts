@@ -22,7 +22,7 @@ export declare class ExpressionEvaluator extends BaseCstVisitor {
         path: PropertyPath;
         context: ExpressionContext;
     }): void;
-    logicalGrouping(ctx: any): any;
+    logicalGrouping(ctx: any, context: ExpressionContext): any;
     array(ctx: any): any[];
     functionCall(ctx: any, context: ExpressionContext): any;
     functionParameters(ctx: any, context: ExpressionContext): any;

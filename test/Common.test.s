@@ -1410,6 +1410,44 @@ function shouldExit( test )
   test.close( 'with conditions' );
 }
 
+//
+
+function evaluateExpression( test )
+{
+  var contextGet = ( _contextName ) => {
+    return {
+      _this:
+      {
+        outputs: {
+          status: 'FAILED'
+        }
+      }
+    };
+  };
+
+  test.case = 'evaluate simple expression to true';
+  var got = common.evaluateExpression( 'steps._this.outputs.status == \'FAILED\'', contextGet );
+  test.identical( got, true );
+
+  test.case = 'evaluate simple expression to false';
+  var got = common.evaluateExpression( 'steps._this.outputs.status != \'FAILED\'', contextGet );
+  test.identical( got, false );
+
+  test.case = 'evaluate combined expression to true';
+  var got = common.evaluateExpression
+  (
+    '(steps._this.outputs.status != \'WARN\') && (steps._this.outputs.status == \'FAILED\')', contextGet
+  );
+  test.identical( got, true );
+
+  test.case = 'evaluate simple expression to false';
+  var got = common.evaluateExpression
+  (
+    '(steps._this.outputs.status != \'WARN\') && (steps._this.outputs.status != \'FAILED\')', contextGet
+  );
+  test.identical( got, false );
+}
+
 // --
 // declare
 // --
@@ -1434,6 +1472,7 @@ const Proto =
     contextGet,
     envOptionsSetup,
     shouldExit,
+    evaluateExpression,
   },
 };
 
