@@ -134,6 +134,29 @@ Example of condition with check of current step output:
       option2: value
 ```
 
+**How to use complex conditions**
+
+The library used for evaluating expressions does not account for operator precedence, which can lead to incorrect results in complex expressions where the order of operations is crucial.
+
+Example of the issue. Consider the following expression:
+```yaml
+  'main' == 'main' && 'main' != 'master'
+```
+
+Due to the library's evaluation method, this expression is interpreted as:
+```yaml
+  (('main' == 'main') && 'main') != 'master'
+```
+
+As a result, it evaluates to `false`, which is not the intended outcome.
+
+To ensure that the expression is evaluated correctly, you can use parentheses to explicitly define the order of operations. The corrected expression should be written as:
+```yaml
+  ('main' == 'main') && ('main' != 'master')
+```
+
+This adjustment clarifies the intended precedence and will yield the correct result.
+
 ### `github_token`
 
 A token to access private actions. Does not required for public actions.
