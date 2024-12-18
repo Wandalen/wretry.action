@@ -12,11 +12,11 @@ jobs :
       !startsWith( github.event.head_commit.message, 'version' )
       && !startsWith( github.event.head_commit.message, '.' )
       && !startsWith( github.event.head_commit.message, 'Merge' )
-    uses : Wandalen/wretry.action/.github/workflows/JobContextActionTest.yml@master
+    uses : Youloveit-Org/wretry.action/.github/workflows/JobContextActionTest.yml@master
 
   matrix_context_test :
     if : |
       !startsWith( github.event.head_commit.message, 'version' )
       && !startsWith( github.event.head_commit.message, '.' )
       && !startsWith( github.event.head_commit.message, 'Merge' )
-    uses : Wandalen/wretry.action/.github/workflows/MatrixContextActionTest.yml@master
+    uses : Youloveit-Org/wretry.action/.github/workflows/MatrixContextActionTest.yml@master

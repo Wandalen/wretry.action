@@ -11,7 +11,7 @@ about:
   npm.scripts:
     postinstall: will .build compile
     test: wtest .run "test/**"
-  npm.homepage: 'https://github.com/Wandalen/wretry.action#action::wretry.action'
+  npm.homepage: 'https://github.com/Youloveit-Org/wretry.action#action::wretry.action'
   keywords:
     - action
     - retry
@@ -21,10 +21,10 @@ about:
     - njs >= 10.0.0
 path:
   origins:
-    - 'git+https:///github.com/Wandalen/wretry.action'
+    - 'git+https:///github.com/Youloveit-Org/wretry.action'
   entry: src/Main.js
-  repository: 'git+https:///github.com/Wandalen/wretry.action'
-  bugtracker: 'https:///github.com/Wandalen/wretry.action/issues'
+  repository: 'git+https:///github.com/Youloveit-Org/wretry.action'
+  bugtracker: 'https:///github.com/Youloveit-Org/wretry.action/issues'
   in: .
   out: out
   temp:

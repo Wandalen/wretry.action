@@ -1,6 +1,6 @@
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner2-direct.svg)](https://stand-with-ukraine.pp.ua)
 
-# action::retry [![status](https://github.com/Wandalen/wretry.action/actions/workflows/wRetryActionPublish.yml/badge.svg)](https://github.com/Wandalen/wretry.action/actions/workflows/wRetryActionPublish.yml) [![stable](https://img.shields.io/badge/stability-stable-brightgreen.svg)](https://github.com/emersion/stability-badges#stable)
+# action::retry [![status](https://github.com/Youloveit-Org/wretry.action/actions/workflows/wRetryActionPublish.yml/badge.svg)](https://github.com/Youloveit-Org/wretry.action/actions/workflows/wRetryActionPublish.yml) [![stable](https://img.shields.io/badge/stability-stable-brightgreen.svg)](https://github.com/emersion/stability-badges#stable)
 
 Retries a Github Action step or command on failure.
 
@@ -65,7 +65,7 @@ An options map for Github action. It is a multiline string with pairs `key : val
 
 An example of declaration of option with single line value :
 ```yaml
-- uses: Wandalen/wretry.action@master
+- uses: Youloveit-Org/wretry.action@master
   with:
     action: owner/action-repo@version
     with: |
@@ -74,7 +74,7 @@ An example of declaration of option with single line value :
 ```
 An example of declaration of option with multiline string :
 ```yaml
-- uses: Wandalen/wretry.action@master
+- uses: Youloveit-Org/wretry.action@master
   with:
     action: owner/action-repo@version
     with: |
@@ -109,7 +109,7 @@ Set time out in ms for entire step including all retries. By default actions set
 
 Use any valid expression to control the continuation of retries. If the expression resolves to `false`, the action will interrupt the retries. Default value is `true`.
 ```yaml
-- uses: Wandalen/wretry.action@master
+- uses: Youloveit-Org/wretry.action@master
   with:
     action: owner/action-repo@version
     retry_condition: github.ref_name == 'main'
@@ -125,7 +125,7 @@ The action can resolve the output of the current step using the special syntax: 
 
 Example of condition with check of current step output:
 ```yaml
-- uses: Wandalen/wretry.action@master
+- uses: Youloveit-Org/wretry.action@master
   with:
     action: owner/action-repo@version
     retry_condition: steps._this.outputs.code == 0
@@ -179,7 +179,7 @@ jobs:
       out: ${{ steps.my-action.outputs.outputs }}
     steps:
       - id: my-action
-        uses: Wandalen/wretry.action@1.2.0
+        uses: Youloveit-Org/wretry.action@1.2.0
         with:
           attempt_limit: 3
           action: user/action@version
@@ -220,7 +220,7 @@ You have a few options for obtaining a compatible action implementation:
 
 To choose an alternative action add the action subdirectory in declaration of `wretry.action`. For example, the declaration with `main` subdirectory:
 ```yml
-- uses: Wandalen/wretry.action/main@master
+- uses: Youloveit-Org/wretry.action/main@master
 ```
 
 You can choose either method based on your preference. If you prefer not to perform additional manipulations, you can select the default `wretry.action` that retries all available stages of the external action.
@@ -229,7 +229,7 @@ You can choose either method based on your preference. If you prefer not to perf
 
 ### Retry action
 ```yaml
-- uses: Wandalen/wretry.action@master
+- uses: Youloveit-Org/wretry.action@master
   with:
     action: action/setup-node@2.3.0
     with: |
@@ -241,7 +241,7 @@ You can choose either method based on your preference. If you prefer not to perf
 
 ### Retry command
 ```yaml
-- uses: Wandalen/wretry.action@master
+- uses: Youloveit-Org/wretry.action@master
   with:
     command: npm i
     attempt_limit: 3

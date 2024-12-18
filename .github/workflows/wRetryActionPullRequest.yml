@@ -8,7 +8,7 @@ on :
 jobs :
 
   job_context_test :
-    uses : Wandalen/wretry.action/.github/workflows/JobContextActionTest.yml@master
+    uses : Youloveit-Org/wretry.action/.github/workflows/JobContextActionTest.yml@master
 
   matrix_context_test :
-    uses : Wandalen/wretry.action/.github/workflows/MatrixContextActionTest.yml@master
+    uses : Youloveit-Org/wretry.action/.github/workflows/MatrixContextActionTest.yml@master

@@ -29,7 +29,7 @@ function actionWrite( frame )
     const actionRelativePath = `${ subdirectories[ i ] }${ slash }action.yml`;
     const actionPath = fileProvider.path.join( module.dirPath, actionRelativePath );
     const action = fileProvider.fileReadUnknown( actionPath );
-    action.runs.steps[ 0 ].uses = `Wandalen/wretry.action${ slash }${ subdirectories[ i ] }@v${ module.about.version }_js_action`;
+    action.runs.steps[ 0 ].uses = `Youloveit-Org/wretry.action${ slash }${ subdirectories[ i ] }@v${ module.about.version }_js_action`;
 
     logger.log( `Updating action file "${ actionRelativePath }". Setup action version to "${ action.runs.steps[ 0 ].uses }".` );
 
