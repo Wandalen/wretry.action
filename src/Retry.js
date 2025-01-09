@@ -67,13 +67,23 @@ function retry( scriptType )
 
       process.env.RETRY_ACTION = actionName;
       const token = core.getInput( 'github_token' );
-      const remoteActionPath = common.remotePathForm( actionName, token );
-      const localActionDir = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
 
+      const localIs = actionName.startsWith( './' );
+
+      let remoteActionPath = null;
+      if( !localIs )
+      remoteActionPath = common.remotePathForm( actionName, token );
+
+      const localActionDir = localIs ?
+        _.path.nativize( _.path.join( process.env.GITHUB_WORKSPACE, actionName ) ) :
+        _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
+
+      if( !localIs )
       con.then( () => common.actionClone( localActionDir, remoteActionPath ) );
+
       con.then( () =>
       {
-        const actionFileDir = _.path.nativize( _.path.join( localActionDir, remoteActionPath.localVcsPath ) );
+        const actionFileDir = localIs ? localActionDir : _.path.nativize( _.path.join( localActionDir, remoteActionPath.localVcsPath ) );
         const config = common.actionConfigRead( actionFileDir );
 
         if( common.shouldExit( config, scriptType ) )

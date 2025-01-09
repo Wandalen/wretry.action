@@ -203,6 +203,74 @@ function retryWithActionAndCommand( test )
 
 //
 
+function retryLocalAction( test )
+{
+  const context = this;
+  const a = test.assetFor( false );
+  const actionPath = a.abs( '_action/actions/wretry.action/v1' );
+  const execPath = `node ${ a.path.nativize( a.abs( actionPath, 'src/Main.js' ) ) }`;
+
+  const repoWithWorkflowDir = a.abs( 'test.action' );
+  const localActionRepo = 'https://github.com/dmvict/test.action.git';
+  const testAction = './.github/actions';
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'enought attempts';
+    core.exportVariable( `INPUT_ACTION`, testAction );
+    core.exportVariable( `INPUT_WITH`, 'value : 0' );
+    core.exportVariable( `INPUT_ATTEMPT_LIMIT`, '4' );
+    core.exportVariable( `GITHUB_WORKSPACE`, repoWithWorkflowDir );
+    return null;
+  });
+
+  actionSetup();
+
+  a.shellNonThrowing({ currentPath : actionPath, execPath });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    if( !_.process.insideTestContainer() )
+    test.ge( _.strCount( op.output, '::set-env' ), 3 );
+    test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
+    test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
+    test.identical( _.strCount( op.output, 'Success' ), 1 );
+    return null;
+  });
+
+  a.ready.finally( () =>
+  {
+    delete process.env.GITHUB_WORKSPACE;
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function actionSetup()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( actionPath );
+      a.fileProvider.dirMake( repoWithWorkflowDir );
+      return null;
+    });
+    a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.shell( `git clone ${ localActionRepo } ${ a.path.nativize( repoWithWorkflowDir ) }` );
+    a.shell({ currentPath : repoWithWorkflowDir, execPath : 'git checkout local_action' });
+    a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
+    return a.ready;
+  }
+}
+
+//
+
 function retryFetchActionWithoutTagOrHash( test )
 {
   const context = this;
@@ -1946,6 +2014,7 @@ const Proto =
     retryWithUnsupportedAction,
     retryWithActionAndCommand,
 
+    retryLocalAction,
     retryFetchActionWithoutTagOrHash,
     retryFetchActionWithTag,
     retryFetchActionWithHash,
