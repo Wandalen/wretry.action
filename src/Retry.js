@@ -23,6 +23,7 @@ function retry( scriptType )
 
   let startTime = null;
   const timeLimit = _.number.from( core.getInput( 'time_out' ) ) || null;
+  const timeOutStep = _.number.from( core.getInput( 'time_out_step' ) ) || null;
   let timeoutGet = () => null;
   if( timeLimit )
   {
@@ -36,6 +37,8 @@ function retry( scriptType )
       return timeLimit - spent;
     };
   }
+  // If time_out_step is set, use it directly for each step (overrides timeLimit calculation for individual steps)
+  const stepTimeoutGet = () => timeOutStep || timeoutGet();
 
   return _.Consequence.Try( () =>
   {
@@ -45,20 +48,20 @@ function retry( scriptType )
     if( !actionName )
     {
       const execPath = execPathFromCommandAndNameForm( command, 'script' );
-      routine = () =>
-      {
-        const o =
+        routine = () =>
         {
-          currentPath,
-          execPath,
-          inputMirroring : 0,
-          stdio : 'inherit',
-          mode : 'shell',
+          const o =
+          {
+            currentPath,
+            execPath,
+            inputMirroring : 0,
+            stdio : 'inherit',
+            mode : 'shell',
+          };
+          o.timeOut = stepTimeoutGet();
+          _.process.start( o );
+          return o.ready;
         };
-        o.timeOut = timeoutGet();
-        _.process.start( o );
-        return o.ready;
-      };
     }
     else
     {
@@ -125,7 +128,7 @@ function retry( scriptType )
               mode : 'spawn',
               ipc : 1,
             };
-            o.timeOut = timeoutGet();
+            o.timeOut = stepTimeoutGet();
             _.process.start( o );
             o.pnd.on( 'message', ( data ) => _.map.extend( process.env, data ) );
             return o.ready;
@@ -149,6 +152,7 @@ function retry( scriptType )
               stdio : 'inherit',
               mode : 'shell',
             };
+            o.timeOut = stepTimeoutGet();
             _.process.start( o );
             return o.ready;
           };
@@ -188,7 +192,7 @@ function retry( scriptType )
               stdio : 'inherit',
               mode : 'shell',
             };
-            o.timeOut = timeoutGet();
+            o.timeOut = stepTimeoutGet();
             _.process.start( o );
 
             return o.ready.catch( ( err ) =>
