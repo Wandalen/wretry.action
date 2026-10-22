@@ -155,39 +155,81 @@ function envOptionsFrom( options )
 
 //
 
+function contextInputParse( name )
+{
+  const input = core.getInput( `${ name }_context` );
+  if( !input )
+  return {};
+  return JSON.parse( input );
+}
+
+//
+
+function githubContextFromEnv()
+{
+  const keys =
+  [
+    'action', 'action_repository', 'actor', 'actor_id', 'api_url', 'base_ref', 'event_name', 'event_path',
+    'graphql_url', 'head_ref', 'job', 'ref', 'ref_name', 'ref_protected', 'ref_type', 'repository',
+    'repository_id', 'repository_owner', 'repository_owner_id', 'retention_days', 'run_attempt', 'run_id', 'run_number', 'server_url', 'sha',
+    'triggering_actor', 'workflow', 'workflow_ref', 'workflow_sha', 'workspace'
+  ];
+  const context = {};
+  for( let key of keys )
+  {
+    const value = process.env[ `GITHUB_${ key.toUpperCase() }` ];
+    if( value !== undefined )
+    context[ key ] = value;
+  }
+  context.token = core.getInput( 'github_token' ) || process.env.GITHUB_TOKEN || '';
+  context.event = {};
+  const eventPath = process.env.GITHUB_EVENT_PATH;
+  if( eventPath && _.fileProvider.fileExists( eventPath ) )
+  context.event = JSON.parse( _.fileProvider.fileRead({ filePath : eventPath }) );
+  return context;
+}
+
+//
+
+function githubOutputRead()
+{
+  if( !process.env.GITHUB_OUTPUT || !_.fileProvider.fileExists( process.env.GITHUB_OUTPUT ) )
+  return null;
+  const rawFile = _.fileProvider.fileRead({ filePath : process.env.GITHUB_OUTPUT });
+  const regex = /^(.*)<<ghadelimiter_(.*)(\s*)(.+)\3ghadelimiter_\2/mg;
+  const filteredFile = rawFile.replaceAll( regex, '$1=$4' );
+  const Ini = require( 'ini' );
+  return Ini.parse( filteredFile );
+}
+
+//
+
 function contextGet( contextName )
 {
   if( contextName === 'env' )
   {
-    let envContext = JSON.parse( core.getInput( 'env_context' ) );
+    let envContext = contextInputParse( 'env' );
     if( _.map.keys( envContext ).length === 0 )
     return process.env;
     return envContext;
   }
   else if( contextName === 'github' )
   {
-    let githubContext = JSON.parse( core.getInput( 'github_context' ) );
+    let githubContext = core.getInput( 'github_context' ) ? contextInputParse( 'github' ) : githubContextFromEnv();
     githubContext = githubContextUpdate( githubContext );
     return githubContext;
   }
   else if( contextName === 'steps' )
   {
-    const context = JSON.parse( core.getInput( `${ contextName }_context` ) );
-    if( _.fileProvider.fileExists( process.env.GITHUB_OUTPUT ) )
-    {
-      const rawFile = _.fileProvider.fileRead({ filePath : process.env.GITHUB_OUTPUT });
-      const regex = /^(.*)<<ghadelimiter_(.*)(\s*)(.+)\3ghadelimiter_\2/mg;
-      const filteredFile = rawFile.replaceAll( regex, '$1=$4' );
-      const Ini = require( 'ini' );
-      const parsed = Ini.parse( filteredFile );
-      context._this = { outputs : parsed, outcome : 'failure', conclusion : 'failure' };
-    }
+    const context = contextInputParse( contextName );
+    const parsed = githubOutputRead();
+    if( parsed )
+    context._this = { outputs : parsed, outcome : 'failure', conclusion : 'failure' };
     return context;
   }
   else if(  [ 'job', 'matrix', 'inputs' ].includes( contextName ) )
   {
-    const context = JSON.parse( core.getInput( `${ contextName }_context` ) );
-    return context;
+    return contextInputParse( contextName );
   }
   else if( contextName === 'runner' )
   {
@@ -227,6 +269,14 @@ function contextGet( contextName )
   {
     if( process.env.RETRY_ACTION )
     {
+      const localName = process.env.RETRY_ACTION;
+      if( localName.startsWith( './' ) || _.path.isAbsolute( localName ) )
+      {
+        const localDir = _.path.isAbsolute( localName ) ? localName : _.path.join( process.env.GITHUB_WORKSPACE || _.path.current(), localName );
+        githubContext.action_path = _.path.nativize( localDir );
+        githubContext.action_ref = '';
+        return githubContext;
+      }
       const remoteActionPath = remotePathForm( process.env.RETRY_ACTION );
       const localActionPath = _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
       githubContext.action_path = localActionPath;
@@ -287,6 +337,9 @@ const Self =
   actionOptionsParse,
   optionsExtendByInputDefaults,
   envOptionsFrom,
+  contextInputParse,
+  githubContextFromEnv,
+  githubOutputRead,
   contextGet,
   envOptionsSetup,
   shouldExit,

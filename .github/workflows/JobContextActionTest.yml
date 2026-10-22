@@ -24,5 +24,6 @@ jobs :
       uses : Wandalen/wretry.action@master
       with :
         action : dmvict/test.action@defaults_from_job_context
+        job_context : ${{ toJSON( job ) }}
         attempt_limit : 3
         attempt_delay: 1000

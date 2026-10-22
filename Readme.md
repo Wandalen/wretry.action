@@ -33,6 +33,7 @@ It is a cause of failed jobs. For this case, the action `wretry.action` can retr
 - Default action always includes both `pre` and `post` stages. If an external action contains a `pre` and/or `post` stage, the action will also execute these stages.
 - The repository includes subdirectories with alternative action setups that can skip the `pre` or/and `post` stages, as necessary.
 - Action handles conditions in `JavaScript` and `Docker` actions ( fields `pre-if` and `post-if` ). Some conditions can be unsolvable and then action skips the stage.
+- Standalone `JavaScript` action running on `node24`. It can be pinned by commit SHA, for example `Wandalen/wretry.action@<full-commit-sha>`.
 - Resolves external action default inputs from next contexts : `github`, `env`, `job`, `matrix`, `inputs`.
 - Can resolve user-provided context `steps`.
 - Retries actions with defined number of attempts ( default is 2 ).
@@ -159,7 +160,20 @@ This adjustment clarifies the intended precedence and will yield the correct res
 
 ### `github_token`
 
-A token to access private actions. Does not required for public actions.
+A token to access private actions. Does not required for public actions. It also feeds `github.token` of the wrapped action. Default is `${{ github.token }}`.
+
+### `env_context`, `github_context`, `job_context`, `matrix_context`
+
+Optional overrides of the contexts. The action rebuilds `github` and `env` automatically when the inputs are omitted. An empty string triggers the automatic rebuild, but `github_context: '{}'` is used as is. Contexts `job` and `matrix` are empty unless provided :
+```yaml
+- uses: Wandalen/wretry.action@master
+  with:
+    action: owner/action-repo@version
+    job_context: ${{ toJSON( job ) }}
+    matrix_context: ${{ toJSON( matrix ) }}
+```
+
+**Attention**. Docker actions receive only the keys of the workflow `env:` when `env_context: ${{ toJSON( env ) }}` is passed.
 
 ## Outputs
 

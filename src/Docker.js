@@ -146,7 +146,7 @@ function runCommandForm( imageName, inputs, args, entrypoint )
   _.sure( _.str.defined( repo ) && _.str.defined( tag ), 'Expects image name in format "[repo]:[tag]".' );
   const commandEntrypoint = entrypoint === undefined ? '' : `--entrypoint ${ entrypoint } `;
   const command = [ `docker run --name ${ tag } --label ${ repo } ${ commandEntrypoint }--workdir /github/workspace --rm` ];
-  const env_keys = _.map.keys( JSON.parse( core.getInput( 'env_context' ) ) );
+  const env_keys = _.map.keys( common.contextInputParse( 'env' ) );
   const inputs_keys = _.map.keys( inputs );
   const postfix_command_envs =
   [

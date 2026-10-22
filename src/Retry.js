@@ -245,6 +245,8 @@ function retry( scriptType )
   {
     if( arg.exitCode !== 0 )
     return false;
+    if( scriptType === 'main' )
+    core.setOutput( 'outputs', JSON.stringify( common.githubOutputRead() || {}, null, 2 ) );
     return true
   }
 

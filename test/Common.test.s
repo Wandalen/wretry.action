@@ -1241,6 +1241,128 @@ function contextGet( test )
 
 //
 
+function contextGetEmptyInputsAndGithubContextFromEnv( test )
+{
+  const Fs = require( 'fs' );
+  const Os = require( 'os' );
+  const Path = require( 'path' );
+  const tempDir = Fs.mkdtempSync( Path.join( Os.tmpdir(), 'wretry-' ) );
+  const eventPath = Path.join( tempDir, 'event.json' );
+  Fs.writeFileSync( eventPath, '{"repository":{"default_branch":"master"}}' );
+
+  const names =
+  [
+    'INPUT_ENV_CONTEXT', 'INPUT_GITHUB_CONTEXT', 'INPUT_STEPS_CONTEXT', 'INPUT_JOB_CONTEXT', 'INPUT_MATRIX_CONTEXT',
+    'INPUT_INPUTS_CONTEXT', 'INPUT_GITHUB_TOKEN', 'GITHUB_REPOSITORY', 'GITHUB_ACTOR', 'GITHUB_EVENT_PATH',
+    'GITHUB_TOKEN', 'GITHUB_OUTPUT', 'GITHUB_REF_NAME', 'RETRY_ACTION'
+  ];
+  const saved = {};
+  names.forEach( ( n ) => { saved[ n ] = process.env[ n ]; delete process.env[ n ]; } );
+
+  /* - */
+
+  test.case = 'empty inputs';
+  test.identical( common.contextInputParse( 'env' ), {} );
+  test.identical( common.contextInputParse( 'github' ), {} );
+  test.identical( common.contextGet( 'steps' ), {} );
+  test.identical( common.contextGet( 'job' ), {} );
+  test.identical( common.contextGet( 'matrix' ), {} );
+  test.identical( common.contextGet( 'inputs' ), {} );
+  test.true( common.contextGet( 'env' ) === process.env );
+
+  test.case = 'input is parsed';
+  process.env.INPUT_JOB_CONTEXT = '{"status":"success"}';
+  test.identical( common.contextInputParse( 'job' ), { status : 'success' } );
+  delete process.env.INPUT_JOB_CONTEXT;
+
+  test.case = 'github context from env';
+  process.env.GITHUB_REPOSITORY = 'user/repo';
+  process.env.GITHUB_EVENT_PATH = eventPath;
+  process.env.GITHUB_TOKEN = 'env_token';
+  var got = common.contextGet( 'github' );
+  test.identical( got.repository, 'user/repo' );
+  test.identical( got.event_path, eventPath );
+  test.identical( got.token, 'env_token' );
+  test.identical( got.event, { repository : { default_branch : 'master' } } );
+  test.identical( 'actor' in got, false );
+  test.identical( common.evaluateExpression( 'github.event.repository.default_branch' ), 'master' );
+
+  test.case = 'github context from env, token from input';
+  process.env.INPUT_GITHUB_TOKEN = 'input_token';
+  var got = common.contextGet( 'github' );
+  test.identical( got.token, 'input_token' );
+  delete process.env.INPUT_GITHUB_TOKEN;
+
+  test.case = 'github context from env, no event file';
+  process.env.GITHUB_EVENT_PATH = Path.join( tempDir, 'unknown.json' );
+  delete process.env.GITHUB_TOKEN;
+  var got = common.contextGet( 'github' );
+  test.identical( got.event, {} );
+  test.identical( got.token, '' );
+
+  test.case = 'github context from env, RETRY_ACTION is applied';
+  process.env.RETRY_ACTION = 'user/action-repo@master';
+  var got = common.contextGet( 'github' );
+  test.identical( got.action_ref, 'master' );
+  test.identical( got.repository, 'user/repo' );
+  delete process.env.RETRY_ACTION;
+
+  test.case = 'explicit github context input wins';
+  process.env.INPUT_GITHUB_CONTEXT = '{"repository":"input/repo"}';
+  process.env.GITHUB_ACTOR = 'env_actor';
+  var got = common.contextGet( 'github' );
+  test.identical( got, { repository : 'input/repo' } );
+
+  /* - */
+
+  names.forEach( ( n ) => { delete process.env[ n ]; if( saved[ n ] !== undefined ) process.env[ n ] = saved[ n ]; } );
+  Fs.rmSync( tempDir, { recursive : true, force : true } );
+}
+
+//
+
+function githubOutputRead( test )
+{
+  const Fs = require( 'fs' );
+  const Os = require( 'os' );
+  const Path = require( 'path' );
+  const tempDir = Fs.mkdtempSync( Path.join( Os.tmpdir(), 'wretry-' ) );
+  const outputPath = Path.join( tempDir, 'output' );
+  const saved = process.env.GITHUB_OUTPUT;
+
+  /* - */
+
+  test.case = 'GITHUB_OUTPUT is not defined';
+  delete process.env.GITHUB_OUTPUT;
+  test.identical( common.githubOutputRead(), null );
+
+  test.case = 'file does not exist';
+  process.env.GITHUB_OUTPUT = outputPath;
+  test.identical( common.githubOutputRead(), null );
+
+  test.case = 'empty file';
+  Fs.writeFileSync( outputPath, '' );
+  test.identical( { ...common.githubOutputRead() }, {} );
+
+  test.case = 'simple pairs';
+  Fs.writeFileSync( outputPath, 'foo=bar\nnum=1\n' );
+  test.identical( { ...common.githubOutputRead() }, { foo : 'bar', num : '1' } );
+
+  test.case = 'multiline delimiter form';
+  Fs.writeFileSync( outputPath, 'foo=bar\nmulti<<ghadelimiter_X\nvalue\nghadelimiter_X\nlast=1\n' );
+  test.identical( { ...common.githubOutputRead() }, { foo : 'bar', multi : 'value', last : '1' } );
+
+  /* - */
+
+  if( saved === undefined )
+  delete process.env.GITHUB_OUTPUT;
+  else
+  process.env.GITHUB_OUTPUT = saved;
+  Fs.rmSync( tempDir, { recursive : true, force : true } );
+}
+
+//
+
 function envOptionsSetup( test )
 {
   const beginEnvs = _.map.extend( null, process.env );
@@ -1490,6 +1612,8 @@ const Proto =
     optionsExtendByInputDefaultsMatrixContextExpressionInputs,
     envOptionsFrom,
     contextGet,
+    contextGetEmptyInputsAndGithubContextFromEnv,
+    githubOutputRead,
     envOptionsSetup,
     shouldExit,
     evaluateExpression,

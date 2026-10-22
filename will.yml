@@ -339,9 +339,6 @@ step:
   sync:
     inherit: git.sync
     dirPath: .
-  switch.js_action:
-    inherit: git
-    command: switch js_action
   switch.master:
     inherit: git
     command: switch master
@@ -360,9 +357,6 @@ step:
   tag:
     inherit: git.tag
     tag: 'v{about::version}'
-  tag.js_action:
-    inherit: git.tag
-    tag: 'v{about::version}_js_action'
   tag.major:
     inherit: js.run
     js: '{path::step}/TagMajorStep.s'
@@ -384,19 +378,12 @@ build:
     steps:
       - switch.master
       - sync
-      - switch.js_action
-      - sync
       - clean.npm
       - 'build::build.compiled'
       - bump.*=1
       - npm.generate.proto
-      - add.all
-      - commit
-      - tag.js_action
-      - push
-      - switch.master
       - action.write
-      - add
+      - add.all
       - commit
       - tag
       - tag.major
@@ -412,19 +399,12 @@ build:
     steps:
       - switch.master
       - sync
-      - switch.js_action
-      - sync
       - clean.npm
       - 'build::build.compiled'
       - bump.*=1
       - npm.generate.proto
-      - add.all
-      - commit
-      - tag.js_action
-      - push
-      - switch.master
       - action.write
-      - add
+      - add.all
       - commit
       - tag
       - tag.major
