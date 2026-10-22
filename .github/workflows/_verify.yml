@@ -29,42 +29,55 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24.11.0
-      - name: Install build tools and dependencies
+      - name: Install dependencies
+        shell: bash
+        run: npm ci --ignore-scripts
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: artifact
+      - name: Use the Joined.s of the built artifact
         shell: bash
         run: |
-          npm install -g willbe@0.5.533
-          npm ci --ignore-scripts
-      - name: Compile
-        shell: bash
-        env:
-          NODE_OPTIONS: --require ${{ github.workspace }}/step/node24-shim.js
-        run: will .build compile
+          (cd artifact && sha256sum -c wretry-action-dist.tar.gz.sha256 || shasum -a 256 -c wretry-action-dist.tar.gz.sha256)
+          mkdir extracted test-logs
+          tar -xzf artifact/wretry-action-dist.tar.gz -C extracted ./node_modules/Joined.s
+          cp extracted/node_modules/Joined.s node_modules/Joined.s
       - name: Clone suite
         shell: bash
         env:
           NODE_OPTIONS: --require ${{ github.workspace }}/step/node24-shim.js
-        run: node test/Clone.test.s v:2
+        run: node test/Clone.test.s v:2 2>&1 | tee test-logs/Clone.log
       - name: Common suite
+        if: ${{ !cancelled() }}
         shell: bash
         env:
           NODE_OPTIONS: --require ${{ github.workspace }}/step/node24-shim.js
-        run: node test/Common.test.s v:2
+        run: node test/Common.test.s v:2 2>&1 | tee test-logs/Common.log
       - name: Command suite
+        if: ${{ !cancelled() }}
         shell: bash
         env:
           NODE_OPTIONS: --require ${{ github.workspace }}/step/node24-shim.js
-        run: node test/Command.test.s v:2
+        run: node test/Command.test.s v:2 2>&1 | tee test-logs/Command.log
       - name: Action suite
+        if: ${{ !cancelled() }}
         shell: bash
         env:
           NODE_OPTIONS: --require ${{ github.workspace }}/step/node24-shim.js
-        run: node test/Action.test.s v:2
+        run: node test/Action.test.s v:2 2>&1 | tee test-logs/Action.log
       - name: Docker suite
-        if: runner.os == 'Linux'
+        if: ${{ !cancelled() && runner.os == 'Linux' }}
         shell: bash
         env:
           NODE_OPTIONS: --require ${{ github.workspace }}/step/node24-shim.js
-        run: node test/Docker.test.s v:2
+        run: node test/Docker.test.s v:2 2>&1 | tee test-logs/Docker.log
+      - name: Upload test logs
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-logs-${{ matrix.os }}
+          path: test-logs
 
   smoke:
     strategy:
@@ -225,7 +238,7 @@ jobs:
           test "$(wc -l < .smoke/count.log | tr -d ' ')" = "1"
 
       - name: Docker action
-        if: runner.os == 'Linux'
+        if: ${{ !cancelled() && runner.os == 'Linux' }}
         uses: ./dist
         with:
           action: ./.smoke/docker

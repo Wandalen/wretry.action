@@ -38,11 +38,10 @@ function onSuiteBegin()
 
 function onRoutineBegin()
 {
-  delete process.env.INPUT_ACTION;
-  delete process.env.INPUT_COMMAND;
-  delete process.env.INPUT_ATTEMPT_LIMIT;
-  delete process.env.INPUT_WITH;
-  delete process.env.INPUT_ATTEMPT_DELAY;
+  for( let key of Object.keys( process.env ) )
+  if( key.startsWith( 'INPUT_' ) )
+  delete process.env[ key ];
+  delete process.env.GITHUB_OUTPUT;
 }
 
 //
