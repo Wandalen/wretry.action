@@ -1,6 +1,6 @@
 ### To publish
 
-```will .publish action.release.minor```
+Bump `version` in `package.json` and `will.yml` on `master`, then run the `Release` workflow (`dry_run` first, then `dry_run: false`).
 
 ### List of actions
 

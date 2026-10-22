@@ -291,7 +291,11 @@ function actionClone( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op, true );
-    test.identical( __.git.tagLocalRetrive({ localPath }), 'main' );
+    return __.git.tagLocalRetrive({ localPath, sync : 0 });
+  });
+  a.ready.then( ( tag ) =>
+  {
+    test.identical( tag, 'main' );
     a.fileProvider.filesDelete( localPath );
     return null;
   });
@@ -305,7 +309,11 @@ function actionClone( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op, true );
-    test.identical( __.git.tagLocalRetrive({ localPath }), 'master' );
+    return __.git.tagLocalRetrive({ localPath, sync : 0 });
+  });
+  a.ready.then( ( tag ) =>
+  {
+    test.identical( tag, 'master' );
     a.fileProvider.filesDelete( localPath );
     return null;
   });
@@ -321,7 +329,11 @@ function actionClone( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op, true );
-    test.identical( __.git.tagLocalRetrive({ localPath }), 'v0.0.2' );
+    return __.git.tagLocalRetrive({ localPath, sync : 0 });
+  });
+  a.ready.then( ( tag ) =>
+  {
+    test.identical( tag, 'v0.0.2' );
     a.fileProvider.filesDelete( localPath );
     return null;
   });
@@ -337,7 +349,11 @@ function actionClone( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op, true );
-    test.identical( __.git.tagLocalRetrive({ localPath }), 'v0.0.1' );
+    return __.git.tagLocalRetrive({ localPath, sync : 0 });
+  });
+  a.ready.then( ( tag ) =>
+  {
+    test.identical( tag, 'v0.0.1' );
     a.fileProvider.filesDelete( localPath );
     return null;
   });
@@ -353,7 +369,11 @@ function actionClone( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op, true );
-    test.identical( __.git.tagLocalRetrive({ localPath }), 'v0.0.1' );
+    return __.git.tagLocalRetrive({ localPath, sync : 0 });
+  });
+  a.ready.then( ( tag ) =>
+  {
+    test.identical( tag, 'v0.0.1' );
     a.fileProvider.filesDelete( localPath );
     return null;
   });
@@ -369,7 +389,11 @@ function actionClone( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op, true );
-    test.identical( __.git.tagLocalRetrive({ localPath }), 'master' );
+    return __.git.tagLocalRetrive({ localPath, sync : 0 });
+  });
+  a.ready.then( ( tag ) =>
+  {
+    test.identical( tag, 'master' );
     a.fileProvider.filesDelete( localPath );
     return null;
   });
@@ -385,7 +409,11 @@ function actionClone( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op, true );
-    test.identical( __.git.tagLocalRetrive({ localPath }), 'action_from_subdirectory' );
+    return __.git.tagLocalRetrive({ localPath, sync : 0 });
+  });
+  a.ready.then( ( tag ) =>
+  {
+    test.identical( tag, 'action_from_subdirectory' );
     a.fileProvider.filesDelete( localPath );
     return null;
   });

@@ -1,0 +1,61 @@
+name: build
+
+on:
+  workflow_call:
+    inputs:
+      artifact_name:
+        type: string
+        required: true
+    outputs:
+      sha256:
+        value: ${{ jobs.build.outputs.sha256 }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      sha256: ${{ steps.pack.outputs.sha256 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.11.0
+      - name: Install build tools and dependencies
+        run: |
+          npm install -g willbe@0.5.533
+          npm ci --ignore-scripts
+      - name: Compile
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/step/node24-shim.js
+        run: will .build compile
+      - name: Prune dev dependencies
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/step/node24-shim.js
+        run: will .build prune
+      - name: Assemble runtime tree
+        run: |
+          rm -rf dist
+          mkdir dist
+          cp action.yml package.json dist/
+          for f in LICENSE License LICENSE.md; do [ -f "$f" ] && cp "$f" dist/; done
+          cp -R main pre post src node_modules dist/
+          find dist/node_modules -name .bin -type d -prune -exec rm -rf {} +
+      - name: Pack
+        id: pack
+        run: |
+          tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -cf - -C dist . | gzip -n -9 > wretry-action-dist.tar.gz
+          sha256sum wretry-action-dist.tar.gz | tee wretry-action-dist.tar.gz.sha256
+          echo "sha256=$(cut -d' ' -f1 wretry-action-dist.tar.gz.sha256)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: |
+            wretry-action-dist.tar.gz
+            wretry-action-dist.tar.gz.sha256
+          if-no-files-found: error
+          retention-days: 7

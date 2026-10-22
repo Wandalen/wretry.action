@@ -1,0 +1,29 @@
+name: ci
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    uses: ./.github/workflows/_build.yml
+    with:
+      artifact_name: wretry-action-dist
+
+  verify:
+    needs: build
+    permissions:
+      contents: read
+      actions: read
+      checks: read
+    uses: ./.github/workflows/_verify.yml
+    with:
+      artifact_name: wretry-action-dist

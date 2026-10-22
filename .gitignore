@@ -1,3 +1,4 @@
 .warchive
 src/script.*
 src/pre_script.*
+node_modules/

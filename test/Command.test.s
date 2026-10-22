@@ -15,6 +15,19 @@ const core = require( '@actions/core' );
 
 //
 
+function nodeModulesLink( context, actionPath )
+{
+  /* the clone of the repository has no node_modules, they are not tracked by git */
+  require( 'fs' ).symlinkSync
+  (
+    __.path.nativize( __.path.join( context.actionDirPath, 'node_modules' ) ),
+    __.path.nativize( __.path.join( actionPath, 'node_modules' ) ),
+    'junction'
+  );
+  return null;
+}
+
+//
 function onSuiteBegin()
 {
   let context = this;
@@ -96,6 +109,7 @@ function retryWithoutCommand( test )
         attemptDelayMultiplier : 4,
       });
     });
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     return a.ready;
   }
 }
@@ -160,6 +174,7 @@ function retryWithWrongCommand( test )
         attemptDelayMultiplier : 4,
       });
     });
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     return a.ready;
   }
 }
@@ -222,6 +237,7 @@ function retryWithValidCommand( test )
         attemptDelayMultiplier : 4,
       });
     });
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     return a.ready;
   }
 }
@@ -307,6 +323,7 @@ function retryWithOptionCurrentPath( test )
         attemptDelayMultiplier : 4,
       });
     });
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     return a.ready;
   }
 }
@@ -412,6 +429,7 @@ function retryWithOptionRetryConditionAndCheckOfStepOutput( test )
         attemptDelayMultiplier : 4,
       });
     });
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     return a.ready;
   }
 }
@@ -483,6 +501,7 @@ function retryWithOptionPreRetryCommand( test )
         attemptDelayMultiplier : 4,
       });
     });
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     return a.ready;
   }
 }
@@ -576,6 +595,7 @@ function retryWithMultilineCommand( test )
         attemptDelayMultiplier : 4,
       });
     });
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     return a.ready;
   }
 }
@@ -639,6 +659,7 @@ function retryAndCheckRuntimeEnvironments( test )
         attemptDelayMultiplier : 4,
       });
     });
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     return a.ready;
   }
 }
@@ -800,6 +821,7 @@ function retryCheckRetryTime( test )
         attemptDelayMultiplier : 4,
       });
     });
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     return a.ready;
   }
 }

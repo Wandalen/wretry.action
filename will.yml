@@ -1,6 +1,6 @@
 about:
   name: wretry.action
-  version: 3.8.0
+  version: 4.0.0
   description: Retries an Github Action step on failure
   enabled: 0
   author: Kostiantyn Wandalen <wandalen@obox.systems>
@@ -9,7 +9,6 @@ about:
     - Dmytro Kryvoruchko <dm.vict.kr@gmail.com>
   license: MIT
   npm.scripts:
-    postinstall: will .build compile
     test: wtest .run "test/**"
   npm.homepage: 'https://github.com/Wandalen/wretry.action#action::wretry.action'
   keywords:
@@ -29,7 +28,6 @@ path:
   out: out
   temp:
     - 'path::out'
-    - package-lock.json
     - package.json
     - node_modules
   proto: ./src
@@ -96,10 +94,10 @@ submodule:
     path: 'npm:///github-actions-parser!dmvict/github-actions-parser'
     enabled: 0
   wgittools:
-    path: 'npm:///wgittools!alpha'
+    path: 'npm:///wgittools!0.3.421'
     enabled: 0
   wTesting:
-    path: 'npm:///wTesting'
+    path: 'npm:///wTesting!1.0.588'
     enabled: 0
     criterion:
       development: 1
@@ -165,7 +163,6 @@ reflector:
     src:
       filePath:
         - ./node_modules
-        - ./package-lock.json
     mandatory: 0
   clean.modules:
     inherit: predefined.debug.v2
@@ -329,87 +326,7 @@ step:
     criterion:
       content: prime
       debug: release
-  bump:
-    inherit: version.bump
-    criterion:
-      bump:
-        - major
-        - minor
-        - patch
-  sync:
-    inherit: git.sync
-    dirPath: .
-  switch.master:
-    inherit: git
-    command: switch master
-  add:
-    inherit: git
-    command:
-      - add .
-  add.all:
-    inherit: git
-    command:
-      - add .
-      - add -f node_modules
-  commit:
-    inherit: git
-    command: 'commit -am "version {about::version}"'
-  tag:
-    inherit: git.tag
-    tag: 'v{about::version}'
-  tag.major:
-    inherit: js.run
-    js: '{path::step}/TagMajorStep.s'
-  push:
-    inherit: git.push
-    dirPath: .
-  action.write:
-    inherit: js.run
-    js: '{path::step}/ActionWrite.s'
-  release:
-    inherit: repo.release
-    tag: 'v{about::version}'
 build:
-  release.patch:
-    criterion:
-      publish: 1
-      default: 1
-      bump: patch
-    steps:
-      - switch.master
-      - sync
-      - clean.npm
-      - 'build::build.compiled'
-      - bump.*=1
-      - npm.generate.proto
-      - action.write
-      - add.all
-      - commit
-      - tag
-      - tag.major
-      - push
-      - release
-  action.release:
-    criterion:
-      publish: 1
-      bump:
-        - major
-        - minor
-        - patch
-    steps:
-      - switch.master
-      - sync
-      - clean.npm
-      - 'build::build.compiled'
-      - bump.*=1
-      - npm.generate.proto
-      - action.write
-      - add.all
-      - commit
-      - tag
-      - tag.major
-      - push
-      - release
   doc.export:
     criterion:
       content: doc
@@ -462,4 +379,7 @@ build:
     steps:
       - npm.install
       - 'build::compile'
+      - clean.modules
+  prune:
+    steps:
       - clean.modules

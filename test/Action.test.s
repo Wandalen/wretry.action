@@ -15,6 +15,19 @@ const core = require( '@actions/core' );
 
 //
 
+function nodeModulesLink( context, actionPath )
+{
+  /* the clone of the repository has no node_modules, they are not tracked by git */
+  require( 'fs' ).symlinkSync
+  (
+    __.path.nativize( __.path.join( context.actionDirPath, 'node_modules' ) ),
+    __.path.nativize( __.path.join( actionPath, 'node_modules' ) ),
+    'junction'
+  );
+  return null;
+}
+
+//
 function onSuiteBegin()
 {
   let context = this;
@@ -85,6 +98,7 @@ function retryWithoutAction( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     a.shellNonThrowing( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -136,6 +150,7 @@ function retryWithUnsupportedAction( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     a.shellNonThrowing( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -196,6 +211,7 @@ function retryWithActionAndCommand( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     a.shellNonThrowing( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -262,6 +278,7 @@ function retryLocalAction( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     a.shell( `git clone ${ localActionRepo } ${ a.path.nativize( repoWithWorkflowDir ) }` );
     a.shell({ currentPath : repoWithWorkflowDir, execPath : 'git checkout local_action' });
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
@@ -325,6 +342,7 @@ function retryLocalActionWithAbsolutePath( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -391,6 +409,7 @@ function retryLocalActionPreStageBeforeCheckout( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     return a.ready;
   }
 }
@@ -446,6 +465,7 @@ function retryFetchActionWithoutTagOrHash( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -502,6 +522,7 @@ function retryFetchActionWithTag( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -583,6 +604,7 @@ function retryFetchActionWithHash( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -662,6 +684,7 @@ function retryFetchActionWithSubdirectory( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -763,6 +786,7 @@ function retryWithMultilineOptionInOptionWith( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -868,6 +892,7 @@ function retryWithOptionAttemptLimit( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -957,6 +982,7 @@ function retryWithOptionAttemptDelay( test )
     a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null; } );
     a.ready.then( () => { a.fileProvider.dirMake( actionPath ); return null; } );
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     return a.ready;
   }
 }
@@ -1073,6 +1099,7 @@ function retryWithOptionRetryCondition( test )
     a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null; } );
     a.ready.then( () => { a.fileProvider.dirMake( actionPath ); return null; } );
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     return a.ready;
   }
 }
@@ -1160,6 +1187,7 @@ function retryWithOptionPreRetryCommand( test )
     a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null; } );
     a.ready.then( () => { a.fileProvider.dirMake( actionPath ); return null; } );
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     return a.ready;
   }
 }
@@ -1224,6 +1252,7 @@ function retryWithExternalActionOnLocal( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -1322,6 +1351,7 @@ function retryWithExternalActionOnRemote( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     return a.ready;
   }
@@ -1381,6 +1411,7 @@ function retryActionWithPreScript( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     a.ready.then( ( op ) =>
     {
@@ -1458,6 +1489,7 @@ function retryActionWithPostScript( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     a.ready.then( ( op ) =>
     {
@@ -1537,6 +1569,7 @@ function retryActionWithPreAndPostScript( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     a.shell( `node ${ a.path.nativize( a.abs( actionPath, 'src/Pre.js' ) ) }` );
     a.ready.then( ( op ) =>
     {
@@ -1676,6 +1709,7 @@ function retryActionWithDefaultInputs( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     return a.ready;
   }
 }
@@ -1739,6 +1773,7 @@ function retryActionWithDefaultInputsAsExpressions( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     return a.ready;
   }
 }
@@ -1803,6 +1838,7 @@ function retryActionWithDefaultInputsFromJobContext( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     return a.ready;
   }
 }
@@ -1855,6 +1891,7 @@ function retryActionWithDefaultInputsFromMatrixContext( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     return a.ready;
   }
 }
@@ -1912,6 +1949,7 @@ function retryPrivateActionWithoutInputsMap( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     return a.ready;
   }
 }
@@ -1983,6 +2021,7 @@ function retryDockerTrivialAction( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     return a.ready;
   }
 }
@@ -2109,6 +2148,7 @@ function retryDockerActionWithInputs( test )
       return null;
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
+    a.ready.then( () => nodeModulesLink( context, actionPath ) );
     return a.ready;
   }
 }
