@@ -39,6 +39,9 @@ inputs:
   github_context:
     type: string
 
+  inputs_context:
+    type: string
+
   job_context:
     type: string
 

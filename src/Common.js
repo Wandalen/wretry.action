@@ -29,7 +29,30 @@ function commandsForm( command )
 
 //
 
-function remotePathForm( name, token )
+function serverUrlGet()
+{
+  return ( process.env.GITHUB_SERVER_URL || 'https://github.com' ).replace( /\/+$/, '' );
+}
+
+//
+
+function authTokenEncode( token )
+{
+  return Buffer.from( `x-access-token:${ token }` ).toString( 'base64' );
+}
+
+//
+
+function secretsRedact( message, token )
+{
+  if( !token )
+  return message;
+  return String( message ).split( authTokenEncode( token ) ).join( '***' ).split( token ).join( '***' );
+}
+
+//
+
+function remotePathForm( name )
 {
   if( _.str.begins( name, [ './', 'docker:' ] ) )
   {
@@ -38,20 +61,43 @@ function remotePathForm( name, token )
   else
   {
     name = name.replace( /^([^\/]+\/[^\/]+)\//, '$1.git/' );
-    if( token )
-    return _.git.path.parse( `https://oauth2:${ token }@github.com/${ _.str.replace( name, '@', '!' ) }` );
-    else
-    return _.git.path.parse( `https://github.com/${ _.str.replace( name, '@', '!' ) }` );
+    const parsed = _.git.path.parse( `${ serverUrlGet() }/${ _.str.replace( name, '@', '!' ) }` );
+    if( !parsed.repo )
+    {
+      const [ user, repo ] = name.split( '@' )[ 0 ].split( '/' );
+      parsed.user = user;
+      parsed.repo = repo.replace( /\.git$/, '' );
+    }
+    return parsed;
   }
 }
 
 //
 
-function actionClone( localPath, remotePath )
+function actionClone( localPath, remotePath, token )
 {
   if( !_.fileProvider.fileExists( localPath ) )
   {
+    const saved = Object.create( null );
     const con = _.take( null );
+    con.then( () =>
+    {
+      if( !token )
+      return null;
+      const index = Number.parseInt( process.env.GIT_CONFIG_COUNT ) || 0;
+      const env =
+      {
+        GIT_CONFIG_COUNT : String( index + 1 ),
+        [ `GIT_CONFIG_KEY_${ index }` ] : `http.${ serverUrlGet() }/.extraheader`,
+        [ `GIT_CONFIG_VALUE_${ index }` ] : `AUTHORIZATION: basic ${ authTokenEncode( token ) }`,
+      };
+      for( let key in env )
+      {
+        saved[ key ] = process.env[ key ];
+        process.env[ key ] = env[ key ];
+      }
+      return null;
+    });
     con.then( () =>
     {
       return _.git.repositoryClone
@@ -74,6 +120,21 @@ function actionClone( localPath, remotePath )
         sync : 0
       });
       return true;
+    });
+    con.finally( ( err, arg ) =>
+    {
+      for( let key in saved )
+      if( saved[ key ] === undefined )
+      delete process.env[ key ];
+      else
+      process.env[ key ] = saved[ key ];
+
+      if( err )
+      {
+        require( 'fs' ).rmSync( _.path.nativize( localPath ), { recursive : true, force : true } );
+        throw err;
+      }
+      return arg;
     });
     return con;
   }
@@ -196,10 +257,28 @@ function githubOutputRead()
   if( !process.env.GITHUB_OUTPUT || !_.fileProvider.fileExists( process.env.GITHUB_OUTPUT ) )
   return null;
   const rawFile = _.fileProvider.fileRead({ filePath : process.env.GITHUB_OUTPUT });
-  const regex = /^(.*)<<ghadelimiter_(.*)(\s*)(.+)\3ghadelimiter_\2/mg;
-  const filteredFile = rawFile.replaceAll( regex, '$1=$4' );
-  const Ini = require( 'ini' );
-  return Ini.parse( filteredFile );
+  const lines = rawFile.split( '\n' ).map( ( line ) => line.endsWith( '\r' ) ? line.slice( 0, -1 ) : line );
+  const result = {};
+  for( let i = 0; i < lines.length; i++ )
+  {
+    const line = lines[ i ];
+    if( line === '' )
+    continue;
+    const heredoc = /^([^=<]*)<<(.+)$/.exec( line );
+    const eq = line.indexOf( '=' );
+    if( heredoc && ( eq === -1 || heredoc[ 1 ].length < eq ) )
+    {
+      const value = [];
+      for( i++; i < lines.length && lines[ i ] !== heredoc[ 2 ]; i++ )
+      value.push( lines[ i ] );
+      result[ heredoc[ 1 ] ] = value.join( '\n' );
+    }
+    else if( eq !== -1 )
+    {
+      result[ line.slice( 0, eq ) ] = line.slice( eq + 1 );
+    }
+  }
+  return result;
 }
 
 //
@@ -331,6 +410,8 @@ function evaluateExpression( expression, getter )
 const Self =
 {
   commandsForm,
+  secretsRedact,
+  authTokenEncode,
   remotePathForm,
   actionClone,
   actionConfigRead,

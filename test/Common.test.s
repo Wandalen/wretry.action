@@ -235,12 +235,12 @@ function remotePathForm( test )
 
   /* - */
 
-  test.case = 'with short hash, subdirectory and token';
+  test.case = 'with short hash, subdirectory and ignored token argument';
   var got = common.remotePathForm( 'action/name/subdir@9b5d00b', 'token' );
   var exp =
   {
     protocol : 'https',
-    longPath : 'oauth2:token@github.com/action/name.git/',
+    longPath : 'github.com/action/name.git/',
     tag : '9b5d00b',
     localVcsPath : 'subdir',
     protocols : [ 'https' ],
@@ -250,6 +250,27 @@ function remotePathForm( test )
     repo : 'name'
   };
   test.identical( got, exp );
+
+  /* - */
+
+  test.case = 'server url with port and single-label host derives user and repo from the name';
+  var serverUrl = process.env.GITHUB_SERVER_URL;
+  try
+  {
+    process.env.GITHUB_SERVER_URL = 'https://ghe.example.com:8443';
+    var got = common.remotePathForm( 'action/name/subdir@v1' );
+    test.identical( [ got.user, got.repo, got.tag, got.localVcsPath ], [ 'action', 'name', 'v1', 'subdir' ] );
+    process.env.GITHUB_SERVER_URL = 'http://localhost';
+    var got = common.remotePathForm( 'action/name' );
+    test.identical( [ got.user, got.repo ], [ 'action', 'name' ] );
+  }
+  finally
+  {
+    if( serverUrl === undefined )
+    delete process.env.GITHUB_SERVER_URL;
+    else
+    process.env.GITHUB_SERVER_URL = serverUrl;
+  }
 }
 
 //
@@ -1342,15 +1363,59 @@ function githubOutputRead( test )
 
   test.case = 'empty file';
   Fs.writeFileSync( outputPath, '' );
-  test.identical( { ...common.githubOutputRead() }, {} );
+  test.identical( common.githubOutputRead(), {} );
 
   test.case = 'simple pairs';
   Fs.writeFileSync( outputPath, 'foo=bar\nnum=1\n' );
-  test.identical( { ...common.githubOutputRead() }, { foo : 'bar', num : '1' } );
+  test.identical( common.githubOutputRead(), { foo : 'bar', num : '1' } );
 
   test.case = 'multiline delimiter form';
   Fs.writeFileSync( outputPath, 'foo=bar\nmulti<<ghadelimiter_X\nvalue\nghadelimiter_X\nlast=1\n' );
-  test.identical( { ...common.githubOutputRead() }, { foo : 'bar', multi : 'value', last : '1' } );
+  test.identical( common.githubOutputRead(), { foo : 'bar', multi : 'value', last : '1' } );
+
+  test.case = 'special characters are preserved';
+  Fs.writeFileSync( outputPath, 'url=http://a/#frag\ncmd=a;b\np=C:\\dir\\file\n' );
+  test.identical( common.githubOutputRead(), { url : 'http://a/#frag', cmd : 'a;b', p : 'C:\\dir\\file' } );
+
+  test.case = 'values stay strings';
+  Fs.writeFileSync( outputPath, 't=true\nf=false\nn=null\nnum=1.5\n' );
+  test.identical( common.githubOutputRead(), { t : 'true', f : 'false', n : 'null', num : '1.5' } );
+
+  test.case = 'brackets in keys are plain keys, lines without "=" are ignored';
+  Fs.writeFileSync( outputPath, 'x[]=1\n[sec]\nk=v\nnoequals\n' );
+  test.identical( common.githubOutputRead(), { 'x[]' : '1', k : 'v' } );
+
+  test.case = 'value containing "=" is split on the first one';
+  Fs.writeFileSync( outputPath, 'q=a=b==c\neq==\n' );
+  test.identical( common.githubOutputRead(), { q : 'a=b==c', eq : '=' } );
+
+  test.case = 'empty value';
+  Fs.writeFileSync( outputPath, 'e=\nk=v\n' );
+  test.identical( common.githubOutputRead(), { e : '', k : 'v' } );
+
+  test.case = 'duplicate keys, last wins';
+  Fs.writeFileSync( outputPath, 'a=1\nb=2\na=3\n' );
+  test.identical( common.githubOutputRead(), { a : '3', b : '2' } );
+
+  test.case = 'multiline heredoc with several lines and blank line inside';
+  Fs.writeFileSync( outputPath, 'm<<EOF\nl1\n\nl2=x\nl3\nEOF\nafter=1\n' );
+  test.identical( common.githubOutputRead(), { m : 'l1\n\nl2=x\nl3', after : '1' } );
+
+  test.case = 'multiline heredoc, CRLF file';
+  Fs.writeFileSync( outputPath, 'a=1\r\nm<<EOF\r\nl1\r\nl2\r\nEOF\r\nb=2\r\n' );
+  test.identical( common.githubOutputRead(), { a : '1', m : 'l1\nl2', b : '2' } );
+
+  test.case = 'heredoc delimiter text inside a value';
+  Fs.writeFileSync( outputPath, 'm<<EOF\nEOF not alone\nxEOF\n EOF\nEOF\nz=1\n' );
+  test.identical( common.githubOutputRead(), { m : 'EOF not alone\nxEOF\n EOF', z : '1' } );
+
+  test.case = 'empty heredoc';
+  Fs.writeFileSync( outputPath, 'm<<EOF\nEOF\nz=1\n' );
+  test.identical( common.githubOutputRead(), { m : '', z : '1' } );
+
+  test.case = 'blank lines are skipped, no trailing newline';
+  Fs.writeFileSync( outputPath, '\na=1\n\n\nb=2' );
+  test.identical( common.githubOutputRead(), { a : '1', b : '2' } );
 
   /* - */
 

@@ -1,3 +1,5 @@
+const fs = require( 'fs' );
+const os = require( 'os' );
 const core = require( '@actions/core' );
 const common = require( './Common.js' );
 require( '../node_modules/Joined.s' );
@@ -10,6 +12,12 @@ function retry( scriptType )
   let shouldRetry = core.getInput( 'retry_condition' ) || true;
   let isRetry = false;
   const actionName = core.getInput( 'action' );
+  const token = core.getInput( 'github_token' );
+  if( token )
+  {
+    core.setSecret( token );
+    core.setSecret( common.authTokenEncode( token ) );
+  }
   const command = core.getMultilineInput( 'command' );
   const preRetryCommand = core.getMultilineInput( 'pre_retry_command' );
 
@@ -66,21 +74,20 @@ function retry( scriptType )
       throw _.error.brief( 'Expects Github action name or command, but not both.' );
 
       process.env.RETRY_ACTION = actionName;
-      const token = core.getInput( 'github_token' );
 
       const absoluteIs = _.path.isAbsolute( actionName );
       const localIs = absoluteIs || actionName.startsWith( './' );
 
       let remoteActionPath = null;
       if( !localIs )
-      remoteActionPath = common.remotePathForm( actionName, token );
+      remoteActionPath = common.remotePathForm( actionName );
 
       const localActionDir = localIs ?
         _.path.nativize( absoluteIs ? actionName : _.path.join( process.env.GITHUB_WORKSPACE, actionName ) ) :
         _.path.nativize( _.path.join( __dirname, '../../../', remoteActionPath.repo ) );
 
       if( !localIs )
-      con.then( () => common.actionClone( localActionDir, remoteActionPath ) );
+      con.then( () => common.actionClone( localActionDir, remoteActionPath, token ) );
 
       con.then( () =>
       {
@@ -235,7 +242,7 @@ function retry( scriptType )
   .catch( ( error ) =>
   {
     _.error.attend( error );
-    core.setFailed( _.error.brief( error.message ) );
+    core.setFailed( common.secretsRedact( _.error.brief( error.message ), token ) );
     return error;
   });
 
@@ -246,7 +253,16 @@ function retry( scriptType )
     if( arg.exitCode !== 0 )
     return false;
     if( scriptType === 'main' )
-    core.setOutput( 'outputs', JSON.stringify( common.githubOutputRead() || {}, null, 2 ) );
+    {
+      const outputPath = process.env.GITHUB_OUTPUT;
+      if( outputPath && fs.existsSync( outputPath ) )
+      {
+        const content = fs.readFileSync( outputPath, 'utf8' );
+        if( content.length > 0 && !content.endsWith( '\n' ) )
+        fs.appendFileSync( outputPath, os.EOL );
+      }
+      core.setOutput( 'outputs', JSON.stringify( common.githubOutputRead() || {}, null, 2 ) );
+    }
     return true
   }
 

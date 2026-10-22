@@ -65,6 +65,11 @@ inputs:
       Optional override of context `github` as a JSON string.
       If omitted, the action rebuilds `github` automatically.
     required: false
+  inputs_context:
+    description: >-
+      Optional context `inputs` as a JSON string.
+      Empty unless provided.
+    required: false
   job_context:
     description: >-
       Optional context `job` as a JSON string.

@@ -162,14 +162,15 @@ This adjustment clarifies the intended precedence and will yield the correct res
 
 A token to access private actions. Does not required for public actions. It also feeds `github.token` of the wrapped action. Default is `${{ github.token }}`.
 
-### `env_context`, `github_context`, `job_context`, `matrix_context`
+### `env_context`, `github_context`, `inputs_context`, `job_context`, `matrix_context`
 
-Optional overrides of the contexts. The action rebuilds `github` and `env` automatically when the inputs are omitted. An empty string triggers the automatic rebuild, but `github_context: '{}'` is used as is. Contexts `job` and `matrix` are empty unless provided :
+Optional overrides of the contexts. The action rebuilds `github` and `env` automatically when the inputs are omitted. An empty string triggers the automatic rebuild, but `github_context: '{}'` is used as is. Contexts `inputs`, `job` and `matrix` are empty unless provided :
 ```yaml
 - uses: Wandalen/wretry.action@master
   with:
     action: owner/action-repo@version
     job_context: ${{ toJSON( job ) }}
+    inputs_context: ${{ toJSON( inputs ) }}
     matrix_context: ${{ toJSON( matrix ) }}
 ```
 
