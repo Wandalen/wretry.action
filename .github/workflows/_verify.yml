@@ -78,24 +78,6 @@ jobs:
         env:
           NODE_OPTIONS: --require ${{ github.workspace }}/step/node24-shim.js
         run: node test/Docker.test.s v:2 2>&1 | tee test-logs/Docker.log
-      # DIAGNOSTIC (temporary): reveals why the Docker routines fail on ubuntu runners.
-      - name: Docker diagnostics
-        if: ${{ failure() && runner.os == 'Linux' }}
-        shell: bash
-        env:
-          NODE_OPTIONS: --require ${{ github.workspace }}/step/node24-shim.js
-        run: |
-          {
-            docker version || true
-            docker info 2>&1 | head -n 40 || true
-            docker buildx version || true
-            echo "=== imageBuild ==="
-            node test/Docker.test.s v:7 r:imageBuild 2>&1 | tail -n 120 || true
-            echo "=== retryDockerTrivialAction ==="
-            node test/Action.test.s v:7 r:retryDockerTrivialAction 2>&1 | tail -n 120 || true
-            echo "=== retryDockerActionWithInputs ==="
-            node test/Action.test.s v:7 r:retryDockerActionWithInputs 2>&1 | tail -n 120 || true
-          } 2>&1 | tee test-logs/DockerDiagnostics.log
       - name: Upload test logs
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
