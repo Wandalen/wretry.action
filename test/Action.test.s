@@ -1975,6 +1975,7 @@ function retryDockerTrivialAction( test )
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
     a.ready.then( () => nodeModulesLink( context, actionPath ) );
+    a.ready.then( () => { a.fileProvider.fileWrite( `${ actionPath }/github_output`, '' ); return null; } );
     return a.ready;
   }
 }
@@ -2102,6 +2103,7 @@ function retryDockerActionWithInputs( test )
     });
     a.shell( `git clone ${ a.path.nativize( context.actionDirPath ) } ${ a.path.nativize( actionPath ) }` );
     a.ready.then( () => nodeModulesLink( context, actionPath ) );
+    a.ready.then( () => { a.fileProvider.fileWrite( `${ actionPath }/github_output`, '' ); return null; } );
     return a.ready;
   }
 }

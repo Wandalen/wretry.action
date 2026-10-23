@@ -8,6 +8,7 @@ if( typeof module !== 'undefined' )
   const _ = require( 'wTools' );
   _.include( 'wTesting' );
   _.include( 'wPathBasic' );
+  _.include( 'wUriBasic' );
 }
 
 const _ = _global_.wTools;
