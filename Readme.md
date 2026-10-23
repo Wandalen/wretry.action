@@ -46,7 +46,8 @@ https://github.com/typesafegithub/github-workflows-kt which allows writing workf
 
 - Pin the action by release tag only: the moving major tag `@v4` or an exact tag such as `@v4.0.0`.
 - `@master` is not supported. The `master` branch contains sources only, the runnable action exists only in release tag commits built by CI.
-- Pinning by commit SHA is not supported. The SHA of a release tag commit works only for that tag.
+- Pinning by commit SHA is supported only for the commit of a release tag, for example `fzangrande/wretry.action@<sha>`, where `<sha>` is the output of `git ls-remote --tags https://github.com/fzangrande/wretry.action 'v4.0.0^{}'`. It gives a fixed, reviewable version that the moving tag `@v4` cannot. Any other commit, including commits on `master`, is not runnable because `node_modules` exists only in release commits.
+- Release tags are created only by the `Release` workflow, which builds the artifact twice and requires matching checksums. See [SECURITY.md](SECURITY.md) for the trust model.
 - Every release publishes a tarball with a build provenance attestation. To verify it :
 ```bash
 gh attestation verify <tarball> --repo fzangrande/wretry.action
