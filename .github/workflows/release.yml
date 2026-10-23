@@ -28,7 +28,7 @@ jobs:
 
   reproduce:
     needs: [ build, rebuild ]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: Compare tarball checksums
         env:
@@ -52,7 +52,7 @@ jobs:
   publish:
     needs: [ build, reproduce, verify ]
     if: inputs.dry_run == false && github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     environment: release
     permissions:
       contents: write

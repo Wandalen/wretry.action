@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       sha256: ${{ steps.pack.outputs.sha256 }}
     steps:

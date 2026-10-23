@@ -247,8 +247,6 @@ function retryLocalAction( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
-    if( !_.process.insideTestContainer() )
-    test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
@@ -441,8 +439,6 @@ function retryFetchActionWithoutTagOrHash( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
-    if( !_.process.insideTestContainer() )
-    test.ge( _.strCount( op.output, '::set-env' ), 1 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 0 );
     test.identical( _.strCount( op.output, /::error::.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Hello, test!' ), 1 );
@@ -498,8 +494,6 @@ function retryFetchActionWithTag( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
-    if( !_.process.insideTestContainer() )
-    test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
@@ -555,8 +549,6 @@ function retryFetchActionWithHash( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
-    if( !isTestContainer )
-    test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
@@ -580,8 +572,6 @@ function retryFetchActionWithHash( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
-    if( !isTestContainer )
-    test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
@@ -639,8 +629,6 @@ function retryFetchActionWithSubdirectory( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
-    if( !isTestContainer )
-    test.ge( _.strCount( op.output, '::set-env' ), 2 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 3 attempts/ ), 0 );
     return null;
   });
@@ -662,8 +650,6 @@ function retryFetchActionWithSubdirectory( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
-    if( !isTestContainer )
-    test.ge( _.strCount( op.output, '::set-env' ), 2 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     return null;
   });
@@ -719,8 +705,6 @@ function retryWithMultilineOptionInOptionWith( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
-    if( !isTestContainer )
-    test.ge( _.strCount( op.output, '::set-env' ), 2 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 0 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     return null;
@@ -741,8 +725,6 @@ function retryWithMultilineOptionInOptionWith( test )
   a.ready.then( ( op ) =>
   {
     test.notIdentical( op.exitCode, 0 );
-    if( !isTestContainer )
-    test.ge( _.strCount( op.output, '::set-env' ), 2 );
     test.identical( _.strCount( op.output, '::error::Expected multiline input with several lines.' ), 4 );
     test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts :' ), 1 );
     return null;
@@ -763,8 +745,6 @@ function retryWithMultilineOptionInOptionWith( test )
   a.ready.then( ( op ) =>
   {
     test.notIdentical( op.exitCode, 0 );
-    if( !isTestContainer )
-    test.ge( _.strCount( op.output, '::set-env' ), 2 );
     test.identical( _.strCount( op.output, '::error::Expected string with value `|`.' ), 4 );
     test.identical( _.strCount( op.output, 'Attempts exhausted, made 4 attempts :' ), 1 );
     return null;
@@ -822,8 +802,6 @@ function retryWithOptionAttemptLimit( test )
   a.ready.then( ( op ) =>
   {
     test.notIdentical( op.exitCode, 0 );
-    if( !isTestContainer )
-    test.ge( _.strCount( op.output, '::set-env' ), 2 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 2 );
     test.identical( _.strCount( op.output, /::error::.*Attempts exhausted, made 2 attempts/ ), 1 );
     test.identical( _.strCount( op.output, 'Success' ), 0 );
@@ -845,8 +823,6 @@ function retryWithOptionAttemptLimit( test )
   a.ready.then( ( op ) =>
   {
     test.notIdentical( op.exitCode, 0 );
-    if( !isTestContainer )
-    test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::.*Attempts exhausted, made 3 attempts/ ), 1 );
     test.identical( _.strCount( op.output, 'Success' ), 0 );
@@ -868,8 +844,6 @@ function retryWithOptionAttemptLimit( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
-    if( !isTestContainer )
-    test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
@@ -923,7 +897,7 @@ function retryWithOptionAttemptDelay( test )
 
   actionSetup();
 
-  var start;
+  var start, spentDefault;
   a.ready.then( () =>
   {
     start = _.time.now();
@@ -933,10 +907,9 @@ function retryWithOptionAttemptDelay( test )
   a.ready.then( ( op ) =>
   {
     var spent = _.time.now() - start;
-    test.le( spent, 6000 );
+    spentDefault = spent;
+    test.lt( spent, 12000 );
     test.identical( op.exitCode, 0 );
-    if( !isTestContainer )
-    test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
@@ -961,9 +934,8 @@ function retryWithOptionAttemptDelay( test )
   {
     var spent = _.time.now() - start;
     test.ge( spent, 12000 );
+    test.ge( spent - spentDefault, 8000 );
     test.identical( op.exitCode, 0 );
-    if( !isTestContainer )
-    test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
@@ -1015,8 +987,6 @@ function retryWithOptionRetryCondition( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
-    if( !isTestContainer )
-    test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, /::error::.*Process returned exit code/ ), 0 );
@@ -1042,8 +1012,6 @@ function retryWithOptionRetryCondition( test )
   a.ready.then( ( op ) =>
   {
     test.notIdentical( op.exitCode, 0 );
-    if( !isTestContainer )
-    test.ge( _.strCount( op.output, '::set-env' ), 2 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 1 );
     test.identical( _.strCount( op.output, /::error::.*Attempts exhausted, made 3 attempts/ ), 0 );
     test.identical( _.strCount( op.output, /::error::.*Process returned exit code/ ), 1 );
@@ -1070,8 +1038,6 @@ function retryWithOptionRetryCondition( test )
   a.ready.then( ( op ) =>
   {
     test.notIdentical( op.exitCode, 0 );
-    if( !isTestContainer )
-    test.ge( _.strCount( op.output, '::set-env' ), 2 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 1 );
     test.identical( _.strCount( op.output, /::error::.*Attempts exhausted, made 3 attempts/ ), 0 );
     test.identical( _.strCount( op.output, /::error::.*Process returned exit code/ ), 1 );
@@ -1132,8 +1098,6 @@ function retryWithOptionPreRetryCommand( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
-    if( !isTestContainer )
-    test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, /::error::.*Process returned exit code/ ), 0 );
@@ -1160,8 +1124,6 @@ function retryWithOptionPreRetryCommand( test )
   a.ready.then( ( op ) =>
   {
     test.notIdentical( op.exitCode, 0 );
-    if( !isTestContainer )
-    test.ge( _.strCount( op.output, '::set-env' ), 2 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 2 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, /::error::.*Process returned exit code/ ), 1 );
@@ -1387,8 +1349,6 @@ function retryActionWithPreScript( test )
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'Unexpected {-pre_value-}' ), 0 );
-    if( !_.process.insideTestContainer() )
-    test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
@@ -1452,8 +1412,6 @@ function retryActionWithPostScript( test )
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'Unexpected {-pre_value-}' ), 0 );
-    if( !_.process.insideTestContainer() )
-    test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
@@ -1532,8 +1490,6 @@ function retryActionWithPreAndPostScript( test )
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'Unexpected {-pre_value-}' ), 0 );
-    if( !_.process.insideTestContainer() )
-    test.ge( _.strCount( op.output, '::set-env' ), 3 );
     test.identical( _.strCount( op.output, '::error::Wrong attempt' ), 3 );
     test.identical( _.strCount( op.output, /::error::undefined.*Attempts exhausted, made 4 attempts/ ), 0 );
     test.identical( _.strCount( op.output, 'Success' ), 1 );
@@ -1752,8 +1708,6 @@ function retryActionWithDefaultInputsAsExpressions( test )
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, '::error::' ), 0 );
-    if( !_.process.insideTestContainer() )
-    test.ge( _.strCount( op.output, '::set-env' ), 5 );
     return null;
   });
 

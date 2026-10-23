@@ -1,4 +1,5 @@
 const core = require( '@actions/core' );
+const { toCommandValue } = require( '@actions/core/lib/utils' );
 if( typeof wTools === 'undefined' )
 require( '../node_modules/Joined.s' );
 const _ = wTools;
@@ -370,7 +371,7 @@ function contextGet( contextName )
 function envOptionsSetup( options )
 {
   for( let key in options )
-  core.exportVariable( key, options[ key ] );
+  process.env[ key ] = toCommandValue( options[ key ] );
 }
 
 //
