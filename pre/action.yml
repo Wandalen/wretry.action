@@ -51,31 +51,39 @@ inputs:
     required: false
     default: true
   github_token:
-    description: A token to access private actions. Does not required for public actions.
+    description: A token to access private actions. Does not required for public actions. Also passed as `github.token` to the wrapped action.
+    required: false
+    default: '${{ github.token }}'
+  env_context:
+    description: >-
+      Optional override of context `env` as a JSON string.
+      If omitted, the action rebuilds `env` automatically from the process
+      environment.
+    required: false
+  github_context:
+    description: >-
+      Optional override of context `github` as a JSON string.
+      If omitted, the action rebuilds `github` automatically.
+    required: false
+  inputs_context:
+    description: >-
+      Optional context `inputs` as a JSON string.
+      Empty unless provided.
+    required: false
+  job_context:
+    description: >-
+      Optional context `job` as a JSON string.
+      Empty unless provided.
+    required: false
+  matrix_context:
+    description: >-
+      Optional context `matrix` as a JSON string.
+      Empty unless provided.
     required: false
 outputs:
   outputs:
     description: A pretty print JSON map with outputs from the wrapped action.
-    value: '${{ toJSON( steps.retry.outputs ) }}'
 runs:
-  using: composite
-  steps:
-    - name: retry
-      id: retry
-      uses: Wandalen/wretry.action/pre@v3.8.0_js_action
-      with:
-        action: '${{ inputs.action }}'
-        command: '${{ inputs.command }}'
-        pre_retry_command: '${{ inputs.pre_retry_command }}'
-        with: '${{ inputs.with }}'
-        current_path: '${{ inputs.current_path }}'
-        steps_context: '${{ inputs.steps_context }}'
-        attempt_limit: '${{ inputs.attempt_limit }}'
-        attempt_delay: '${{ inputs.attempt_delay }}'
-        retry_condition: '${{ inputs.retry_condition }}'
-        env_context: '${{ toJSON( env ) }}'
-        github_context: '${{ toJSON( github ) }}'
-        job_context: '${{ toJSON( job ) }}'
-        matrix_context: '${{ toJSON( matrix ) }}'
-        time_out: '${{ inputs.time_out }}'
-        github_token: '${{ inputs.github_token }}'
+  using: node24
+  pre: Pre.js
+  main: Main.js

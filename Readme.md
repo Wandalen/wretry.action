@@ -1,6 +1,6 @@
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner2-direct.svg)](https://stand-with-ukraine.pp.ua)
 
-# action::retry [![status](https://github.com/Wandalen/wretry.action/actions/workflows/wRetryActionPublish.yml/badge.svg)](https://github.com/Wandalen/wretry.action/actions/workflows/wRetryActionPublish.yml) [![stable](https://img.shields.io/badge/stability-stable-brightgreen.svg)](https://github.com/emersion/stability-badges#stable)
+# action::retry [![status](https://github.com/fzangrande/wretry.action/actions/workflows/release.yml/badge.svg)](https://github.com/fzangrande/wretry.action/actions/workflows/release.yml) [![stable](https://img.shields.io/badge/stability-stable-brightgreen.svg)](https://github.com/emersion/stability-badges#stable)
 
 Retries a Github Action step or command on failure.
 
@@ -33,6 +33,7 @@ It is a cause of failed jobs. For this case, the action `wretry.action` can retr
 - Default action always includes both `pre` and `post` stages. If an external action contains a `pre` and/or `post` stage, the action will also execute these stages.
 - The repository includes subdirectories with alternative action setups that can skip the `pre` or/and `post` stages, as necessary.
 - Action handles conditions in `JavaScript` and `Docker` actions ( fields `pre-if` and `post-if` ). Some conditions can be unsolvable and then action skips the stage.
+- Standalone `JavaScript` action running on `node24`. It is pinned by release tag, either the moving major tag `fzangrande/wretry.action@v4` or an exact `fzangrande/wretry.action@v4.0.0`.
 - Resolves external action default inputs from next contexts : `github`, `env`, `job`, `matrix`, `inputs`.
 - Can resolve user-provided context `steps`.
 - Retries actions with defined number of attempts ( default is 2 ).
@@ -40,6 +41,23 @@ It is a cause of failed jobs. For this case, the action `wretry.action` can retr
 
 Thanks to the provided [typings](action-types.yml), it is possible to use this action in a type-safe way using
 https://github.com/typesafegithub/github-workflows-kt which allows writing workflow files using a type-safe Kotlin DSL.
+
+## Pinning and versions
+
+- Pin the action by release tag only: the moving major tag `@v4` or an exact tag such as `@v4.0.0`.
+- `@master` is not supported. The `master` branch contains sources only, the runnable action exists only in release tag commits built by CI.
+- Pinning by commit SHA is not supported. The SHA of a release tag commit works only for that tag.
+- Every release publishes a tarball with a build provenance attestation. To verify it :
+```bash
+gh attestation verify <tarball> --repo fzangrande/wretry.action
+```
+
+## Migrating from `@master`
+
+Release 4.0.0 :
+- The action is a standalone `node24` JavaScript action.
+- Fixes oversized input ( #182, #192 ), #188, #187 / #186 and #193.
+- **Breaking**. `@master` is removed, pin a release tag, for example `fzangrande/wretry.action@v4`.
 
 ## Inputs
 
@@ -65,7 +83,7 @@ An options map for Github action. It is a multiline string with pairs `key : val
 
 An example of declaration of option with single line value :
 ```yaml
-- uses: Wandalen/wretry.action@master
+- uses: fzangrande/wretry.action@v4
   with:
     action: owner/action-repo@version
     with: |
@@ -74,7 +92,7 @@ An example of declaration of option with single line value :
 ```
 An example of declaration of option with multiline string :
 ```yaml
-- uses: Wandalen/wretry.action@master
+- uses: fzangrande/wretry.action@v4
   with:
     action: owner/action-repo@version
     with: |
@@ -109,7 +127,7 @@ Set time out in ms for entire step including all retries. By default actions set
 
 Use any valid expression to control the continuation of retries. If the expression resolves to `false`, the action will interrupt the retries. Default value is `true`.
 ```yaml
-- uses: Wandalen/wretry.action@master
+- uses: fzangrande/wretry.action@v4
   with:
     action: owner/action-repo@version
     retry_condition: github.ref_name == 'main'
@@ -125,7 +143,7 @@ The action can resolve the output of the current step using the special syntax: 
 
 Example of condition with check of current step output:
 ```yaml
-- uses: Wandalen/wretry.action@master
+- uses: fzangrande/wretry.action@v4
   with:
     action: owner/action-repo@version
     retry_condition: steps._this.outputs.code == 0
@@ -159,7 +177,21 @@ This adjustment clarifies the intended precedence and will yield the correct res
 
 ### `github_token`
 
-A token to access private actions. Does not required for public actions.
+A token to access private actions. Does not required for public actions. It also feeds `github.token` of the wrapped action. Default is `${{ github.token }}`.
+
+### `env_context`, `github_context`, `inputs_context`, `job_context`, `matrix_context`
+
+Optional overrides of the contexts. The action rebuilds `github` and `env` automatically when the inputs are omitted. An empty string triggers the automatic rebuild, but `github_context: '{}'` is used as is. Contexts `inputs`, `job` and `matrix` are empty unless provided :
+```yaml
+- uses: fzangrande/wretry.action@v4
+  with:
+    action: owner/action-repo@version
+    job_context: ${{ toJSON( job ) }}
+    inputs_context: ${{ toJSON( inputs ) }}
+    matrix_context: ${{ toJSON( matrix ) }}
+```
+
+**Attention**. Docker actions receive only the keys of the workflow `env:` when `env_context: ${{ toJSON( env ) }}` is passed.
 
 ## Outputs
 
@@ -179,7 +211,7 @@ jobs:
       out: ${{ steps.my-action.outputs.outputs }}
     steps:
       - id: my-action
-        uses: Wandalen/wretry.action@1.2.0
+        uses: fzangrande/wretry.action@v4.0.0
         with:
           attempt_limit: 3
           action: user/action@version
@@ -220,7 +252,7 @@ You have a few options for obtaining a compatible action implementation:
 
 To choose an alternative action add the action subdirectory in declaration of `wretry.action`. For example, the declaration with `main` subdirectory:
 ```yml
-- uses: Wandalen/wretry.action/main@master
+- uses: fzangrande/wretry.action/main@v4
 ```
 
 You can choose either method based on your preference. If you prefer not to perform additional manipulations, you can select the default `wretry.action` that retries all available stages of the external action.
@@ -229,7 +261,7 @@ You can choose either method based on your preference. If you prefer not to perf
 
 ### Retry action
 ```yaml
-- uses: Wandalen/wretry.action@master
+- uses: fzangrande/wretry.action@v4
   with:
     action: action/setup-node@2.3.0
     with: |
@@ -241,7 +273,7 @@ You can choose either method based on your preference. If you prefer not to perf
 
 ### Retry command
 ```yaml
-- uses: Wandalen/wretry.action@master
+- uses: fzangrande/wretry.action@v4
   with:
     command: npm i
     attempt_limit: 3
@@ -250,11 +282,15 @@ You can choose either method based on your preference. If you prefer not to perf
 
 ### Development and contributing
 
+Release flow :
+- Merge changes to `master` with the version in `package.json` bumped.
+- Run the `Release` workflow ( `.github/workflows/release.yml` ) manually from `master` with `dry_run` enabled to check the build.
+- Run it again with `dry_run` disabled. It creates the tag `vX.Y.Z` and moves the major tag `v4`.
+- The build uses `step/node24-shim.js`.
+
 To build compiled dependencies utility `willbe` is required. To install utility run :
 ```
 npm i -g 'willbe@latest'
 ```
 
-`willbe` is not required to use the action in your project as submodule.
-
-<!-- will .publish action.release.minor -->
+`willbe` is only needed to build the action, it is not required to use the action in your project.

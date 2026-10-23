@@ -33,6 +33,21 @@ inputs:
   github_token:
     type: string
 
+  env_context:
+    type: string
+
+  github_context:
+    type: string
+
+  inputs_context:
+    type: string
+
+  job_context:
+    type: string
+
+  matrix_context:
+    type: string
+
 outputs:
   outputs:
     type: string

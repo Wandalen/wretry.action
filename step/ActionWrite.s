@@ -19,22 +19,6 @@ function actionWrite( frame )
     request: '',
     selectorsMap: { 'about/version' : module.about.version },
   });
-
-  /* */
-
-  const subdirectories = [ '', 'main', 'pre', 'post' ];
-  for( let i = 0 ; i < subdirectories.length ; i++ )
-  {
-    const slash = subdirectories[ i ] === '' ? '' : '/';
-    const actionRelativePath = `${ subdirectories[ i ] }${ slash }action.yml`;
-    const actionPath = fileProvider.path.join( module.dirPath, actionRelativePath );
-    const action = fileProvider.fileReadUnknown( actionPath );
-    action.runs.steps[ 0 ].uses = `Wandalen/wretry.action${ slash }${ subdirectories[ i ] }@v${ module.about.version }_js_action`;
-
-    logger.log( `Updating action file "${ actionRelativePath }". Setup action version to "${ action.runs.steps[ 0 ].uses }".` );
-
-    fileProvider.fileWrite({ filePath : actionPath, data : action, encoding : 'yaml' });
-  }
 }
 
 module.exports = actionWrite;

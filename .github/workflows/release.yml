@@ -1,0 +1,141 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Build and verify only, do not publish
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    uses: ./.github/workflows/_build.yml
+    with:
+      artifact_name: wretry-action-dist
+
+  rebuild:
+    uses: ./.github/workflows/_build.yml
+    with:
+      artifact_name: wretry-action-dist-rebuild
+
+  reproduce:
+    needs: [ build, rebuild ]
+    runs-on: ubuntu-26.04
+    steps:
+      - name: Compare tarball checksums
+        env:
+          FIRST: ${{ needs.build.outputs.sha256 }}
+          SECOND: ${{ needs.rebuild.outputs.sha256 }}
+        run: |
+          echo "first:  $FIRST"
+          echo "second: $SECOND"
+          test -n "$FIRST" && test "$FIRST" = "$SECOND"
+
+  verify:
+    needs: build
+    permissions:
+      contents: read
+      actions: read
+      checks: read
+    uses: ./.github/workflows/_verify.yml
+    with:
+      artifact_name: wretry-action-dist
+
+  publish:
+    needs: [ build, reproduce, verify ]
+    if: inputs.dry_run == false && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-26.04
+    environment: release
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Read version and check the tag is free
+        id: version
+        run: |
+          version=$(node -p "require('./package.json').version")
+          echo "$version" | grep -E -q '^[0-9]+\.[0-9]+\.[0-9]+$' || { echo "::error::Invalid version $version"; exit 1; }
+          if git rev-parse -q --verify "refs/tags/v$version" > /dev/null; then
+            echo "::error::Tag v$version already exists"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "major=${version%%.*}" >> "$GITHUB_OUTPUT"
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: wretry-action-dist
+          path: artifact
+      - name: Verify and extract the artifact
+        env:
+          EXPECTED: ${{ needs.build.outputs.sha256 }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          echo "$EXPECTED  artifact/wretry-action-dist.tar.gz" | sha256sum -c -
+          mkdir extracted
+          tar -xzf artifact/wretry-action-dist.tar.gz -C extracted
+          diff -r src extracted/src
+          diff -r main extracted/main
+          diff -r pre extracted/pre
+          diff -r post extracted/post
+          diff action.yml extracted/action.yml
+          diff package.json extracted/package.json
+          cp -R extracted/node_modules node_modules
+          asset="wretry.action-v$VERSION.tar.gz"
+          cp artifact/wretry-action-dist.tar.gz "$asset"
+          sha256sum "$asset" > "$asset.sha256"
+      - name: Create the release commit and tags
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          MAJOR: ${{ steps.version.outputs.major }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config core.longpaths true
+          latest=$(git tag -l "v$MAJOR.*" | sed 's/^v//' | sort -V | tail -n 1)
+          if [ -z "$latest" ] || [ "$(printf '%s\n%s\n' "$latest" "$VERSION" | sort -V | tail -n 1)" = "$VERSION" ]; then
+            MOVE_MAJOR=true
+          else
+            echo "::warning::v$VERSION is lower than v$latest, tag v$MAJOR is not moved"
+            MOVE_MAJOR=false
+          fi
+          echo "MOVE_MAJOR=$MOVE_MAJOR" >> "$GITHUB_ENV"
+          git checkout --detach
+          git add -f node_modules
+          git commit -q -m "release: v$VERSION"
+          git tag -a "v$VERSION" -m "v$VERSION"
+          if [ "$MOVE_MAJOR" = "true" ]; then git tag -f -a "v$MAJOR" -m "v$MAJOR"; fi
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: wretry.action-v${{ steps.version.outputs.version }}.tar.gz
+      - name: Push tags
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          MAJOR: ${{ steps.version.outputs.major }}
+        run: |
+          export GIT_CONFIG_COUNT=1
+          export GIT_CONFIG_KEY_0="http.${GITHUB_SERVER_URL}/.extraheader"
+          export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          refs=( "refs/tags/v$VERSION" )
+          if [ "$MOVE_MAJOR" = "true" ]; then refs+=( "+refs/tags/v$MAJOR" ); fi
+          git push --atomic "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git" "${refs[@]}"
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          gh release create "v$VERSION" "wretry.action-v$VERSION.tar.gz" "wretry.action-v$VERSION.tar.gz.sha256" \
+            --verify-tag --generate-notes --title "v$VERSION"
